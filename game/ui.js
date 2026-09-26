@@ -483,6 +483,28 @@
   const BJ_LOGOS = {};
   const USE_MAIN_LOGO = { w_bj: true };
   const MP_SIGNS = {}; // Match Play signs: the original drawings stay (owner's choice)
+  // Match Play wheel symbols, clockwise from the top: each is centred in its cell of the disc by what is
+  // actually drawn (the sprites have uneven empty margins) and fitted to the same box
+  const WHEEL_ORDER = ["w_bar", "w_csengo", "w_bj", "w_szilva", "w_citrom", "w_dinnye", "w_narancs", "w_szolo"];
+  function placeOnWheel(im, id) {
+    const D = L.wheelDisc; if (!D || !im.naturalWidth) return;
+    const k = Math.min(1, 200 / Math.max(im.naturalWidth, im.naturalHeight));
+    const w = Math.round(im.naturalWidth * k), h = Math.round(im.naturalHeight * k);
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const q = c.getContext("2d"); q.drawImage(im, 0, 0, w, h);
+    let d; try { d = q.getImageData(0, 0, w, h).data; } catch { return; }
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 60) {
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+    if (x1 < 0) return;
+    const bw = (x1 - x0 + 1) / k, bh = (y1 - y0 + 1) / k, bx = (x0 + x1 + 1) / 2 / k, by = (y0 + y1 + 1) / 2 / k;
+    const a = -Math.PI / 2 + (WHEEL_ORDER.indexOf(id) * Math.PI) / 4, R = (D.r + D.inner) / 2 + 4;
+    const cx = D.cx + R * Math.cos(a), cy = D.cy + R * Math.sin(a);
+    const boxW = id === "w_bj" ? 172 : 128, boxH = id === "w_bar" ? 76 : id === "w_bj" ? 126 : 100;
+    const s = Math.min(boxW / bw, boxH / bh);
+    Object.assign(im.style, { left: cx - bx * s + "px", top: cy - by * s + "px", width: im.naturalWidth * s + "px", height: im.naturalHeight * s + "px" });
+  }
   // printed parts redrawn in code instead of their sprite (the sprite had "KĂRTYA" instead of "KÁRTYA")
   const CODE_DRAWN = { kerekSign: true };
   const whenFontsReady = (fn) => (document.fonts && document.fonts.load ? Promise.all([document.fonts.load(`italic 700 60px ${LOGO_SCRIPT}`), document.fonts.load(`900 60px ${LOGO_SLAB}`)]).then(fn, fn) : fn());
@@ -505,7 +527,9 @@
         if (k !== 1) Object.assign(im.style, { left: r[0] + (r[2] - w) / 2 + "px", top: r[1] + r[3] - h + "px", width: w + "px", height: h + "px" });
         whenFontsReady(() => { im.src = bjLogoCanvas(w * 3, h * 3, BJ_LOGOS[o.id]).toDataURL(); });
       }
-      if (USE_MAIN_LOGO[o.id]) im.src = "assets/objects/logo.png";
+      // the big top logo on a peach sticker plate (assets/sprites/bj.png, made with tools/add_rim.py)
+      if (USE_MAIN_LOGO[o.id]) im.src = "assets/sprites/bj.png";
+      if (WHEEL_ORDER.includes(o.id)) im.addEventListener("load", () => placeOnWheel(im, o.id));
       if (MP_SIGNS[o.id]) {
         const c = document.createElement("canvas"); c.width = Math.round(o.rect[2] * 3); c.height = Math.round(o.rect[3] * 3);
         drawMatchPlay(c.getContext("2d"), c.width, c.height, MP_SIGNS[o.id]);
@@ -620,6 +644,20 @@
       const red = g.createRadialGradient(0, 0, ri * 0.8, 0, 0, r - 14);
       red.addColorStop(0, "#d51d2a"); red.addColorStop(0.7, "#c01522"); red.addColorStop(1, "#8e0c18");
       disc(r - 15, red);
+      // the eight dark cells the symbols sit in, as on the photo: wedge-shaped, rounded, red spokes between them
+      const c0 = ri + 16, c1 = r - 24, half = Math.PI / 8 - 0.07;
+      for (let k = 0; k < 8; k++) {
+        const a = -Math.PI / 2 + (k * Math.PI) / 4;
+        g.beginPath();
+        g.arc(0, 0, c1, a - half, a + half);
+        g.arc(0, 0, c0, a + half * 0.84, a - half * 0.84, true);
+        g.closePath();
+        const cell = g.createRadialGradient(0, 0, c0, 0, 0, c1);
+        cell.addColorStop(0, "#3a0408"); cell.addColorStop(0.6, "#52070f"); cell.addColorStop(1, "#420509");
+        g.lineJoin = "round"; g.lineWidth = 14; g.strokeStyle = cell; g.fillStyle = cell;
+        g.stroke(); g.fill();
+        g.lineWidth = 2; g.strokeStyle = "rgba(255,120,120,0.18)"; g.stroke();
+      }
       disc(ri + 6, "#7a0a16");
       const mid = g.createRadialGradient(-ri * 0.2, -ri * 0.25, ri * 0.1, 0, 0, ri);
       mid.addColorStop(0, "#f04656"); mid.addColorStop(0.7, "#d42234"); mid.addColorStop(1, "#b0142a");
@@ -806,8 +844,6 @@
   const sprites = {};
   const loadSprites = () => Promise.all(Object.keys(cfg.symbols).map((n) => new Promise((res) => {
     const im = new Image();
-    // the reel's Classic BLACK JACK symbol is the machine's big top logo, scaled down
-    if (n === "bj") { im.onload = () => { sprites[n] = im; res(); }; im.onerror = () => res(); im.src = "assets/objects/logo.png"; return; }
     im.onload = () => { const inf = (spriteInfo[n] = measureSprite(im)); sprites[n] = inf ? litSprite(im, inf) : im; res(); };
     im.onerror = () => res();
     im.src = `assets/sprites/${n}.png`;
