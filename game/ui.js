@@ -883,6 +883,31 @@
     const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
     return { sx: x0 / k, sy: y0 / k, sw: bw / k, sh: bh / k, fill: n / (bw * bh) };
   }
+  // A big drawing shrunk ~10x in one drawImage comes out soft and grainy. Keep a chain of halved copies
+  // (made with high quality smoothing) and always draw from the one just above the target size.
+  const mipCache = new WeakMap();
+  function mipFor(im, sw, dw) {
+    let chain = mipCache.get(im);
+    if (!chain) mipCache.set(im, (chain = [im]));
+    let i = 0;
+    for (;;) {
+      const cur = chain[i];
+      if ((sw * cur.width) / im.width / 2 < dw * 1.1 || cur.width < 16) return { img: cur, k: cur.width / im.width };
+      if (!chain[i + 1]) {
+        const h = document.createElement("canvas");
+        h.width = Math.max(1, Math.round(cur.width / 2)); h.height = Math.max(1, Math.round(cur.height / 2));
+        const q = h.getContext("2d"); q.imageSmoothingQuality = "high"; q.drawImage(cur, 0, 0, h.width, h.height);
+        chain.push(h);
+      }
+      i++;
+    }
+  }
+  function drawScaled(g, im, sx, sy, sw, sh, dx, dy, dw, dh) {
+    const scale = Math.abs(g.getTransform().a) || 1;
+    const { img, k } = mipFor(im, sw, dw * scale);
+    g.imageSmoothingQuality = "high";
+    g.drawImage(img, sx * k, sy * k, sw * k, sh * k, dx, dy, dw, dh);
+  }
   // draw symbol s centred on (cx, cy): same visible area (area * box^2) for every fruit, never beyond maxW x maxH
   function drawSprite(g, s, cx, cy, box, maxW, maxH, area = 0.75) {
     const im = sprites[s], inf = spriteInfo[s];
@@ -890,14 +915,14 @@
     if (!inf || BOX_FIT[s]) {
       let h = maxH, w = (im.width * h) / im.height;
       if (w > maxW) { w = maxW; h = (im.height * w) / im.width; }
-      g.drawImage(im, cx - w / 2, cy - h / 2, w, h);
+      drawScaled(g, im, 0, 0, im.width, im.height, cx - w / 2, cy - h / 2, w, h);
       return { x: cx - w / 2, y: cy - h / 2, w, h };
     }
     const aspect = inf.sw / inf.sh;
     let h = Math.sqrt((area * box * box) / (inf.fill * aspect)), w = h * aspect;
     const k = Math.min(1, maxW / w, maxH / h);
     w *= k; h *= k;
-    g.drawImage(im, inf.sx, inf.sy, inf.sw, inf.sh, cx - w / 2, cy - h / 2, w, h);
+    drawScaled(g, im, inf.sx, inf.sy, inf.sw, inf.sh, cx - w / 2, cy - h / 2, w, h);
     return { x: cx - w / 2, y: cy - h / 2, w, h };
   }
 
@@ -1280,7 +1305,7 @@
       if (jokerImg.complete && jokerImg.naturalWidth) {
         const k = Math.min((w - 6) / jokerImg.naturalWidth, (h - 6) / jokerImg.naturalHeight);
         const iw = jokerImg.naturalWidth * k, ih = jokerImg.naturalHeight * k;
-        g.drawImage(jokerImg, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
+        drawScaled(g, jokerImg, 0, 0, jokerImg.naturalWidth, jokerImg.naturalHeight, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
       }
     } else {
       const red = cell.suit === "h" || cell.suit === "d", ink2 = red ? "#c4282c" : "#3b3133";
@@ -1314,7 +1339,11 @@
     return c;
   }
   function drawSymbol(g, cell, x, y) {
-    g.drawImage(symbolSprite(cell), x + SYM_BOX.x, y + SYM_BOX.y, SYM_BOX.w, SYM_BOX.h);
+    // the sprite is pre-rendered at screen resolution: put it on whole device pixels, 1:1, so it stays crisp
+    const c = symbolSprite(cell), t = g.getTransform();
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.drawImage(c, Math.round((x + SYM_BOX.x) * t.a + t.e), Math.round((y + SYM_BOX.y) * t.d + t.f));
+    g.restore();
   }
   function drawSymbolRaw(g, cell, x, y) {
     const im = sprites[cell.s];
