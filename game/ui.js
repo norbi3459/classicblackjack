@@ -808,10 +808,46 @@
     const im = new Image();
     // the reel's Classic BLACK JACK symbol is the machine's big top logo, scaled down
     if (n === "bj") { im.onload = () => { sprites[n] = im; res(); }; im.onerror = () => res(); im.src = "assets/objects/logo.png"; return; }
-    im.onload = () => { sprites[n] = im; res(); };
+    im.onload = () => { sprites[n] = im; spriteInfo[n] = measureSprite(im); res(); };
     im.onerror = () => res();
     im.src = `assets/sprites/${n}.png`;
   })));
+  // The fruit drawings differ in shape and in empty margin, so fitting each into the same box makes some look
+  // much bigger than others. Instead every symbol is drawn so its visible (opaque) area is the same.
+  // The BAR plate and the logo keep the plain box fit.
+  const spriteInfo = {};
+  const BOX_FIT = { bar: true, bj: true };
+  function measureSprite(im) {
+    const k = Math.min(1, 160 / Math.max(im.width, im.height));
+    const w = Math.max(1, Math.round(im.width * k)), h = Math.max(1, Math.round(im.height * k));
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const q = c.getContext("2d"); q.drawImage(im, 0, 0, w, h);
+    let d;
+    try { d = q.getImageData(0, 0, w, h).data; } catch { return null; }
+    let x0 = w, y0 = h, x1 = -1, y1 = -1, n = 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 40) {
+      n++; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+    if (x1 < 0) return null;
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    return { sx: x0 / k, sy: y0 / k, sw: bw / k, sh: bh / k, fill: n / (bw * bh) };
+  }
+  // draw symbol s centred on (cx, cy): same visible area (area * box^2) for every fruit, never beyond maxW x maxH
+  function drawSprite(g, s, cx, cy, box, maxW, maxH, area = 0.75) {
+    const im = sprites[s], inf = spriteInfo[s];
+    if (!im) return;
+    if (!inf || BOX_FIT[s]) {
+      let h = maxH, w = (im.width * h) / im.height;
+      if (w > maxW) { w = maxW; h = (im.height * w) / im.width; }
+      g.drawImage(im, cx - w / 2, cy - h / 2, w, h);
+      return;
+    }
+    const aspect = inf.sw / inf.sh;
+    let h = Math.sqrt((area * box * box) / (inf.fill * aspect)), w = h * aspect;
+    const k = Math.min(1, maxW / w, maxH / h);
+    w *= k; h *= k;
+    g.drawImage(im, inf.sx, inf.sy, inf.sw, inf.sh, cx - w / 2, cy - h / 2, w, h);
+  }
 
   // ---------------------------------------------------------------- pay table, drawn from config (scene mode)
   function drawPaytable() {
@@ -838,9 +874,7 @@
       const im = sprites[s];
       if (!s) { g.fillStyle = "#b11d27"; roundRect(g, x + 6, y - 5, h * 0.8, 10, 5); g.fill(); return; }
       if (!im) return;
-      let hh = h, ww = (im.width * hh) / im.height;
-      if (ww > h * 1.15) { ww = h * 1.15; hh = (im.height * ww) / im.width; }
-      g.drawImage(im, x + (h * 1.15 - ww) / 2, y - hh / 2, ww, hh);
+      drawSprite(g, s, x + (h * 1.15) / 2, y, h, h * 1.15, h * 1.1);
     };
     rows.forEach((r, i) => {
       const col = Math.floor(i / perCol), row = i % perCol;
@@ -903,9 +937,7 @@
         if (k) { g.fillStyle = "rgba(60,55,45,0.45)"; g.fillRect(3, y, w - 6, 0.8); }
         const im = sprites[cell.s];
         if (!im) return;
-        let h = ch * 0.8, sw = (im.width * h) / im.height;
-        if (sw > w - 6) { sw = w - 6; h = (im.height * sw) / im.width; }
-        g.drawImage(im, (w - sw) / 2, y + (ch - h) / 2, sw, h);
+        drawSprite(g, cell.s, w / 2, y + ch / 2, ch * 0.8, w - 6, ch * 0.86);
       });
     });
   }
@@ -1229,10 +1261,7 @@
     const im = sprites[cell.s];
     const maxH = 100, maxW = cell.s === "bar" ? 136 : 138; // the BAR is a long rectangle
     if (im) {
-      let h = maxH, w = (im.width * h) / im.height;
-      if (w > maxW) { w = maxW; h = (im.height * w) / im.width; }
-      const xx = x - 10 - w / 2;
-      g.drawImage(im, xx, y - h / 2, w, h);
+      drawSprite(g, cell.s, x - 10, y, 100, maxW, BOX_FIT[cell.s] ? maxH : 108);
     } else {
       g.fillStyle = "#333"; g.font = "bold 22px Arial"; g.textAlign = "center"; g.textBaseline = "middle";
       g.fillText(symName(cell.s), x, y);
