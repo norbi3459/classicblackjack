@@ -808,7 +808,7 @@
     const im = new Image();
     // the reel's Classic BLACK JACK symbol is the machine's big top logo, scaled down
     if (n === "bj") { im.onload = () => { sprites[n] = im; res(); }; im.onerror = () => res(); im.src = "assets/objects/logo.png"; return; }
-    im.onload = () => { sprites[n] = im; spriteInfo[n] = measureSprite(im); res(); };
+    im.onload = () => { const inf = (spriteInfo[n] = measureSprite(im)); sprites[n] = inf ? litSprite(im, inf) : im; res(); };
     im.onerror = () => res();
     im.src = `assets/sprites/${n}.png`;
   })));
@@ -817,6 +817,21 @@
   // The BAR plate and the logo keep the plain box fit.
   const spriteInfo = {};
   const BOX_FIT = { bar: true, bj: true };
+  // light on every symbol for a 3D look, as if lit from the upper left inside the machine:
+  // a soft glow on the upper left of the shape, shade towards the lower right (only over the drawing itself)
+  function litSprite(im, inf) {
+    const c = document.createElement("canvas"); c.width = im.width; c.height = im.height;
+    const g = c.getContext("2d");
+    g.drawImage(im, 0, 0);
+    g.globalCompositeOperation = "source-atop";
+    const R = Math.max(inf.sw, inf.sh);
+    const lx = inf.sx + inf.sw * 0.3, ly = inf.sy + inf.sh * 0.22;
+    const gr = g.createRadialGradient(lx, ly, R * 0.02, lx, ly, R * 0.95);
+    gr.addColorStop(0, "rgba(255,255,245,0.42)"); gr.addColorStop(0.3, "rgba(255,255,245,0.1)");
+    gr.addColorStop(0.55, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(30,10,0,0.42)");
+    g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
   function measureSprite(im) {
     const k = Math.min(1, 160 / Math.max(im.width, im.height));
     const w = Math.max(1, Math.round(im.width * k)), h = Math.max(1, Math.round(im.height * k));
@@ -840,13 +855,14 @@
       let h = maxH, w = (im.width * h) / im.height;
       if (w > maxW) { w = maxW; h = (im.height * w) / im.width; }
       g.drawImage(im, cx - w / 2, cy - h / 2, w, h);
-      return;
+      return { x: cx - w / 2, y: cy - h / 2, w, h };
     }
     const aspect = inf.sw / inf.sh;
     let h = Math.sqrt((area * box * box) / (inf.fill * aspect)), w = h * aspect;
     const k = Math.min(1, maxW / w, maxH / h);
     w *= k; h *= k;
     g.drawImage(im, inf.sx, inf.sy, inf.sw, inf.sh, cx - w / 2, cy - h / 2, w, h);
+    return { x: cx - w / 2, y: cy - h / 2, w, h };
   }
 
   // ---------------------------------------------------------------- pay table, drawn from config (scene mode)
@@ -1211,29 +1227,35 @@
 
   const jokerImg = new Image();
   jokerImg.src = "assets/objects/joker.png";
-  function drawTag(g, cell, tx, ty) {
-    const w = 42, h = 55;
+  // the card on a symbol, as printed on the reel strips: an upright matte card, pale greyish pink, thin dark rim,
+  // the rank in the top left corner and the suit below the middle; (x, y) is its top left corner
+  function drawTag(g, cell, x, y, w, h) {
+    const rad = w * 0.1;
     g.save();
-    g.translate(tx, ty); g.rotate(0.14);
+    g.save(); g.shadowColor = "rgba(40,25,20,0.3)"; g.shadowBlur = 3; g.shadowOffsetX = 1; g.shadowOffsetY = 1.5;
+    roundRect(g, x, y, w, h, rad);
+    const paper = g.createLinearGradient(x, y, x + w * 0.4, y + h);
+    paper.addColorStop(0, "#eee4de"); paper.addColorStop(1, "#d6c9c3");
+    g.fillStyle = paper; g.fill(); g.restore();
+    roundRect(g, x, y, w, h, rad); g.lineWidth = 1.6; g.strokeStyle = "#5e4c48"; g.stroke();
+    roundRect(g, x + 2.5, y + 2.5, w - 5, h - 5, rad * 0.6); g.lineWidth = 0.8; g.strokeStyle = "rgba(255,255,255,0.55)"; g.stroke();
     if (cell.c === "JOKER") {
-      // white card with the machine's own joker face on it
-      g.save(); g.shadowColor = "rgba(0,0,0,0.35)"; g.shadowBlur = 4; g.shadowOffsetY = 2;
-      roundRect(g, -w / 2, -h / 2, w, h, 7); g.fillStyle = "#ffffff"; g.fill(); g.restore();
-      roundRect(g, -w / 2, -h / 2, w, h, 7); g.lineWidth = 2; g.strokeStyle = "#5b7686"; g.stroke();
       if (jokerImg.complete && jokerImg.naturalWidth) {
-        const s = Math.min((w - 4) / jokerImg.naturalWidth, (h - 4) / jokerImg.naturalHeight);
-        const iw = jokerImg.naturalWidth * s, ih = jokerImg.naturalHeight * s;
-        g.drawImage(jokerImg, -iw / 2, -ih / 2, iw, ih);
+        const k = Math.min((w - 6) / jokerImg.naturalWidth, (h - 6) / jokerImg.naturalHeight);
+        const iw = jokerImg.naturalWidth * k, ih = jokerImg.naturalHeight * k;
+        g.drawImage(jokerImg, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih);
       }
     } else {
-      // white card with a big, heavy index: readable at a glance
-      g.save(); g.shadowColor = "rgba(0,0,0,0.35)"; g.shadowBlur = 4; g.shadowOffsetY = 2;
-      roundRect(g, -w / 2, -h / 2, w, h, 7); g.fillStyle = "#ffffff"; g.fill(); g.restore();
-      roundRect(g, -w / 2, -h / 2, w, h, 7); g.lineWidth = 2; g.strokeStyle = "#5b7686"; g.stroke();
-      const c = ink(cell.suit), t = rankLabel(cell.c);
-      g.font = `900 ${t.length > 1 ? 22 : 29}px "Arial Black", Arial, sans-serif`; g.textAlign = "center"; g.textBaseline = "middle";
-      g.fillStyle = c.fill[2]; g.fillText(t, 0, -9);
-      drawPip(g, cell.suit, 0, 16, 8.5);
+      const red = cell.suit === "h" || cell.suit === "d", ink2 = red ? "#c4282c" : "#3b3133";
+      const t = rankLabel(cell.c), fs = h * (t.length > 1 ? 0.3 : 0.36);
+      g.font = `bold ${fs}px Georgia, "Times New Roman", serif`; g.textAlign = "left"; g.textBaseline = "top";
+      g.fillStyle = ink2;
+      g.save(); g.translate(x + w * 0.13, y + h * 0.07); if (t.length > 1) g.scale(0.8, 1); g.fillText(t, 0, 0); g.restore();
+      // matte suit: flat colour, a slightly darker rim
+      g.save(); g.translate(x + w * 0.52, y + h * 0.7);
+      pipPath(g, cell.suit, w * 0.2); g.fillStyle = ink2; g.fill("nonzero");
+      g.lineWidth = 1; g.strokeStyle = red ? "#8e1a1e" : "#1e1718"; g.stroke();
+      g.restore();
     }
     g.restore();
   }
@@ -1260,13 +1282,20 @@
   function drawSymbolRaw(g, cell, x, y) {
     const im = sprites[cell.s];
     const maxH = 100, maxW = cell.s === "bar" ? 136 : 138; // the BAR is a long rectangle
+    let r = { x: x - 60, y: y - 45, w: 100, h: 90 };
     if (im) {
-      drawSprite(g, cell.s, x - 10, y, 100, maxW, BOX_FIT[cell.s] ? maxH : 108);
+      // with a card the pair sits a little further left, so the card stays clear of the window frame
+      r = drawSprite(g, cell.s, x - (cell.c ? 20 : 10), y, 100, maxW, BOX_FIT[cell.s] ? maxH : 108) || r;
     } else {
       g.fillStyle = "#333"; g.font = "bold 22px Arial"; g.textAlign = "center"; g.textBaseline = "middle";
       g.fillText(symName(cell.s), x, y);
     }
-    if (cell.c) drawTag(g, cell, x + 52, y + 22);
+    // the card: top level with the symbol's top, 3/4 of its height, overlapping its right side
+    if (cell.c) {
+      const ch = Math.max(52, r.h * 0.75), cw = ch * 0.72;
+      const cx = Math.min(SYM_BOX.x + SYM_BOX.w - cw - 3, r.x + r.w - cw * 0.28);
+      drawTag(g, cell, cx, r.y, cw, ch);
+    }
   }
 
   const DRUM = "#cdcab0"; // the drum as on the photo: a muted silvery beige
