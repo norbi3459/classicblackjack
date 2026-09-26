@@ -50,12 +50,12 @@ function build() {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.55;
 
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 30);
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.2, 20); // a tight near/far range keeps depth precise
   camera.position.set(0.7, 1.55, 3.1);
   const controls = new OrbitControls(camera, css.domElement);
   controls.target.set(0, 1.32, 0.12);
   controls.enableDamping = true;
-  controls.minDistance = 0.55;
+  controls.minDistance = 0.6;
   controls.maxDistance = 4.5;
   controls.minPolarAngle = 0.75;
   controls.maxPolarAngle = 1.62;
@@ -149,6 +149,9 @@ function build() {
   // ---- the glasses: DOM panel + a hole of the same size in the WebGL picture
   const hole = new THREE.ShaderMaterial({
     blending: THREE.NoBlending,
+    // the glass sits only millimetres in front of the frame: pull its depth forward so the two do not
+    // flicker against each other when seen at a steep angle
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8,
     vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     // a faint sheen of the glass itself, premultiplied (the page shows through the rest)
     fragmentShader: "varying vec2 vUv; void main() { float a = 0.06 * smoothstep(0.35, 1.0, vUv.y + 0.25 * (1.0 - vUv.x)); gl_FragColor = vec4(vec3(a), a); }",
