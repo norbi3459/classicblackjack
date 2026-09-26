@@ -20,3 +20,4 @@ forras_kepek_videok/*.mp4
 artwork/video/*.wav
 *.npy
 
+__pycache__/
