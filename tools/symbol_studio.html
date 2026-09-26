@@ -131,10 +131,38 @@ function szolo(g, W, H) {
   }
 }
 
+// ---- cherries (as on the reels of the machine): three cherries huddled together side by side, wider than tall,
+// with short stems and a small leaf at the top
+function cseresznye(g, W, H) {
+  const berries = [[170, 250, 115], [395, 238, 110], [282, 300, 122]]; // back left, back right, front
+  const top = [285, 95];
+  g.save(); g.lineCap = "round";
+  for (const [x, y, r] of berries) {
+    g.beginPath(); g.moveTo(x, y - r * 0.75); g.quadraticCurveTo((x + top[0]) / 2, top[1] + 30, top[0], top[1]);
+    g.lineWidth = 24; g.strokeStyle = OUT; g.stroke();
+    g.lineWidth = 12; g.strokeStyle = "#5c8a26"; g.stroke();
+  }
+  g.restore();
+  g.save(); g.translate(top[0] + 4, top[1] + 4); g.rotate(-0.25);
+  g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(35, -50, 105, -48, 125, -12); g.bezierCurveTo(90, 18, 35, 22, 0, 0); g.closePath();
+  const lg = g.createLinearGradient(0, -50, 0, 20); lg.addColorStop(0, "#9fd85a"); lg.addColorStop(1, "#4a8f24");
+  g.fillStyle = lg; g.fill(); g.lineWidth = 10; g.lineJoin = "round"; g.strokeStyle = OUT; g.stroke();
+  g.restore();
+  for (const [x, y, r] of berries) {
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2);
+    const gr = g.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.08, x, y, r);
+    gr.addColorStop(0, "#ff8a7a"); gr.addColorStop(0.45, "#ee1c2c"); gr.addColorStop(1, "#8e0716");
+    g.fillStyle = gr; g.fill();
+    g.lineWidth = 14; g.strokeStyle = OUT; g.stroke();
+    gloss(g, x - r * 0.25, y - r * 0.42, r * 0.38, r * 0.22, -0.35, 0.95);
+  }
+}
+
 const SYMBOLS = {
   szilva: { w: 760, h: 510, draw: szilva },
   dinnye: { w: 720, h: 600, draw: dinnye },
   szolo: { w: 760, h: 560, draw: szolo },
+  cseresznye: { w: 580, h: 440, draw: cseresznye },
 };
 for (const [name, s] of Object.entries(SYMBOLS)) {
   const c = document.createElement("canvas");
