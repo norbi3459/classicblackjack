@@ -1234,8 +1234,9 @@
     g.save();
     g.save(); g.shadowColor = "rgba(40,25,20,0.3)"; g.shadowBlur = 3; g.shadowOffsetX = 1; g.shadowOffsetY = 1.5;
     roundRect(g, x, y, w, h, rad);
-    const paper = g.createLinearGradient(x, y, x + w * 0.4, y + h);
-    paper.addColorStop(0, "#eee4de"); paper.addColorStop(1, "#d6c9c3");
+    // light across the card: a bit dim on the left, bright in the middle, greyer to the right
+    const paper = g.createLinearGradient(x, y, x + w, y + h * 0.18);
+    paper.addColorStop(0, "#e2d8d2"); paper.addColorStop(0.42, "#f8f1ec"); paper.addColorStop(0.7, "#e2d8d3"); paper.addColorStop(1, "#b8aeaa");
     g.fillStyle = paper; g.fill(); g.restore();
     roundRect(g, x, y, w, h, rad); g.lineWidth = 1.6; g.strokeStyle = "#5e4c48"; g.stroke();
     roundRect(g, x + 2.5, y + 2.5, w - 5, h - 5, rad * 0.6); g.lineWidth = 0.8; g.strokeStyle = "rgba(255,255,255,0.55)"; g.stroke();
@@ -1308,6 +1309,12 @@
     const gx = g.createLinearGradient(0, 0, W, 0);
     gx.addColorStop(0, "rgba(0,0,0,0.12)"); gx.addColorStop(0.15, "rgba(0,0,0,0)"); gx.addColorStop(0.85, "rgba(0,0,0,0)"); gx.addColorStop(1, "rgba(0,0,0,0.12)");
     g.fillStyle = gx; g.fillRect(0, 0, W, H);
+    // a faint lamp behind the drum: the translucent strip glows warm in the middle
+    g.save(); g.globalCompositeOperation = "screen";
+    const bl = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.55);
+    bl.addColorStop(0, "rgba(255,238,196,0.3)"); bl.addColorStop(0.45, "rgba(255,230,180,0.12)"); bl.addColorStop(1, "rgba(255,230,180,0)");
+    g.fillStyle = bl; g.fillRect(0, 0, W, H);
+    g.restore();
   }
   function drumBackground(g, W, H) { g.fillStyle = DRUM; g.fillRect(0, 0, W, H); drumShade(g, W, H); }
 
