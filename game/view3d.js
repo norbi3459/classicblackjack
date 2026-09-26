@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { CSS3DRenderer, CSS3DObject } from "./vendor/three/addons/CSS3DRenderer.js";
 import { OrbitControls } from "./vendor/three/addons/OrbitControls.js";
 import { RoomEnvironment } from "./vendor/three/addons/RoomEnvironment.js";
+import { RoundedBoxGeometry } from "./vendor/three/addons/RoundedBoxGeometry.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -172,43 +173,70 @@ function build() {
   // ---- buttons on the deck, wired to the game's own buttons
   const slope = Math.atan2(DECK_TOP_A[1] - DECK_TOP_B[1], DECK_TOP_B[0] - DECK_TOP_A[0]);
   const bf = 0.652, bz = DECK_TOP_A[1] + ((bf - DECK_TOP_A[0]) / (DECK_TOP_B[0] - DECK_TOP_A[0])) * (DECK_TOP_B[1] - DECK_TOP_A[1]);
-  const CAP = [0xe9e2dc, 0xe9e2dc, 0xe9e2dc, 0xe9e2dc, 0xd01812, 0x2ac048];
+  // as on the machine: TART blue, TÉT red, START green; each a rounded, glossy, backlit cap in a chrome bezel,
+  // the caption on a red-to-orange lit plate
+  const LOOK = [
+    ...Array(4).fill({ cap: ["#9cc8ff", "#3f7fe0", "#1b4ea8"], side: 0x2f6fd6 }),
+    { cap: ["#ff8a78", "#e0241c", "#8e0c0a"], side: 0xc81812 },
+    { cap: ["#a8f5b0", "#2fc24a", "#157a2a"], side: 0x22a83c },
+  ];
+  const FONT = '"Cooper Black", "Cooper Std", Georgia, serif';
   const buttons = [];
   for (let i = 0; i < 6; i++) {
     const grp = new THREE.Group();
     grp.position.set(-0.25 + i * 0.1, bz, bf - YB); grp.rotation.x = slope;
     scene.add(grp);
-    const bezel = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.012, 0.06), M.chrome);
+    const bezel = new THREE.Mesh(new RoundedBoxGeometry(0.066, 0.012, 0.066, 4, 0.008), M.chrome);
     bezel.position.y = 0.006; bezel.castShadow = true; grp.add(bezel);
+    const well = new THREE.Mesh(new RoundedBoxGeometry(0.056, 0.004, 0.056, 3, 0.006), M.matte);
+    well.position.y = 0.0122; grp.add(well);
     const tex = document.createElement("canvas"); tex.width = tex.height = 256;
     const map = new THREE.CanvasTexture(tex); map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 8;
-    const top = new THREE.MeshPhysicalMaterial({ color: 0xffffff, map, roughness: 0.25, clearcoat: 0.8, clearcoatRoughness: 0.08, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.15 });
-    const side = new THREE.MeshPhysicalMaterial({ color: CAP[i], roughness: 0.3, clearcoat: 0.6, emissive: CAP[i], emissiveIntensity: 0.12 });
+    const top = new THREE.MeshPhysicalMaterial({ map, roughness: 0.18, clearcoat: 1, clearcoatRoughness: 0.06, emissive: 0xffffff, emissiveMap: map, emissiveIntensity: 0.25 });
+    const side = new THREE.MeshPhysicalMaterial({ color: LOOK[i].side, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.08, emissive: LOOK[i].side, emissiveIntensity: 0.2 });
     // box face order: +x, -x, +y (top), -y, +z, -z
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.01, 0.048), [side, side, top, side, side, side]);
-    cap.position.y = 0.0135; cap.castShadow = true; cap.userData.button = i; grp.add(cap);
-    buttons.push({ cap, tex, map, top, side, color: CAP[i], key: "", press: 0 });
+    const cap = new THREE.Mesh(new RoundedBoxGeometry(0.05, 0.016, 0.05, 5, 0.0065), [side, side, top, side, side, side]);
+    cap.position.y = 0.017; cap.castShadow = true; cap.userData.button = i; grp.add(cap);
+    buttons.push({ cap, tex, map, top, side, look: LOOK[i], key: "", press: 0 });
   }
+  const rrect = (g, x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
   function paintButton(b, i) {
     const dom = document.querySelector(`.mbtn[data-b="${i}"]`), capEl = $("cap" + i);
     const lit = dom && dom.classList.contains("lit"), dim = dom && dom.classList.contains("dim");
-    const label = (capEl && capEl.querySelector("img")) || (dom && dom.querySelector("img"));
-    const key = (label ? label.src.length + label.src.slice(-40) : "") + lit + dim;
+    const text = ((capEl && capEl.dataset.t) || "").split("|")[0] || (dom && dom.dataset.label) || "";
+    const key = text + lit + dim;
     if (key === b.key) return;
     b.key = key;
-    const g = b.tex.getContext("2d"), c = new THREE.Color(b.color);
-    const grad = g.createLinearGradient(0, 0, 0, 256);
-    grad.addColorStop(0, "#" + c.clone().offsetHSL(0, 0, 0.08).getHexString()); grad.addColorStop(1, "#" + c.clone().offsetHSL(0, 0, -0.08).getHexString());
-    g.fillStyle = grad; g.fillRect(0, 0, 256, 256);
-    if (label && label.complete && label.naturalWidth) {
-      const k = Math.min(220 / label.naturalWidth, 110 / label.naturalHeight);
-      const w = label.naturalWidth * k, h = label.naturalHeight * k;
-      g.drawImage(label, (256 - w) / 2, (256 - h) / 2, w, h);
+    const g = b.tex.getContext("2d"), [c0, c1, c2] = b.look.cap;
+    // the cap: domed look, light in the middle, deeper at the rim
+    const dome = g.createRadialGradient(100, 90, 10, 128, 128, 190);
+    dome.addColorStop(0, c0); dome.addColorStop(0.5, c1); dome.addColorStop(1, c2);
+    g.fillStyle = dome; g.fillRect(0, 0, 256, 256);
+    // the caption plate, lit from behind: red to orange
+    rrect(g, 22, 84, 212, 88, 16);
+    const plate = g.createLinearGradient(0, 84, 0, 172);
+    plate.addColorStop(0, "#ffb02e"); plate.addColorStop(0.45, "#ff6a1a"); plate.addColorStop(1, "#c8140e");
+    g.fillStyle = plate; g.fill();
+    g.lineWidth = 5; g.strokeStyle = "rgba(90,10,0,0.75)"; g.stroke();
+    if (text) {
+      let size = 64;
+      g.font = `bold ${size}px ${FONT}`;
+      const w = g.measureText(text).width;
+      if (w > 190) { size = Math.floor(size * (190 / w)); g.font = `bold ${size}px ${FONT}`; }
+      g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
+      g.lineWidth = size * 0.16; g.strokeStyle = "#5a0800"; g.strokeText(text, 128, 131);
+      const ink = g.createLinearGradient(0, 131 - size / 2, 0, 131 + size / 2);
+      ink.addColorStop(0, "#fffbe0"); ink.addColorStop(1, "#ffd44a");
+      g.fillStyle = ink; g.fillText(text, 128, 131);
     }
+    // a soft highlight across the top of the dome
+    const hl = g.createLinearGradient(0, 0, 0, 120);
+    hl.addColorStop(0, "rgba(255,255,255,0.35)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = hl; g.fillRect(0, 0, 256, 120);
     b.map.needsUpdate = true;
-    const glow = lit ? 0.9 : dim ? 0.02 : 0.15;
-    b.top.emissiveIntensity = glow; b.side.emissiveIntensity = glow * 0.8;
-    b.top.color.setScalar(dim ? 0.45 : 1);
+    const glow = lit ? 1.1 : dim ? 0.04 : 0.25;
+    b.top.emissiveIntensity = glow; b.side.emissiveIntensity = glow * 0.7;
+    b.top.color.setScalar(dim ? 0.5 : 1);
   }
 
   // ---- clicks on the 3D buttons (drags still turn the view)
@@ -247,18 +275,18 @@ function build() {
     buttons.forEach((b, i) => {
       paintButton(b, i);
       const dt = (t - b.press) / 1000;
-      b.cap.position.y = 0.0135 - (dt >= 0 && dt < 0.18 ? 0.004 * Math.sin((dt / 0.18) * Math.PI) : 0);
+      b.cap.position.y = 0.017 - (dt >= 0 && dt < 0.18 ? 0.005 * Math.sin((dt / 0.18) * Math.PI) : 0);
     });
     gl.render(scene, camera);
     css.render(cssScene, camera);
     requestAnimationFrame(loop);
   }
-  return { root, gl, css, scene, cssScene, camera, controls, glasses, resize, loop, active: false };
+  return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, resize, loop, active: false };
 }
 
 function enter() {
   document.body.classList.add("view3d");
-  if (!state) state = build();
+  if (!state) { state = build(); (window.CBJ = window.CBJ || {}).view3d = state; }
   // (re)attach the panels: CSS3DRenderer takes the elements out of the page while they are in 3D
   state.glasses.forEach((g) => { if (!g.obj.parent) state.cssScene.add(g.obj); });
   state.root.hidden = false;
