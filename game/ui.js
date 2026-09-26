@@ -1612,6 +1612,7 @@
     stopPicker();
     picker = { ids, values, idx: 0, pos: 0, onPick, hi, base, loop: loop && SFX.play(loop, { loop: true, channel: "bg" }) };
     const step = () => {
+      picker.prev = picker.idx; picker.t = performance.now();
       if (random) picker.idx = Math.floor(Math.random() * ids.length);
       else if (order) { picker.pos = (picker.pos + 1) % order.length; picker.idx = order[picker.pos]; }
       else picker.idx = (picker.idx + 1) % ids.length;
@@ -1622,9 +1623,12 @@
   }
   function applyPicker() { if (picker) picker.ids.forEach((id, i) => setLamp(id, i === picker.idx ? picker.hi : picker.base(id))); }
   function stopPicker() { if (picker) { clearInterval(picker.timer); if (picker.loop) SFX.stopChannel("bg"); picker = null; } }
+  // a human needs a moment to press: a press within REACT_MS after a lamp change still takes the lamp before it
+  const REACT_MS = 140;
   function takePick() {
     const p = picker;
     stopPicker();
+    if (p.t && p.prev != null && performance.now() - p.t < REACT_MS) p.idx = p.prev;
     setLamp(p.ids[p.idx], "fast");
     p.onPick(p.values[p.idx], p.idx);
   }
@@ -1762,7 +1766,7 @@
   function startMulti(trigger) {
     say(`${M.s.pending} Ft — szorzó? START választ, TÉT elviszi`, 0);
     const opts = cfg.multiplier.options;
-    startPicker({ ids: opts.map((o) => "m_" + o.id), values: opts.map((o) => o.id), ms: 227.5, loop: "multiLoop", order: [...opts.keys(), ...[...opts.keys()].slice(1, -1).reverse()], onPick: (id) => run(() => doMulti(id, trigger)) });
+    startPicker({ ids: opts.map((o) => "m_" + o.id), values: opts.map((o) => o.id), ms: 620, loop: "multiLoop", order: [...opts.keys(), ...[...opts.keys()].slice(1, -1).reverse()], onPick: (id) => run(() => doMulti(id, trigger)) });
     refresh();
   }
   async function doMulti(id, trigger) {
@@ -1793,7 +1797,7 @@
   function startGuessPicker() {
     if (M.s.phase !== "gamble") return;
     say(`${cardName(M.card)} — KISEBB vagy NAGYOBB? (START)`, 0);
-    startPicker({ ids: ["kisebb", "nagyobb"], values: ["lower", "higher"], ms: 320, loop: "guessLoop", onPick: (dir) => run(() => doGuess(dir)) });
+    startPicker({ ids: ["kisebb", "nagyobb"], values: ["lower", "higher"], ms: 700, loop: "guessLoop", onPick: (dir) => run(() => doGuess(dir)) });
     refresh();
   }
   async function doGuess(dir) {
