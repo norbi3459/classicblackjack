@@ -64,7 +64,8 @@
       2: [1800, 700, 92, 122], 3: [1880, 625, 92, 122], 4: [1800, 540, 92, 122], 5: [1880, 465, 92, 122],
       6: [1800, 380, 92, 122], 7: [1880, 305, 92, 122], 8: [1800, 220, 92, 122], 9: [1880, 145, 92, 122],
     },
-    multi: { x6: [1585, 70, 185, 140], x3: [1600, 210, 175, 140], x2b: [1590, 355, 180, 150], x2r: [1600, 515, 175, 150], x1: [1600, 675, 185, 165] },
+    // one zigzag column: each panel starts where the one above ends
+    multi: { x6: [1590, 68, 186, 142], x3: [1590, 210, 186, 142], x2b: [1590, 352, 186, 150], x2r: [1590, 502, 186, 154], x1: [1590, 656, 186, 164] },
     // steel-blue podiums under the ladder signs whose drawing has none (Match Play+, Super BJ, 20, Classic BJ, Match Play, Super lépések)
     ladderPodiums: [
       [183, 842, 226, 80],

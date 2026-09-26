@@ -669,14 +669,14 @@
         g.translate(R[2] / 2, R[3] / 2); g.rotate((i % 2 ? -1 : 1) * 0.1);
         drawPlayingCard(g, rank, suitOf[rank], r[2] * 0.94, r[3] * 0.94);
       });
-      // multiplier panels as on the machine: slanted light-blue glass cards in a silver rim,
-      // red "X6" on a dark red cushion, below it the cards (or suit signs) the multiplier pays for
+      // multiplier panels as on the machine: light-blue glass cards in a silver rim, leaning left and right in turn
+      // so the column zigzags; red "X6" on a dark red cushion, below it the cards (or suit signs) it pays for
       const multiLook = {
-        x6: { label: "X6", cards: ["K", "A"] },
-        x3: { label: "X3", cards: ["J", "Q", "K", "A"] },
-        x2b: { label: "X2", pips: ["c", "s"] },
-        x2r: { label: "X2", pips: ["h", "d"] },
-        x1: { label: "X1½", cards: ["2", "3", "4", "5", "6", "7", "8", "9"] },
+        x6: { label: "X6", cards: ["K", "A"], lean: 1 },
+        x3: { label: "X3", cards: ["J", "Q", "K", "A"], lean: -1 },
+        x2b: { label: "X2", pips: ["c", "s"], lean: 1 },
+        x2r: { label: "X2", pips: ["h", "d"], lean: -1 },
+        x1: { label: "X1½", cards: ["2", "3", "4", "5", "6", "7", "8", "9"], lean: 1 },
       };
       for (const [id, r] of Object.entries(L.multi)) {
         const look = multiLook[id];
@@ -1006,7 +1006,8 @@
   function drawMultiPanel(g, W, H, look, imgs) {
     const sk = 0.2, ph = H - 12, pw = W - sk * ph - 12, rad = 14;
     g.save();
-    g.translate(W / 2, H / 2); g.transform(1, 0.03, sk, 1, 0, 0);
+    // lean 1: bottom shifted right, -1: shifted left; neighbours meet edge to edge
+    g.translate(W / 2, H / 2); g.transform(1, 0, sk * look.lean, 1, 0, 0);
     // silver rim with a drop shadow
     g.save(); g.shadowColor = "rgba(0,0,0,0.7)"; g.shadowBlur = 10; g.shadowOffsetX = 3; g.shadowOffsetY = 5;
     roundRect(g, -pw / 2, -ph / 2, pw, ph, rad);
