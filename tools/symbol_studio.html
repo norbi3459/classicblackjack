@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<title>Symbol studio</title>
+<style>
+  body { background: #cdcab0; margin: 10px; font: 14px sans-serif; }
+  canvas { background: transparent; margin: 6px; outline: 1px dashed #888; }
+</style>
+</head>
+<body>
+<!--
+  Reel symbols redrawn as vectors, after the original machine (artwork/reel_glass_v3.png, artwork/top_glass_v6.png).
+  Open this page to look at them; tools/export_symbols.js saves each canvas to game/assets/sprites/<name>.png.
+  The cream "sticker" rim every symbol has on the glass is added in the game (ui.js), not here.
+-->
+<script>
+const OUT = "#3e0d0a"; // dark outline, as on the other sprites
+
+function ellipsePath(g, cx, cy, rx, ry, rot = 0) {
+  g.beginPath(); g.ellipse(cx, cy, rx, ry, rot, 0, Math.PI * 2);
+}
+function gloss(g, cx, cy, rx, ry, rot, a = 0.6) {
+  g.save(); ellipsePath(g, cx, cy, rx, ry, rot);
+  const gr = g.createRadialGradient(cx - rx * 0.3, cy - ry * 0.3, 1, cx, cy, Math.max(rx, ry));
+  gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fill(); g.restore();
+}
+
+// ---- plum: egg-shaped, deep violet, the suture line and a short stem
+function szilva(g, W, H) {
+  const body = () => {
+    g.beginPath();
+    g.moveTo(90, 300);
+    g.bezierCurveTo(70, 140, 250, 50, 420, 60);
+    g.bezierCurveTo(600, 70, 700, 170, 690, 290);
+    g.bezierCurveTo(680, 420, 540, 490, 380, 488);
+    g.bezierCurveTo(210, 486, 100, 420, 90, 300);
+    g.closePath();
+  };
+  // stem behind the top
+  g.save(); g.lineCap = "round";
+  g.beginPath(); g.moveTo(455, 78); g.quadraticCurveTo(470, 30, 520, 12);
+  g.lineWidth = 34; g.strokeStyle = OUT; g.stroke();
+  g.lineWidth = 20; g.strokeStyle = "#7a4a1c"; g.stroke(); g.restore();
+
+  body();
+  const gr = g.createRadialGradient(270, 170, 20, 380, 280, 380);
+  gr.addColorStop(0, "#a070cc"); gr.addColorStop(0.35, "#6a2e98"); gr.addColorStop(0.75, "#43175f"); gr.addColorStop(1, "#250936");
+  g.fillStyle = gr; g.fill();
+  // darker underside
+  g.save(); body(); g.clip();
+  const sh = g.createLinearGradient(0, 250, 0, 500);
+  sh.addColorStop(0, "rgba(20,0,35,0)"); sh.addColorStop(1, "rgba(20,0,35,0.55)");
+  g.fillStyle = sh; g.fillRect(0, 0, W, H);
+  // suture: a soft groove from the stem round the right side
+  g.beginPath(); g.moveTo(455, 72); g.bezierCurveTo(560, 150, 590, 330, 520, 480);
+  g.lineWidth = 16; g.strokeStyle = "rgba(25,0,40,0.55)"; g.stroke();
+  g.beginPath(); g.moveTo(440, 80); g.bezierCurveTo(540, 160, 565, 330, 498, 478);
+  g.lineWidth = 7; g.strokeStyle = "rgba(190,150,230,0.35)"; g.stroke();
+  g.restore();
+  gloss(g, 250, 165, 115, 46, -0.35, 0.75);
+  gloss(g, 365, 118, 22, 14, -0.2, 0.8);
+  body(); g.lineWidth = 16; g.lineJoin = "round"; g.strokeStyle = OUT; g.stroke();
+}
+
+// ---- watermelon: half a melon lying on its side, the cut face to the left with red flesh and black seeds
+function dinnye(g, W, H) {
+  const bx = 410, by = 300, brx = 280, bry = 268;
+  // green body
+  ellipsePath(g, bx, by, brx, bry);
+  const gb = g.createRadialGradient(bx - 40, by - 120, 20, bx, by, 330);
+  gb.addColorStop(0, "#63c56a"); gb.addColorStop(0.5, "#2f9443"); gb.addColorStop(1, "#135c27");
+  g.fillStyle = gb; g.fill();
+  g.save(); ellipsePath(g, bx, by, brx, bry); g.clip();
+  // dark wavy stripes following the rind
+  g.lineCap = "round"; g.strokeStyle = "#0f5222"; g.lineWidth = 30;
+  for (let k = -3; k <= 3; k++) {
+    const yy = by + k * 78;
+    g.beginPath();
+    for (let x = bx - brx; x <= bx + brx + 20; x += 12) {
+      const t = (x - (bx - brx)) / (2 * brx);
+      const y = by + (yy - by) * Math.sqrt(Math.max(0.05, 1 - Math.pow(2 * t - 1, 2) * 0.55)) + Math.sin(x / 26 + k) * 7;
+      x === bx - brx ? g.moveTo(x, y) : g.lineTo(x, y);
+    }
+    g.stroke();
+  }
+  const sh = g.createLinearGradient(0, by - bry, 0, by + bry);
+  sh.addColorStop(0, "rgba(255,255,255,0.12)"); sh.addColorStop(0.55, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,30,10,0.45)");
+  g.fillStyle = sh; g.fillRect(0, 0, W, H);
+  g.restore();
+  gloss(g, 480, 130, 90, 34, -0.15, 0.55);
+  ellipsePath(g, bx, by, brx, bry); g.lineWidth = 16; g.strokeStyle = OUT; g.stroke();
+
+  // the cut face
+  const fx = 205, fy = 300, frx = 165, fry = 262;
+  ellipsePath(g, fx, fy, frx, fry); g.fillStyle = "#2f8a3a"; g.fill();
+  ellipsePath(g, fx, fy, frx - 12, fry - 14); g.fillStyle = "#f1f6d8"; g.fill();
+  ellipsePath(g, fx, fy, frx - 34, fry - 38);
+  const gf = g.createRadialGradient(fx - 30, fy - 60, 10, fx, fy, fry);
+  gf.addColorStop(0, "#ff7a66"); gf.addColorStop(0.45, "#f0333a"); gf.addColorStop(1, "#b8121f");
+  g.fillStyle = gf; g.fill();
+  // seeds in a ring, pointing to the centre
+  const seeds = [[-0.55, -0.55], [0.1, -0.62], [0.5, -0.28], [0.52, 0.28], [0.08, 0.62], [-0.52, 0.5], [-0.62, 0], [-0.1, -0.15], [0.12, 0.2]];
+  for (const [sx, sy] of seeds) {
+    const x = fx + sx * (frx - 40), y = fy + sy * (fry - 45), a = Math.atan2(sy, sx) + Math.PI / 2;
+    g.save(); g.translate(x, y); g.rotate(a);
+    g.beginPath(); g.moveTo(0, -17); g.bezierCurveTo(11, -8, 11, 12, 0, 14); g.bezierCurveTo(-11, 12, -11, -8, 0, -17);
+    g.fillStyle = "#2a1008"; g.fill();
+    g.beginPath(); g.ellipse(-3, -3, 3, 6, 0, 0, Math.PI * 2); g.fillStyle = "rgba(255,255,255,0.45)"; g.fill();
+    g.restore();
+  }
+  gloss(g, fx - 45, fy - 110, 45, 70, 0.2, 0.45);
+  ellipsePath(g, fx, fy, frx, fry); g.lineWidth = 14; g.strokeStyle = OUT; g.stroke();
+  ellipsePath(g, fx, fy, frx - 34, fry - 38); g.lineWidth = 3; g.strokeStyle = "rgba(120,20,20,0.6)"; g.stroke();
+}
+
+// ---- grapes: a bunch of round red berries lying on its side, stem and a vine leaf at the top left
+function szolo(g, W, H) {
+  // vine leaf behind
+  g.save(); g.translate(230, 120); g.rotate(-0.5);
+  g.beginPath();
+  g.moveTo(0, 60);
+  g.bezierCurveTo(-110, 40, -150, -40, -90, -70); g.bezierCurveTo(-70, -120, -10, -110, 0, -80);
+  g.bezierCurveTo(20, -120, 90, -120, 100, -70); g.bezierCurveTo(160, -40, 120, 40, 0, 60); g.closePath();
+  const lg = g.createLinearGradient(0, -110, 0, 60); lg.addColorStop(0, "#8fd14f"); lg.addColorStop(1, "#3f8a22");
+  g.fillStyle = lg; g.fill(); g.lineWidth = 12; g.strokeStyle = OUT; g.lineJoin = "round"; g.stroke();
+  g.beginPath(); g.moveTo(0, 55); g.lineTo(0, -70); g.moveTo(0, 0); g.lineTo(-80, -50); g.moveTo(0, 0); g.lineTo(85, -50);
+  g.lineWidth = 5; g.strokeStyle = "#2e6a18"; g.stroke();
+  g.restore();
+  // stem
+  g.save(); g.lineCap = "round";
+  g.beginPath(); g.moveTo(215, 205); g.bezierCurveTo(190, 150, 150, 110, 105, 95);
+  g.lineWidth = 32; g.strokeStyle = OUT; g.stroke(); g.lineWidth = 18; g.strokeStyle = "#8a5a22"; g.stroke();
+  g.restore();
+  // berries, back rows first; the bunch narrows to the lower right
+  const berries = [
+    [250, 220, 70], [385, 205, 74], [520, 225, 70],
+    [185, 320, 72], [320, 318, 78], [460, 322, 76], [590, 330, 66],
+    [255, 425, 72], [395, 430, 76], [530, 430, 68],
+    [335, 520, 64], [470, 520, 62],
+  ];
+  for (const [x, y, r] of berries) {
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2);
+    const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
+    gr.addColorStop(0, "#ff7b7b"); gr.addColorStop(0.5, "#e01b33"); gr.addColorStop(1, "#8a0a1e");
+    g.fillStyle = gr; g.fill();
+    g.lineWidth = 9; g.strokeStyle = OUT; g.stroke();
+    gloss(g, x - r * 0.32, y - r * 0.38, r * 0.3, r * 0.18, -0.5, 0.85);
+  }
+}
+
+const SYMBOLS = {
+  szilva: { w: 780, h: 520, draw: szilva },
+  dinnye: { w: 720, h: 600, draw: dinnye },
+  szolo: { w: 700, h: 610, draw: szolo },
+};
+for (const [name, s] of Object.entries(SYMBOLS)) {
+  const c = document.createElement("canvas");
+  c.width = s.w; c.height = s.h; c.id = name; c.title = name;
+  c.style.width = s.w / 2 + "px";
+  document.body.appendChild(c);
+  s.draw(c.getContext("2d"), s.w, s.h);
+}
+</script>
+</body>
+</html>
