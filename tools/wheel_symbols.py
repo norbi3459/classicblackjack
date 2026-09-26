@@ -18,10 +18,11 @@ SRC = os.path.join(ROOT, "artwork", "wheel_src")
 OUT = os.path.join(ROOT, "game", "assets", "objects")
 TMP = os.path.join(SRC, "_tmp.png")
 
-for name, stretch in (("w_szilva", 1.0), ("w_narancs", 1.0), ("w_dinnye", 1.0), ("w_csengo", 1.08)):
+# (name, horizontal, vertical stretch)
+for name, sx, sy in (("w_szilva", 1, 1), ("w_narancs", 1, 1), ("w_dinnye", 1, 1), ("w_csengo", 1.12, 1.08)):
     im = Image.open(os.path.join(SRC, name + ".png")).convert("RGBA")
-    if stretch != 1.0:
-        im = im.resize((im.width, round(im.height * stretch)), Image.LANCZOS)
+    if (sx, sy) != (1, 1):
+        im = im.resize((round(im.width * sx), round(im.height * sy)), Image.LANCZOS)
     im.save(TMP)
     add_rim.main(TMP, os.path.join(OUT, name + ".png"))
 os.remove(TMP)

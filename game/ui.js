@@ -501,7 +501,7 @@
     const bw = (x1 - x0 + 1) / k, bh = (y1 - y0 + 1) / k, bx = (x0 + x1 + 1) / 2 / k, by = (y0 + y1 + 1) / 2 / k;
     const a = -Math.PI / 2 + (WHEEL_ORDER.indexOf(id) * Math.PI) / 4, R = (D.r + D.inner) / 2 + 4;
     const cx = D.cx + R * Math.cos(a), cy = D.cy + R * Math.sin(a);
-    const boxW = id === "w_bj" ? 172 : id === "w_bar" ? 112 : 128, boxH = id === "w_bar" ? 68 : id === "w_bj" ? 126 : id === "w_csengo" ? 112 : 100;
+    const boxW = id === "w_bj" ? 172 : id === "w_bar" ? 112 : id === "w_csengo" ? 140 : 128, boxH = id === "w_bar" ? 68 : id === "w_bj" ? 126 : id === "w_csengo" ? 112 : 100;
     const s = Math.min(boxW / bw, boxH / bh);
     Object.assign(im.style, { left: cx - bx * s + "px", top: cy - by * s + "px", width: im.naturalWidth * s + "px", height: im.naturalHeight * s + "px" });
   }
