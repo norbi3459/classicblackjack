@@ -808,15 +808,17 @@
     const im = new Image();
     // the reel's Classic BLACK JACK symbol is the machine's big top logo, scaled down
     if (n === "bj") { im.onload = () => { sprites[n] = im; res(); }; im.onerror = () => res(); im.src = "assets/objects/logo.png"; return; }
-    im.onload = () => { sprites[n] = NO_RIM[n] ? im : stickerRim(im); res(); };
+    im.onload = () => { sprites[n] = NO_RIM[n] ? im : stickerRim(im, TINT[n]); res(); };
     im.onerror = () => res();
     im.src = `assets/sprites/${n}.png`;
   })));
   // on the glass every fruit sits in a cream "sticker" rim with a dark edge (the BAR plate, the logo
   // and the star, whose drawing already has one, stay as they are)
   const NO_RIM = { bar: true, bj: true, csillag: true };
-  function stickerRim(im) {
-    const r = Math.round(Math.max(im.width, im.height) * 0.06), edge = Math.max(4, Math.round(r * 0.32)), pad = r + edge + 2;
+  // colour corrections towards the backlit glass: the lemon is a warm golden yellow there
+  const TINT = { citrom: "saturate(1.45) hue-rotate(-9deg)" };
+  function stickerRim(im, tint) {
+    const r = Math.round(Math.max(im.width, im.height) * 0.07), edge = Math.max(4, Math.round(r * 0.32)), pad = r + edge + 2;
     const c = document.createElement("canvas");
     c.width = im.width + 2 * pad; c.height = im.height + 2 * pad;
     const g = c.getContext("2d");
@@ -832,15 +834,16 @@
       q.globalCompositeOperation = "source-in"; q.fillStyle = color; q.fillRect(0, 0, t.width, t.height);
       return t;
     };
-    g.drawImage(grown(r + edge, "#5a2a12"), 0, 0);
-    const cream = grown(r, "#f7e2b4");
-    g.drawImage(cream, 0, 0);
-    // a little shading on the rim: lighter at the top, warmer at the bottom
+    g.drawImage(grown(r + edge, "#5a2410"), 0, 0);
+    g.drawImage(grown(r, "#f4c48c"), 0, 0);
+    // a little shading on the peach rim: lighter at the top, warmer at the bottom
     g.save(); g.globalCompositeOperation = "source-atop";
     const sh = g.createLinearGradient(0, 0, 0, c.height);
-    sh.addColorStop(0, "rgba(255,255,240,0.35)"); sh.addColorStop(1, "rgba(190,120,50,0.35)");
+    sh.addColorStop(0, "rgba(255,245,215,0.45)"); sh.addColorStop(1, "rgba(200,110,40,0.35)");
     g.fillStyle = sh; g.fillRect(0, 0, c.width, c.height); g.restore();
+    if (tint) g.filter = tint;
     g.drawImage(im, pad, pad);
+    g.filter = "none";
     return c;
   }
 
