@@ -11,6 +11,7 @@ const types = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
+  '.woff2': 'font/woff2',
 };
 
 http.createServer((req, res) => {

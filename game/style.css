@@ -1,3 +1,14 @@
+/* the western lettering of the KÁRTYA KERÉK sign (Smokum, Apache 2.0, see assets/fonts) */
+@font-face {
+  font-family: "Smokum"; font-weight: 400; font-display: block;
+  src: url("assets/fonts/smokum-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Smokum"; font-weight: 400; font-display: block;
+  src: url("assets/fonts/smokum-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+FEFF, U+FFFD;
+}
 :root {
   --bg: #0b0b0f;
   --led: #4ef3ff;

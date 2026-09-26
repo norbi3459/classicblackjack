@@ -299,6 +299,8 @@
 
   // ---------------------------------------------------------------- the machine's lettering (as on the 25 / 175 signs)
   const MFONT = '"Cooper Black", "Cooper Std", "Goudy Stout", Georgia, serif';
+  // western lettering of the KÁRTYA KERÉK sign (bundled font, style.css)
+  const WFONT = '"Smokum", "Rockwell Extra Bold", Georgia, serif';
   const RED = { fill: ["#ff5a5f", "#e0212c", "#a8101b"], line: "#6e0b13" };
   const BLACK = { fill: ["#4a5263", "#1c2130", "#0b0e16"], line: "#05070c" };
   const ink = (suit) => (suit === "h" || suit === "d" ? RED : BLACK);
@@ -697,10 +699,10 @@
       const gs = codeCanvas("reelObjects", S, 2, null);
       const sg = gs.createLinearGradient(0, 0, 44, 0); sg.addColorStop(0, "#8a0a12"); sg.addColorStop(0.5, "#e0202a"); sg.addColorStop(1, "#8a0a12");
       gs.fillStyle = sg; gs.fillRect(0, 0, 44, 40);
-      const Lb = [w.x - 10, w.y + w.h + 48, w.w + 20, 52];
+      // SOK / SZERENCSÉT: two gold plaques in the western lettering of the KÁRTYA KERÉK sign
+      const Lb = [w.x - 14, w.y + w.h + 46, w.w + 28, 92];
       const gl = codeCanvas("reelObjects", Lb, 3, null);
-      plaque(gl, Lb[2], Lb[3], 14);
-      machineText(gl, "SOK SZERENCSÉT", Lb[2] / 2, Lb[3] / 2 + 2, 22, "gold");
+      document.fonts.load(`40px ${WFONT}`).then(() => luckSign(gl, Lb[2], Lb[3]));
     };
     drawCodeParts();
     const drawNums = () => {
@@ -991,6 +993,35 @@
     g.globalAlpha = 0.55; g.lineWidth = size * 0.035; g.strokeStyle = "#ffffff";
     g.strokeText(text, x - size * 0.03, y - size * 0.03);
     g.restore();
+  }
+
+  // ---- gold plaques with dark brown western letters, as the KÁRTYA KERÉK sign
+  function goldPlaque(g, x, y, w, h, r) {
+    g.save(); g.shadowColor = "rgba(0,0,0,0.6)"; g.shadowBlur = 6; g.shadowOffsetY = 3;
+    roundRect(g, x, y, w, h, r);
+    const gr = g.createLinearGradient(0, y, 0, y + h);
+    gr.addColorStop(0, "#fff3b8"); gr.addColorStop(0.45, "#f7d467"); gr.addColorStop(1, "#d39a2c");
+    g.fillStyle = gr; g.fill(); g.restore();
+    roundRect(g, x, y, w, h, r); g.lineWidth = 3; g.strokeStyle = "#8a5610"; g.stroke();
+    roundRect(g, x + 3.5, y + 3.5, w - 7, h - 7, r * 0.7); g.lineWidth = 1.2; g.strokeStyle = "rgba(255,250,220,0.8)"; g.stroke();
+  }
+  function westernText(g, text, x, y, size, maxW) {
+    g.save();
+    g.font = `${size}px ${WFONT}`; g.textAlign = "center"; g.textBaseline = "middle";
+    const sx = Math.min(1, maxW / g.measureText(text).width);
+    g.translate(x, y); g.scale(sx, 1.18);
+    const gr = g.createLinearGradient(0, -size / 2, 0, size / 2);
+    gr.addColorStop(0, "#6e2a0c"); gr.addColorStop(1, "#3a1204");
+    g.lineJoin = "round"; g.lineWidth = size * 0.06; g.strokeStyle = "#2a0c02"; g.strokeText(text, 0, 0);
+    g.fillStyle = gr; g.fillText(text, 0, 0);
+    g.restore();
+  }
+  function luckSign(g, W, H) {
+    const top = H * 0.42, sokW = W * 0.4;
+    goldPlaque(g, (W - sokW) / 2, 3, sokW, top - 3, 9);
+    westernText(g, "SOK", W / 2, 3 + (top - 3) / 2 + 2, top * 0.84, sokW * 0.8);
+    goldPlaque(g, 3, top + 4, W - 6, H - top - 8, 11);
+    westernText(g, "SZERENCSÉT", W / 2, top + 4 + (H - top - 8) / 2 + 3, (H - top) * 0.8, W * 0.86);
   }
 
   // ---- multiplier panel (see artwork/m_right.png): slanted glass card, silver rim, red label cushion, cards below
