@@ -483,11 +483,14 @@
   const BJ_LOGOS = {};
   const USE_MAIN_LOGO = { w_bj: true };
   const MP_SIGNS = {}; // Match Play signs: the original drawings stay (owner's choice)
+  // printed parts redrawn in code instead of their sprite (the sprite had "KĂRTYA" instead of "KÁRTYA")
+  const CODE_DRAWN = { kerekSign: true };
   const whenFontsReady = (fn) => (document.fonts && document.fonts.load ? Promise.all([document.fonts.load(`italic 700 60px ${LOGO_SCRIPT}`), document.fonts.load(`900 60px ${LOGO_SLAB}`)]).then(fn, fn) : fn());
   if (SCENE) {
     document.body.classList.add("scene");
     $("topBase").src = "assets/top_bg.png";
     for (const o of SCENE) {
+      if (CODE_DRAWN[o.id]) continue;
       const im = document.createElement("img");
       im.src = o.src; im.alt = ""; im.draggable = false;
       im.className = `obj z${o.z || 2}` + (o.lamp ? " lamp" : "");
@@ -699,10 +702,12 @@
       const gs = codeCanvas("reelObjects", S, 2, null);
       const sg = gs.createLinearGradient(0, 0, 44, 0); sg.addColorStop(0, "#8a0a12"); sg.addColorStop(0.5, "#e0202a"); sg.addColorStop(1, "#8a0a12");
       gs.fillStyle = sg; gs.fillRect(0, 0, 44, 40);
-      // SOK / SZERENCSÉT: two gold plaques in the western lettering of the KÁRTYA KERÉK sign
-      const Lb = [w.x - 14, w.y + w.h + 46, w.w + 28, 92];
+      // KÁRTYA KERÉK above the card wheel (fanned gold letter tiles) and SOK SZERENCSÉT below it (arched plaque)
+      const Kb = [w.x - 32, w.y - 150, w.w + 64, 150];
+      const gk = codeCanvas("reelObjects", Kb, 3, null);
+      const Lb = [w.x - 18, w.y + w.h + 42, w.w + 36, 100];
       const gl = codeCanvas("reelObjects", Lb, 3, null);
-      document.fonts.load(`40px ${WFONT}`).then(() => luckSign(gl, Lb[2], Lb[3]));
+      document.fonts.load(`40px ${WFONT}`).then(() => { kerekSign(gk, Kb[2], Kb[3]); luckSign(gl, Lb[2], Lb[3]); });
     };
     drawCodeParts();
     const drawNums = () => {
@@ -995,33 +1000,81 @@
     g.restore();
   }
 
-  // ---- gold plaques with dark brown western letters, as the KÁRTYA KERÉK sign
-  function goldPlaque(g, x, y, w, h, r) {
-    g.save(); g.shadowColor = "rgba(0,0,0,0.6)"; g.shadowBlur = 6; g.shadowOffsetY = 3;
-    roundRect(g, x, y, w, h, r);
-    const gr = g.createLinearGradient(0, y, 0, y + h);
-    gr.addColorStop(0, "#fff3b8"); gr.addColorStop(0.45, "#f7d467"); gr.addColorStop(1, "#d39a2c");
-    g.fillStyle = gr; g.fill(); g.restore();
-    roundRect(g, x, y, w, h, r); g.lineWidth = 3; g.strokeStyle = "#8a5610"; g.stroke();
-    roundRect(g, x + 3.5, y + 3.5, w - 7, h - 7, r * 0.7); g.lineWidth = 1.2; g.strokeStyle = "rgba(255,250,220,0.8)"; g.stroke();
+  // ---- KÁRTYA KERÉK / SOK SZERENCSÉT: gold with dark brown western letters (WFONT), bent along gentle arcs
+  const GOLD = [[0, "#fff4c0"], [0.35, "#fbd96e"], [0.75, "#e6b243"], [1, "#b97c1e"]];
+  function goldFill(g, y0, y1) {
+    const gr = g.createLinearGradient(0, y0, 0, y1);
+    GOLD.forEach(([o, c]) => gr.addColorStop(o, c));
+    return gr;
   }
-  function westernText(g, text, x, y, size, maxW) {
-    g.save();
-    g.font = `${size}px ${WFONT}`; g.textAlign = "center"; g.textBaseline = "middle";
-    const sx = Math.min(1, maxW / g.measureText(text).width);
-    g.translate(x, y); g.scale(sx, 1.18);
+  // one western letter, dark brown with a thin dark rim, centred on the origin
+  function westernGlyph(g, ch, size, sx = 1, sy = 1.18) {
+    g.save(); g.scale(sx, sy);
+    g.font = `${size}px ${WFONT}`; g.textAlign = "center"; g.textBaseline = "middle"; g.lineJoin = "round";
     const gr = g.createLinearGradient(0, -size / 2, 0, size / 2);
-    gr.addColorStop(0, "#6e2a0c"); gr.addColorStop(1, "#3a1204");
-    g.lineJoin = "round"; g.lineWidth = size * 0.06; g.strokeStyle = "#2a0c02"; g.strokeText(text, 0, 0);
-    g.fillStyle = gr; g.fillText(text, 0, 0);
+    gr.addColorStop(0, "#7a3210"); gr.addColorStop(1, "#3a1204");
+    g.lineWidth = size * 0.05; g.strokeStyle = "#240a02"; g.strokeText(ch, 0, size * 0.04);
+    g.fillStyle = gr; g.fillText(ch, 0, size * 0.04);
     g.restore();
   }
+  // letters along an arc whose centre is (cx, cy), radius r (the text sits on top of the circle)
+  function arcText(g, text, cx, cy, r, size, sx = 1) {
+    g.save(); g.font = `${size}px ${WFONT}`;
+    const ws = [...text].map((ch) => g.measureText(ch).width * sx * 1.06);
+    const total = ws.reduce((a, b) => a + b, 0);
+    let a = -total / 2 / r;
+    [...text].forEach((ch, i) => {
+      const t = a + ws[i] / 2 / r;
+      g.save(); g.translate(cx + r * Math.sin(t), cy - r * Math.cos(t)); g.rotate(t);
+      westernGlyph(g, ch, size, sx); g.restore();
+      a += ws[i] / r;
+    });
+    g.restore();
+  }
+  // gold tile with a bevel (one card of the fan)
+  function goldTile(g, w, h, r) {
+    g.save(); g.shadowColor = "rgba(0,0,0,0.55)"; g.shadowBlur = 5; g.shadowOffsetY = 2;
+    roundRect(g, -w / 2, -h / 2, w, h, r); g.fillStyle = goldFill(g, -h / 2, h / 2); g.fill(); g.restore();
+    roundRect(g, -w / 2, -h / 2, w, h, r); g.lineWidth = 2; g.strokeStyle = "#7a4a0c"; g.stroke();
+    roundRect(g, -w / 2 + 2.5, -h / 2 + 2.5, w - 5, h - 5, r * 0.6); g.lineWidth = 1; g.strokeStyle = "rgba(255,252,225,0.85)"; g.stroke();
+  }
+  function kerekSign(g, W, H) {
+    const rows = [
+      { text: "KÁRTYA", r: 150, cy: 150 + 32, tw: 33, th: 54, size: 44 },
+      { text: "KERÉK", r: 150, cy: 150 + 96, tw: 33, th: 50, size: 41 },
+    ];
+    for (const row of rows) {
+      const n = row.text.length, step = (row.tw + 2) / row.r, cx = W / 2;
+      [...row.text].forEach((ch, i) => {
+        const t = (i - (n - 1) / 2) * step;
+        g.save(); g.translate(cx + row.r * Math.sin(t), row.cy - row.r * Math.cos(t)); g.rotate(t);
+        goldTile(g, row.tw, row.th, 5);
+        // accented capitals are a bit smaller and lower, so the accent stays on the tile
+        const acc = /[ÁÉ]/.test(ch), size = row.size * (acc ? 0.84 : 1);
+        g.font = `${size}px ${WFONT}`;
+        g.translate(0, acc ? row.th * 0.08 : 0);
+        westernGlyph(g, ch, size, Math.min(1, (row.tw * 0.8) / g.measureText(ch).width), 1.12);
+        g.restore();
+      });
+    }
+  }
+  // one arched gold plaque, SOK over SZERENCSÉT
   function luckSign(g, W, H) {
-    const top = H * 0.42, sokW = W * 0.4;
-    goldPlaque(g, (W - sokW) / 2, 3, sokW, top - 3, 9);
-    westernText(g, "SOK", W / 2, 3 + (top - 3) / 2 + 2, top * 0.84, sokW * 0.8);
-    goldPlaque(g, 3, top + 4, W - 6, H - top - 8, 11);
-    westernText(g, "SZERENCSÉT", W / 2, top + 4 + (H - top - 8) / 2 + 3, (H - top) * 0.8, W * 0.86);
+    const r1 = 330, r0 = r1 - (H - 16), cx = W / 2, cy = 8 + r1, half = (W / 2 - 6) / r1;
+    const band = () => {
+      g.beginPath();
+      g.arc(cx, cy, r1, -Math.PI / 2 - half, -Math.PI / 2 + half);
+      g.arc(cx, cy, r0, -Math.PI / 2 + half * 0.93, -Math.PI / 2 - half * 0.93, true);
+      g.closePath();
+    };
+    g.save(); g.shadowColor = "rgba(0,0,0,0.6)"; g.shadowBlur = 8; g.shadowOffsetY = 3;
+    band(); g.fillStyle = goldFill(g, 8, H - 8); g.fill(); g.restore();
+    band(); g.lineJoin = "round"; g.lineWidth = 3; g.strokeStyle = "#7a4a0c"; g.stroke();
+    g.save(); g.translate(cx, cy); g.scale(0.965, 0.955); g.translate(-cx, -cy); band(); g.restore();
+    g.lineWidth = 1.2; g.strokeStyle = "rgba(255,252,225,0.85)"; g.stroke();
+    const lh = (r1 - r0) / 2;
+    arcText(g, "SOK", cx, cy, r1 - lh * 0.56, lh * 0.84);
+    arcText(g, "SZERENCSÉT", cx, cy, r1 - lh * 1.5, lh * 0.84, 0.9);
   }
 
   // ---- multiplier panel (see artwork/m_right.png): slanted glass card, silver rim, red label cushion, cards below
