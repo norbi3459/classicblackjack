@@ -269,7 +269,26 @@
     clearTimeout(setResolution.t);
     setResolution.t = setTimeout(sharpenStatic, 150);
   }
+  // Printed parts that are plain images (the card row, the signs...) are shrunk by the browser in one go when
+  // the machine is small, which comes out soft. Give each one a copy made at its on-screen size instead.
+  const origImg = {};
+  function sharpenImages() {
+    document.querySelectorAll("#stage img.obj").forEach((im) => {
+      const src0 = im.dataset.src0 || (im.dataset.src0 = im.getAttribute("src"));
+      const o = origImg[src0] || (origImg[src0] = Object.assign(new Image(), { src: src0 }));
+      if (!o.complete || !o.naturalWidth) { o.addEventListener("load", () => sharpenImages(), { once: true }); return; }
+      const tw = Math.round(im.offsetWidth * RES), th = Math.round(im.offsetHeight * RES);
+      if (!tw || !th || tw > o.naturalWidth * 0.7) { if (im.getAttribute("src") !== src0) im.src = src0; return; }
+      if (im.dataset.tw === String(tw) && im.dataset.th === String(th)) return;
+      im.dataset.tw = tw; im.dataset.th = th;
+      const c = document.createElement("canvas"); c.width = tw; c.height = th;
+      const q = c.getContext("2d");
+      drawScaled(q, o, 0, 0, o.naturalWidth, o.naturalHeight, 0, 0, tw, th);
+      im.src = c.toDataURL();
+    });
+  }
   function sharpenStatic() {
+    sharpenImages();
     document.querySelectorAll("#stage canvas:not(.reel)").forEach((c) => {
       const cw = c.offsetWidth, ch = c.offsetHeight;
       if (!cw || !ch || !c.width) return;
@@ -529,7 +548,7 @@
       }
       // the big top logo on a peach sticker plate (assets/sprites/bj.png, made with tools/add_rim.py)
       if (USE_MAIN_LOGO[o.id]) im.src = "assets/sprites/bj.png";
-      if (WHEEL_ORDER.includes(o.id)) im.addEventListener("load", () => placeOnWheel(im, o.id));
+      if (WHEEL_ORDER.includes(o.id)) im.addEventListener("load", () => { placeOnWheel(im, o.id); delete im.dataset.tw; sharpenImages(); }, { once: true });
       if (MP_SIGNS[o.id]) {
         const c = document.createElement("canvas"); c.width = Math.round(o.rect[2] * 3); c.height = Math.round(o.rect[3] * 3);
         drawMatchPlay(c.getContext("2d"), c.width, c.height, MP_SIGNS[o.id]);
@@ -743,7 +762,7 @@
       // KÁRTYA KERÉK above the card wheel (fanned gold letter tiles) and SOK SZERENCSÉT below it (arched plaque)
       const Kb = [w.x - 32, w.y - 150, w.w + 64, 150];
       const gk = codeCanvas("reelObjects", Kb, 3, null);
-      const Lb = [w.x - 18, w.y + w.h + 42, w.w + 36, 100];
+      const Lb = [w.x - 18, w.y + w.h + 36, w.w + 36, 94];
       const gl = codeCanvas("reelObjects", Lb, 3, null);
       document.fonts.load(`40px ${WFONT}`).then(() => { kerekSign(gk, Kb[2], Kb[3]); luckSign(gl, Lb[2], Lb[3]); });
     };
@@ -1441,10 +1460,12 @@
 
   // card wheel face, as on the machine: big outlined letter on the cream drum + light blue card with the pip
   function drawCard(g, card, x, y) {
-    blueCard(g, x + 4, y - 44, 76, 88, 9);
-    drawPip(g, card.suit, x + 42, y, 21);
-    const txt = rankLabel(card.r);
-    bigLetter(g, txt, card.suit, x - 44, y + 2, txt.length > 1 ? 56 : 84);
+    // the letter and the card as one group, centred on x
+    const txt = rankLabel(card.r), cw = 86, gap = 8, lw = txt.length > 1 ? 70 : 58;
+    const x0 = x - (lw + gap + cw) / 2;
+    blueCard(g, x0 + lw + gap, y - 50, cw, 100, 10);
+    drawPip(g, card.suit, x0 + lw + gap + cw / 2, y, 25);
+    bigLetter(g, txt, card.suit, x0 + lw / 2, y + 2, txt.length > 1 ? 60 : 90);
   }
 
   function drawCardWheel() {
@@ -1460,6 +1481,9 @@
         drawCard(bg, strip[((k % n) + n) % n], W / 2, y);
       }
     });
+    // the dark middle line, level with the one across the reels
+    const g = cardWheel.g;
+    g.fillStyle = "rgba(40,30,20,0.55)"; g.fillRect(0, cy - 1, W, 2);
   }
 
   function frame(t) {
@@ -1529,11 +1553,18 @@
     return !st.options && st.prize.credit ? st.prize.credit * M.stake : 0;
   }
   let shownCredit = null;
+  // a 7-segment field: the number right aligned over dim "8"s (DSEG draws "!" as an empty digit cell)
+  function setLed(id, value, digits) {
+    const el = $(id), txt = String(Math.max(0, Math.round(value))).slice(-digits);
+    if (el.dataset.v === txt) return;
+    el.dataset.v = txt;
+    el.innerHTML = `<span class="ghost">${"8".repeat(digits)}</span><span class="val">${"!".repeat(digits - txt.length)}${txt}</span>`;
+  }
   function updateLeds() {
-    $("ledWin").textContent = M.s.lastWin;
-    $("ledBank").textContent = bankValue();
-    $("ledCredit").textContent = shownCredit ?? M.s.credit;
-    $("ledStake").textContent = M.stake + " Ft";
+    setLed("ledWin", M.s.lastWin, 5);
+    setLed("ledBank", bankValue(), 5);
+    setLed("ledCredit", shownCredit ?? M.s.credit, 6);
+    setLed("ledStake", M.stake, 4);
   }
 
   let bannerTimer = null;

@@ -19,7 +19,8 @@
     reelCenterY: 568,
     reelPitch: 97,
 
-    cardWheel: { x: 1382, y: 420, w: 190, h: 215, centerY: 530, pitch: 104 },
+    // the card wheel's middle is level with the reels' middle line (reel windows 410 + 348 / 2 = 584)
+    cardWheel: { x: 1377, y: 470, w: 200, h: 228, centerY: 584, pitch: 114 },
 
     // printed strips (left of each reel window, slightly slanted; the 5th belongs to the card wheel), top -> bottom
     printedStrips: [
