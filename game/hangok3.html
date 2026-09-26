@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hangok összehasonlítása</title><style>
+body{margin:0;background:#111;color:#eee;font:15px/1.4 system-ui,sans-serif;padding:16px}
+h1{font-size:20px;margin:0 0 6px} p{margin:4px 0 14px;color:#bbb;max-width:900px}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.c{background:#1c1d22;border:1px solid #333;border-radius:10px;padding:10px} .h{margin-bottom:6px} .h b{color:#ffcf3a}
+.row{display:grid;grid-template-columns:130px 1fr;align-items:center;gap:6px;font-size:13px;color:#9ab} audio{width:100%;height:32px}
+select,input{width:100%;box-sizing:border-box;padding:6px;margin-top:6px;background:#2a2b31;color:#eee;border:1px solid #444;border-radius:6px}
+#bar{position:sticky;top:0;z-index:2;background:#222;border:1px solid #444;border-radius:8px;padding:8px;margin-bottom:12px}
+#out{white-space:pre-wrap;font-family:monospace;min-height:1.4em;max-height:30vh;overflow:auto}
+button{padding:6px 12px;border-radius:6px;border:1px solid #555;background:#333;color:#eee;cursor:pointer;margin-top:6px}
+</style></head><body>
+<h1>Hangok: most / eredeti / új</h1>
+<p>Minden hangnál három változat: ami most szól a játékban, az eredeti kivágás a videóból, és az új, a dallamot hangjegyenként
+kiolvasva újraszintetizált (tiszta, zajmentes) változat. Hallgasd meg, válaszd ki, melyik a jobb, és írd meg, ha valami nem
+stimmel. A „Másolás” gombbal kimásolod, és beilleszted nekem a chatbe. (Ezt az oldalt a Jatek_inditasa-val indított játék mellől nyisd meg:
+http://localhost:5173/game/hangok3.html)</p>
+<div id="bar"><div id="out"></div><button id="copy">Másolás</button></div>
+<div class="g"><div class="c"><div class="h"><b>spin</b> — Pörgetés (tárcsák indulnak és megállnak)</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/spin.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/spin_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/spin.wav" controls preload="none"></audio></div>
+<select data-n="spin"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="spin" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>hold</b> — TART gomb / automatikus tartás</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/hold.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/hold_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/hold.wav" controls preload="none"></audio></div>
+<select data-n="hold"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="hold" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>winCount</b> — Nyeremény számlálása</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/winCount.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/winCount_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/winCount.wav" controls preload="none"></audio></div>
+<select data-n="winCount"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="winCount" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>trigger21</b> — 21 a középső soron</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/trigger21.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/trigger21_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/trigger21.wav" controls preload="none"></audio></div>
+<select data-n="trigger21"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="trigger21" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>joker</b> — Joker</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/joker.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/joker_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/joker.wav" controls preload="none"></audio></div>
+<select data-n="joker"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="joker" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>cardAdd</b> — 2–9 kártya gyűjtése</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/cardAdd.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/cardAdd_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/cardAdd.wav" controls preload="none"></audio></div>
+<select data-n="cardAdd"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="cardAdd" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>gambleIntro</b> — Kisebb/Nagyobb bevezető</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/gambleIntro.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/gambleIntro_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/gambleIntro.wav" controls preload="none"></audio></div>
+<select data-n="gambleIntro"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="gambleIntro" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>gambleStart</b> — Kisebb/Nagyobb indul</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/gambleStart.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/gambleStart_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/gambleStart.wav" controls preload="none"></audio></div>
+<select data-n="gambleStart"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="gambleStart" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>wheelSpin</b> — Kártyakerék pörög</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/wheelSpin.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/wheelSpin_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/wheelSpin.wav" controls preload="none"></audio></div>
+<select data-n="wheelSpin"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="wheelSpin" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>guessWin</b> — Kisebb/Nagyobb: talált</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/guessWin.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/guessWin_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/guessWin.wav" controls preload="none"></audio></div>
+<select data-n="guessWin"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="guessWin" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>chooseLoop</b> — Létraszint választás (villogás)</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/chooseLoop.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/chooseLoop_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/chooseLoop.wav" controls preload="none"></audio></div>
+<select data-n="chooseLoop"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="chooseLoop" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>multiLoop</b> — Szorzó menü (villogás)</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/multiLoop.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/multiLoop_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/multiLoop.wav" controls preload="none"></audio></div>
+<select data-n="multiLoop"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="multiLoop" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>mpLoop</b> — Match Play kerék fut</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/mpLoop.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/mpLoop_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/mpLoop.wav" controls preload="none"></audio></div>
+<select data-n="mpLoop"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="mpLoop" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>mpResult</b> — Match Play eredmény</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/mpResult.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/mpResult_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/mpResult.wav" controls preload="none"></audio></div>
+<select data-n="mpResult"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="mpResult" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>rowLoop</b> — Kerek lámpák</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/rowLoop.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/rowLoop_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/rowLoop.wav" controls preload="none"></audio></div>
+<select data-n="rowLoop"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="rowLoop" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>nudgePick</b> — Super lépések: FEL / LE választás</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/nudgePick.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/nudgePick_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/nudgePick.wav" controls preload="none"></audio></div>
+<select data-n="nudgePick"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="nudgePick" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>nudgeStep</b> — Super lépések: egy lépés</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/nudgeStep.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/nudgeStep_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/nudgeStep.wav" controls preload="none"></audio></div>
+<select data-n="nudgeStep"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="nudgeStep" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div>
+<div class="c"><div class="h"><b>nudgeArrive</b> — Super lépések: lépés vége</div>
+<div class="row"><span>Most a játékban</span><audio src="assets/sfx/nudgeArrive.wav" controls preload="none"></audio></div>
+<div class="row"><span>Eredeti (videóból)</span><audio src="../artwork/chip/nudgeArrive_orig.wav" controls preload="none"></audio></div>
+<div class="row"><span>Új: újraszintetizált</span><audio src="../artwork/chip/nudgeArrive.wav" controls preload="none"></audio></div>
+<select data-n="nudgeArrive"><option>—</option><option>a mostani jó</option><option>az új jobb</option><option>egyik sem jó</option><option>nem ez a hang tartozik ide</option></select>
+<input data-n="nudgeArrive" placeholder="megjegyzés (pl. mikor szól a gépen, mi a baj vele)"></div></div>
+<script>
+const out=document.getElementById("out");
+const upd=()=>{const r=[];document.querySelectorAll("select").forEach(s=>{const n=s.dataset.n,i=document.querySelector('input[data-n="'+n+'"]');if(s.selectedIndex||i.value)r.push(n+": "+(s.selectedIndex?s.value:"")+(i.value?" – "+i.value:""));});out.textContent=r.join("\n");};
+document.querySelectorAll("select,input").forEach(e=>e.addEventListener("input",upd));
+document.getElementById("copy").onclick=()=>navigator.clipboard.writeText(out.textContent);
+// one sound at a time
+document.addEventListener("play",e=>document.querySelectorAll("audio").forEach(a=>a!==e.target&&a.pause()),true);
+</script></body></html>
