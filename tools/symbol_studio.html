@@ -158,12 +158,92 @@ function cseresznye(g, W, H) {
   }
 }
 
+// ================= retro set: flat print as on the 80s glass =================
+// one flat colour, a hard-edged darker crescent at the lower right, a plain light streak at the top left,
+// a thick dark outline; no gradients, no gloss
+function flatShape(g, path, base, shade, dx = 26, dy = 30) {
+  path(); g.fillStyle = shade; g.fill();
+  g.save(); path(); g.clip(); g.translate(-dx, -dy); path(); g.fillStyle = base; g.fill(); g.restore();
+}
+function streak(g, pts, w, color = "#fff6e6") {
+  g.save(); g.lineCap = "round"; g.lineJoin = "round"; g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+  if (pts.length === 3) g.quadraticCurveTo(pts[1][0], pts[1][1], pts[2][0], pts[2][1]); else g.lineTo(pts[1][0], pts[1][1]);
+  g.lineWidth = w; g.strokeStyle = color; g.stroke(); g.restore();
+}
+function outline(g, path, w = 18) { path(); g.lineWidth = w; g.lineJoin = "round"; g.strokeStyle = "#2a0a08"; g.stroke(); }
+
+function szilvaRetro(g) {
+  const p = () => { g.beginPath(); g.moveTo(55, 262); g.bezierCurveTo(85, 150, 250, 62, 440, 60); g.bezierCurveTo(620, 58, 715, 150, 715, 265);
+    g.bezierCurveTo(715, 385, 600, 455, 420, 455); g.bezierCurveTo(250, 455, 95, 385, 55, 262); g.closePath(); };
+  flatShape(g, p, "#5a1c44", "#361026", 40, 44);
+  // the backlit bluish middle, flat
+  g.save(); p(); g.clip(); g.beginPath(); g.ellipse(390, 250, 215, 120, -0.05, 0, Math.PI * 2); g.fillStyle = "#5c4a7c"; g.fill(); g.restore();
+  streak(g, [[190, 150], [300, 98], [430, 92]], 22, "#e8dcf0");
+  outline(g, p);
+}
+function cseresznyeRetro(g) {
+  const berries = [[175, 245, 118], [390, 235, 112], [285, 290, 122]], top = [290, 120];
+  g.save(); g.lineCap = "round";
+  for (const [x, y, r] of berries) {
+    g.beginPath(); g.moveTo(x, y - r * 0.75); g.quadraticCurveTo((x + top[0]) / 2, top[1] + 30, top[0], top[1]);
+    g.lineWidth = 26; g.strokeStyle = "#2a0a08"; g.stroke(); g.lineWidth = 12; g.strokeStyle = "#6a9a2a"; g.stroke();
+  }
+  g.restore();
+  for (const [x, y, r] of berries) {
+    const p = () => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); };
+    flatShape(g, p, "#e8202c", "#a50e1c", r * 0.28, r * 0.3);
+    streak(g, [[x - r * 0.55, y - r * 0.2], [x - r * 0.45, y - r * 0.6], [x - r * 0.05, y - r * 0.7]], r * 0.2);
+    outline(g, p, 16);
+  }
+}
+function dinnyeRetro(g) {
+  const body = () => { g.beginPath(); g.ellipse(420, 300, 300, 190, 0, 0, Math.PI * 2); };
+  flatShape(g, body, "#3c9a3c", "#226a26", 50, 40);
+  g.save(); body(); g.clip(); g.lineWidth = 38; g.strokeStyle = "#1a5a1e"; g.lineCap = "round";
+  for (let k = -3; k <= 3; k++) {
+    g.beginPath(); g.moveTo(140, 300 + k * 44); g.bezierCurveTo(320, 300 + k * 62, 540, 300 + k * 62, 720, 300 + k * 28); g.stroke();
+  }
+  g.restore();
+  streak(g, [[380, 150], [490, 128], [600, 150]], 22, "#d8f0c0");
+  outline(g, body);
+  const face = () => { g.beginPath(); g.ellipse(175, 300, 105, 170, 0.12, 0, Math.PI * 2); };
+  face(); g.fillStyle = "#f4f0dc"; g.fill();
+  const flesh = () => { g.beginPath(); g.ellipse(180, 300, 68, 124, 0.12, 0, Math.PI * 2); };
+  flatShape(g, flesh, "#e02834", "#a8141e", 16, 20);
+  outline(g, flesh, 6);
+  outline(g, face, 16);
+}
+function szoloRetro(g) {
+  const berries = [];
+  const rows = [{ y: 150, x0: 175, n: 5 }, { y: 225, x0: 125, n: 6 }, { y: 300, x0: 150, n: 6 }, { y: 375, x0: 205, n: 5 }, { y: 445, x0: 290, n: 3 }];
+  const r = 52, dx = 82;
+  for (const row of rows) for (let i = 0; i < row.n; i++) berries.push([row.x0 + i * dx, row.y]);
+  const blob = () => { g.beginPath(); for (const [x, y] of berries) { g.moveTo(x + r, y); g.arc(x, y, r, 0, Math.PI * 2); } };
+  // short stem at the top left
+  g.save(); g.lineCap = "round"; g.beginPath(); g.moveTo(190, 110); g.quadraticCurveTo(150, 60, 110, 70);
+  g.lineWidth = 30; g.strokeStyle = "#2a0a08"; g.stroke(); g.lineWidth = 15; g.strokeStyle = "#8a5a22"; g.stroke(); g.restore();
+  outline(g, blob, 30);
+  for (const [x, y] of berries) {
+    const p = () => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); };
+    flatShape(g, p, "#e82a34", "#b3121f", 12, 14);
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.lineWidth = 5; g.strokeStyle = "#86101a"; g.stroke();
+    g.beginPath(); g.ellipse(x - r * 0.3, y - r * 0.38, r * 0.2, r * 0.12, -0.5, 0, Math.PI * 2); g.fillStyle = "#fff0e6"; g.fill();
+  }
+}
+
 const SYMBOLS = {
   szilva: { w: 760, h: 510, draw: szilva },
   dinnye: { w: 720, h: 600, draw: dinnye },
   szolo: { w: 760, h: 560, draw: szolo },
   cseresznye: { w: 580, h: 440, draw: cseresznye },
 };
+// ?retro shows (and exports) the flat 80s set instead
+if (location.search.includes("retro")) Object.assign(SYMBOLS, {
+  szilva: { w: 760, h: 510, draw: szilvaRetro },
+  dinnye: { w: 760, h: 600, draw: dinnyeRetro },
+  szolo: { w: 760, h: 560, draw: szoloRetro },
+  cseresznye: { w: 580, h: 440, draw: cseresznyeRetro },
+});
 for (const [name, s] of Object.entries(SYMBOLS)) {
   const c = document.createElement("canvas");
   c.width = s.w; c.height = s.h; c.id = name; c.title = name;
