@@ -1,0 +1,20 @@
+[
+  { "name": "card_strip", "x": 100, "y": 75, "w": 1140, "h": 180, "status": "olvasható",
+    "text": "A row of twelve white playing cards with light blue edges. Keep every card's rank, suit symbols, pip layout and the three face-card portraits exactly as they appear; make them sharp and clean." },
+  { "name": "kisebb_nagyobb", "x": 310, "y": 245, "w": 710, "h": 105, "status": "megerősített",
+    "text": "Two red signs: the left one reads 'KISEBB' and the right one reads 'NAGYOBB' (Hungarian). Keep the thin line of fine print below them as neat small text lines exactly where it is; do not invent readable words." },
+  { "name": "reel_1", "x": 95, "y": 350, "w": 305, "h": 475, "status": "olvasható",
+    "text": "A golden ornamental reel window showing three fruit-machine symbols on a white reel: a dark plum at the top, a yellow lemon in the middle and an orange at the bottom, each with a small playing-card tag on its right. Keep the tags' ranks exactly as shown." },
+  { "name": "reel_2", "x": 420, "y": 350, "w": 305, "h": 475, "status": "olvasható",
+    "text": "A golden ornamental reel window showing three fruit-machine symbols on a white reel: a watermelon slice at the top, a red star in the middle and an orange at the bottom, with small playing-card tags on the right. Keep the tags' ranks exactly as shown." },
+  { "name": "reel_3", "x": 735, "y": 350, "w": 305, "h": 475, "status": "olvasható",
+    "text": "A golden ornamental reel window showing three fruit-machine symbols on a white reel: a dark plum at the top, a red apple in the middle and a golden bell at the bottom, with small playing-card tags on the right. Keep the tags' ranks exactly as shown." },
+  { "name": "reel_4", "x": 1050, "y": 350, "w": 300, "h": 475, "status": "olvasható",
+    "text": "A golden ornamental reel window showing three fruit-machine symbols on a white reel: a yellow lemon at the top, an orange in the middle and a 'BAR' sign at the bottom, with small playing-card tags on the right. Keep the tags' ranks exactly as shown." },
+  { "name": "kartya_kerek", "x": 1325, "y": 285, "w": 280, "h": 520, "status": "olvasható",
+    "text": "A fan-shaped golden sign with the letters 'KÁRTYA' on the top line and 'KERÉK' below (Hungarian), above a small card window showing a red 'K' with a red diamond. Keep the small label below the window exactly as it appears." },
+  { "name": "tet_display", "x": 1340, "y": 890, "w": 620, "h": 270, "status": "olvasható",
+    "text": "A blue LED display panel labelled 'TÉT' on the top left, showing cyan seven-segment digits, with three small yellow labels below reading 'NYEREMÉNY', 'BONUS BANK' and 'KREDIT'. Keep the digits exactly as shown and keep the thin fine-print line at the bottom as neat illegible lines." },
+  { "name": "kartya_oszto", "x": 1830, "y": 830, "w": 175, "h": 80, "status": "olvasható",
+    "text": "A small red label reading 'KÁRTYA' on the first line and 'OSZTÓ' on the second line (Hungarian)." }
+]

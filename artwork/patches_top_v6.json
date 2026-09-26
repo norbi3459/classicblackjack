@@ -1,0 +1,18 @@
+﻿[
+    {
+        "paste":  [
+                      505,
+                      1185,
+                      215,
+                      230
+                  ],
+        "src_rect":  [
+                         505,
+                         1185,
+                         215,
+                         230
+                     ],
+        "feather":  8,
+        "src":  "textedit_top/t_plus_stop_s5.png"
+    }
+]

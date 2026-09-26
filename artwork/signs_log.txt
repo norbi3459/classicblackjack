@@ -1,0 +1,25 @@
+s_dupla_bj seed 2 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_dupla_bj seed 5 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,994
+s_dupla_bj seed 13 : scale=0,9975 dx=0,00 dy=0,00 ncc=0,995
+s_dupla_bj seed 14 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_dupla_bj seed 15 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_dupla_bj seed 16 : scale=0,9975 dx=0,00 dy=0,00 ncc=0,994
+s_dupla_bj seed 17 : scale=0,9975 dx=0,00 dy=0,00 ncc=0,994
+s_dupla_bj seed 18 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_masik_kartya seed 2 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 5 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 13 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_masik_kartya seed 14 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 15 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 16 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 17 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_masik_kartya seed 18 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_wheel_logo seed 2 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 5 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 13 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 14 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 15 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 16 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+s_wheel_logo seed 17 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,995
+s_wheel_logo seed 18 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,994
+ELEMENTS DONE

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Újrarajzolás állása</title>
+<style>
+  :root { --bg: #0e0f13; --panel: #181a21; --line: #2b2e38; --text: #eceae4; --muted: #9a9aa6; --accent: #ffb400; --ok: #3ccf6e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 "Segoe UI", system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 18px 20px 12px; border-bottom: 1px solid var(--line); }
+  h1 { margin: 0 0 10px; font: 30px/1.1 "Cooper Black", Georgia, serif; color: var(--accent); letter-spacing: .5px; }
+  .bar { height: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, #ff6d1c, var(--accent)); transition: width .6s; }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 10px; color: var(--muted); }
+  .stats b { color: var(--text); font-weight: 600; }
+  main { padding: 16px 20px 40px; }
+  h2 { font-size: 15px; color: var(--muted); font-weight: 600; margin: 18px 0 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .card .img { height: 110px; display: flex; align-items: center; justify-content: center; border-radius: 6px;
+    background: repeating-conic-gradient(#23252d 0 25%, #1c1e25 0 50%) 0 0 / 16px 16px; }
+  .card img { max-width: 100%; max-height: 100%; }
+  .card .name { margin-top: 6px; font-size: 12px; color: var(--muted); word-break: break-all; }
+  .card.todo { opacity: .35; }
+  .card.now { border-color: var(--accent); opacity: 1; }
+  .card.now .img::after { content: "rajzolás…"; color: var(--accent); font-size: 13px; }
+  .note { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Grafika újrarajzolása</h1>
+  <div class="bar"><div id="fill"></div></div>
+  <div class="stats">
+    <span>Kész: <b id="done">–</b> / <b id="total">–</b></span>
+    <span>Hátra: <b id="left">–</b></span>
+    <span>Becsült idő: <b id="eta">–</b></span>
+    <span>Frissítve: <b id="upd">–</b></span>
+  </div>
+</header>
+<main>
+  <p class="note">Minden objektum külön rajzolva, átlátszó háttérrel. Az oldal 20 másodpercenként magától frissül.</p>
+  <h2>Felső üveg</h2>
+  <div class="grid" id="top"></div>
+  <h2>Tárcsaüveg</h2>
+  <div class="grid" id="reel"></div>
+</main>
+<script>
+  const PER_OBJECT_S = 95;
+  const cards = {};
+  async function load() {
+    let objs, log = "";
+    try { objs = await (await fetch("artwork/scene/objects.json", { cache: "no-store" })).json(); } catch (e) { return; }
+    try { log = await (await fetch("artwork/scene/isolate_log.txt", { cache: "no-store" })).text(); } catch (e) { /* not started */ }
+    const done = new Set();
+    for (const m of log.matchAll(/\]\s+(top|reel)\/(\S+)\s+ok/g)) done.add(m[1] + "/" + m[2]);
+    const finished = /ISOLATE DONE/.test(log);
+    let nowKey = null;
+    if (!finished) { const firstTodo = objs.find((o) => !done.has(o.panel + "/" + o.id)); if (firstTodo) nowKey = firstTodo.panel + "/" + firstTodo.id; }
+    for (const o of objs) {
+      const key = o.panel + "/" + o.id;
+      let c = cards[key];
+      if (!c) {
+        c = document.createElement("div"); c.className = "card todo";
+        c.innerHTML = `<div class="img"></div><div class="name">${o.id}</div>`;
+        document.getElementById(o.panel).appendChild(c); cards[key] = c;
+      }
+      const isDone = done.has(key);
+      if (isDone && !c.dataset.done) {
+        c.dataset.done = "1"; c.className = "card";
+        const im = new Image(); im.src = `artwork/scene/${o.panel}/${o.id}_s3.png?${Date.now()}`; im.alt = o.id;
+        c.querySelector(".img").replaceChildren(im);
+      }
+      if (!isDone) c.className = "card todo" + (key === nowKey ? " now" : "");
+    }
+    const total = objs.length, n = done.size, left = total - n;
+    document.getElementById("done").textContent = n;
+    document.getElementById("total").textContent = total;
+    document.getElementById("left").textContent = finished ? 0 : left;
+    const mins = Math.round((left * PER_OBJECT_S) / 60);
+    document.getElementById("eta").textContent = finished || !left ? "kész" : mins >= 60 ? `kb. ${Math.floor(mins / 60)} óra ${mins % 60} perc` : `kb. ${mins} perc`;
+    document.getElementById("fill").style.width = (100 * n / total).toFixed(1) + "%";
+    document.getElementById("upd").textContent = new Date().toLocaleTimeString("hu-HU");
+  }
+  load();
+  setInterval(load, 20000);
+</script>
+</body>
+</html>

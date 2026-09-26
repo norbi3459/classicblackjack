@@ -1,0 +1,13 @@
+[
+  { "src": "groups_top/g1_left_top_s5.png",       "src_rect": [90, 300, 440, 480],   "paste": [90, 300, 440, 480] },
+  { "src": "groups_top/g2_left_mid_s2.png",       "src_rect": [90, 720, 440, 560],   "paste": [90, 740, 440, 470] },
+  { "src": "groups_top/g3_left_low_s2.png",       "src_rect": [90, 1190, 640, 480],  "paste": [90, 1390, 640, 280] },
+  { "src": "groups_top/g3_left_low_s2.png",       "src_rect": [90, 1190, 640, 480],  "paste": [505, 1190, 225, 220] },
+  { "src": "focus_top/f_bj_lepesek_s2.png",       "src_rect": [90, 1185, 430, 215],  "paste": [90, 1185, 430, 215] },
+  { "src": "groups_top/g4_bottom_row_s5.png",     "src_rect": [180, 1650, 1040, 290], "paste": [180, 1650, 1040, 290] },
+  { "src": "groups_top/g5_wheel_s2.png",          "src_rect": [660, 860, 600, 640],  "paste": [660, 860, 600, 640] },
+  { "src": "groups_top/g6_lepes_s2.png",          "src_rect": [820, 1400, 290, 340], "paste": [820, 1400, 290, 340] },
+  { "src": "groups_top/g8_right_grid_s4.png",     "src_rect": [1170, 730, 820, 690], "paste": [1170, 730, 820, 690] },
+  { "src": "groups_top/g9_track_s6.png",          "src_rect": [1170, 1390, 820, 500], "paste": [1170, 1390, 820, 500] },
+  { "src": "elements_top/logo_big_s42.png",       "src_rect": [430, 110, 920, 660],  "paste": [430, 110, 920, 660] }
+]

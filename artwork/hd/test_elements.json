@@ -1,0 +1,4 @@
+[
+  { "name": "t_l20", "x": 120, "y": 1030, "w": 360, "h": 210, "text": "The sign shows a big glowing orange-red number '20' with a yellow outline on a red panel." },
+  { "name": "t_bg", "x": 1150, "y": 1380, "w": 520, "h": 520, "text": "A red snake-like track of arrow fields with small numbers in dark circles: 13, 14, 15, 16 at the top, 12, 11, 10, 9, 8 in the middle, 1, 2, 3 at the bottom; dark blue background with swirls; the label 'KÁRTYA PONTSZÁM' at the top." }
+]

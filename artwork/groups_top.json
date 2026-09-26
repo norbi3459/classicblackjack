@@ -1,0 +1,20 @@
+[
+  { "name": "g1_left_top", "x": 90, "y": 300, "w": 440, "h": 480,
+    "text": "Top: a big glowing orange-red '25' with the small text '175' and 'BONUS' below it. Below that a second big glowing orange-red '25' with the small text '175' and 'BONUS' below it." },
+  { "name": "g2_left_mid", "x": 90, "y": 720, "w": 440, "h": 560,
+    "text": "The top-middle red sign reads 'MATCH' above 'PLAY' with a '+' sign and the small word 'PLUS' on its right. The lower-left sign has the yellow word 'SUPER' above a small 'Classic BLACK JACK' logo: red script 'Classic' above red block letters 'BLACK' and 'JACK' on light blue tiles. The lower-right red sign reads 'MATCH' above 'PLAY'. The large sign at the bottom reads '20'." },
+  { "name": "g3_left_low", "x": 90, "y": 1190, "w": 640, "h": 480,
+    "text": "Upper-left sign: a small 'Classic BLACK JACK' logo, red script 'Classic' above red block letters 'BLACK' and 'JACK' on light blue tiles. Next to it a red sign reading 'SUPER' above 'LÉPÉSEK' (Hungarian, accents on the É letters). To the right two stacked signs: green 'PLUS' above red 'STOP'. Below them a big glowing orange-red '10'. At the bottom a row of five round red lamps; keep their small icons exactly as they are." },
+  { "name": "g4_bottom_row", "x": 180, "y": 1650, "w": 1040, "h": 290,
+    "text": "On the left a big glowing orange-red '4' and below it a small red sign; keep that sign as it is. In the middle a dark blue banner with four small signs from left to right: 'DUPLA BLACK JACK', 'EXTRA LÉPÉS', 'JÓ AZ EGYENLŐ', 'MÁSIK KÁRTYA' (Hungarian, keep the accents), with a small yellow-green header above them that must stay as it is. On the right a cartoon joker jester face with the word 'JOKER' on its hat. Keep the tiny fine print as neat illegible lines." },
+  { "name": "g5_wheel", "x": 660, "y": 860, "w": 600, "h": 640,
+    "text": "A round wheel with eight fruit-machine symbols around a red centre: a 'BAR' sign at the top, a red bunch of grapes, a golden bell, an orange, a small 'Classic BLACK JACK' logo, a green watermelon, a yellow lemon and a blue plum. The centre reads 'HA' then 'MINDEN' then 'VILÁGÍT' (Hungarian, accent on Á) above a big '25' and the small text '175 BONUS'." },
+  { "name": "g6_lepes", "x": 820, "y": 1400, "w": 290, "h": 340,
+    "text": "Two red house-shaped signs with yellow letters: the upper one reads 'LÉPÉS' above 'FEL', the lower one reads 'LÉPÉS' above 'LE' (Hungarian, accents on the É letters)." },
+  { "name": "g7_right_header", "x": 1300, "y": 560, "w": 690, "h": 190,
+    "text": "Left: the yellow word 'SUPER' above a small 'BLACK JACK' logo with red letters on light blue tiles. Middle: the yellow word 'DUPLA'. Right: a small 'Classic BLACK JACK' logo, red script 'Classic' above red letters 'BLACK' and 'JACK' on light blue tiles." },
+  { "name": "g8_right_grid", "x": 1170, "y": 730, "w": 820, "h": 690,
+    "text": "A yellow vertical panel headed 'HA VILÁGÍT' with a list of small lines; keep that list exactly as it is. Next to it a grid of glowing orange-red number signs in two columns with red circles between them, rows from top: '25', circle '21', '25'; '25', circle '20', '25'; '25', circle '19', '25'; '25', circle '18', '20'; '20', circle '17', '10'. Keep the small subtext under each number exactly as it appears." },
+  { "name": "g9_track", "x": 1170, "y": 1390, "w": 820, "h": 500,
+    "text": "A thin label reading 'KÁRTYA PONTSZÁM' at the top left. A red snake-like track of arrow fields with small numbers in circles: '16' at the top, '13', '14', '15' in the upper part, '12', '11', '10', '9', '8' in the middle row, '7' on the right and '1' to '6' in the bottom row. Keep the large red box at the top right and its faint lettering exactly as it is." }
+]

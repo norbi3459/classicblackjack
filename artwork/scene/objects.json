@@ -1,0 +1,1875 @@
+[
+ {
+  "panel": "top",
+  "id": "logo",
+  "rect": [
+   430,
+   110,
+   920,
+   660
+  ],
+  "what": "the big 'Classic BLACK JACK' logo: red script 'Classic' with an orange outline above red distressed block letters 'BLACK' and 'JACK' on light blue rounded tiles with a golden outer outline.",
+  "pad": 0.08,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "l25a",
+  "rect": [
+   100,
+   310,
+   370,
+   260
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and below it the small text '175' and 'BONUS', including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "l25a",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "l25b",
+  "rect": [
+   130,
+   570,
+   320,
+   210
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "l25b",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lMPP",
+  "rect": [
+   160,
+   775,
+   250,
+   120
+  ],
+  "what": "the red sign reading 'MATCH' above 'PLAY' with a '+' sign and the small word 'PLUS' on its right, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lMPP",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lSuperBJ",
+  "rect": [
+   100,
+   910,
+   205,
+   160
+  ],
+  "what": "the sign with the yellow word 'SUPER' above a small 'Classic BLACK JACK' logo: red script 'Classic', red block letters 'BLACK' and 'JACK' on light blue tiles.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lSuperBJ",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lMP",
+  "rect": [
+   300,
+   910,
+   230,
+   165
+  ],
+  "what": "the glowing red sign reading 'MATCH' above 'PLAY', including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lMP",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "l20",
+  "rect": [
+   170,
+   1070,
+   260,
+   130
+  ],
+  "what": "the sign with the big glowing orange-red number '20' with a thick yellow outline, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "l20",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lClassic",
+  "rect": [
+   100,
+   1210,
+   215,
+   150
+  ],
+  "what": "the small 'Classic BLACK JACK' logo sign: red script 'Classic', red block letters 'BLACK' and 'JACK' on light blue tiles with a golden outline.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lClassic",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lSuperLep",
+  "rect": [
+   310,
+   1205,
+   210,
+   165
+  ],
+  "what": "the sign reading 'SUPER' in orange letters above 'LÉPÉSEK' in red letters (Hungarian, accents on both É letters), including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lSuperLep",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "l10",
+  "rect": [
+   200,
+   1370,
+   230,
+   130
+  ],
+  "what": "the sign with the big glowing orange-red number '10' with a thick yellow outline, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "l10",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "rowBar",
+  "rect": [
+   128,
+   1520,
+   692,
+   156
+  ],
+  "what": "the long horizontal rounded red bar with five round lamp sockets in it. Make all five round sockets empty dark circles (remove their icons).",
+  "pad": 0.12,
+  "key": "green",
+  "lamp": "lRow",
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "roundLamp",
+  "rect": [
+   131,
+   1534,
+   128,
+   128
+  ],
+  "what": "one glowing round lamp with a small cartoon figure icon on an orange background, with its round rim.",
+  "pad": 0.35,
+  "key": "green",
+  "lamp": null,
+  "reuse": [
+   {
+    "id": "rc1",
+    "rect": [
+     131,
+     1534,
+     128,
+     128
+    ]
+   },
+   {
+    "id": "rc2",
+    "rect": [
+     274,
+     1534,
+     128,
+     128
+    ]
+   },
+   {
+    "id": "rc3",
+    "rect": [
+     416,
+     1534,
+     128,
+     128
+    ]
+   },
+   {
+    "id": "rc4",
+    "rect": [
+     556,
+     1534,
+     128,
+     128
+    ]
+   },
+   {
+    "id": "rc5",
+    "rect": [
+     693,
+     1534,
+     128,
+     128
+    ]
+   }
+  ],
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "l4",
+  "rect": [
+   220,
+   1680,
+   200,
+   110
+  ],
+  "what": "the sign with the big glowing orange-red number '4' with a thick yellow outline, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "l4",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "sign4below",
+  "rect": [
+   205,
+   1790,
+   210,
+   120
+  ],
+  "what": "the small red sign with its lettering exactly as printed.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "plus",
+  "rect": [
+   510,
+   1190,
+   205,
+   105
+  ],
+  "what": "the green sign reading 'PLUS', including its frame.",
+  "pad": 0.25,
+  "key": "magenta",
+  "lamp": "plus",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "stop",
+  "rect": [
+   510,
+   1300,
+   205,
+   110
+  ],
+  "what": "the dark red sign reading 'STOP', including its frame.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "stop",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lepesFel",
+  "rect": [
+   840,
+   1410,
+   230,
+   160
+  ],
+  "what": "the red house-shaped sign pointing up with yellow letters 'LÉPÉS' above 'FEL' (Hungarian).",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lepesFel",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "lepesLe",
+  "rect": [
+   840,
+   1570,
+   230,
+   160
+  ],
+  "what": "the red sign pointing down with yellow letters 'LÉPÉS' above 'LE' (Hungarian).",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "lepesLe",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "wheelDisc",
+  "rect": [
+   660,
+   860,
+   600,
+   640
+  ],
+  "what": "the round wheel: the red disc with its dark radial spokes and its thin golden rim. Remove all eight symbols and the center label; leave the disc and the spokes empty.",
+  "pad": 0.06,
+  "key": "blue",
+  "lamp": null,
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "w_bar",
+  "rect": [
+   905,
+   870,
+   110,
+   110
+  ],
+  "what": "the 'BAR' sign with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_bar",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_csengo",
+  "rect": [
+   1038,
+   938,
+   128,
+   108
+  ],
+  "what": "the golden bell with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_csengo",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_bj",
+  "rect": [
+   1070,
+   1045,
+   190,
+   145
+  ],
+  "what": "the small 'Classic BLACK JACK' logo with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_bj",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_szilva",
+  "rect": [
+   1035,
+   1210,
+   140,
+   135
+  ],
+  "what": "the blue plum with its leaf with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_szilva",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_citrom",
+  "rect": [
+   885,
+   1275,
+   150,
+   120
+  ],
+  "what": "the yellow lemon with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_citrom",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_dinnye",
+  "rect": [
+   755,
+   1215,
+   135,
+   135
+  ],
+  "what": "the green watermelon slice with its golden outline.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "w_dinnye",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_narancs",
+  "rect": [
+   670,
+   1045,
+   150,
+   140
+  ],
+  "what": "the orange with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_narancs",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "w_szolo",
+  "rect": [
+   745,
+   905,
+   140,
+   115
+  ],
+  "what": "the red bunch of grapes with its golden outline.",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": "w_szolo",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "wc",
+  "rect": [
+   870,
+   1040,
+   180,
+   215
+  ],
+  "what": "the round center label: the words 'HA', 'MINDEN', 'VILÁGÍT' (Hungarian, accent on Á) above a big '25' and the small text '175' and 'BONUS'.",
+  "pad": 0.1,
+  "key": "green",
+  "lamp": "wc",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "helpsBanner",
+  "rect": [
+   440,
+   1690,
+   580,
+   200
+  ],
+  "what": "the dark blue rounded banner strip with the small yellow-green header sign on top. Remove the four red signs on the banner and leave it empty.",
+  "pad": 0.08,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "h_dupla",
+  "rect": [
+   450,
+   1730,
+   175,
+   155
+  ],
+  "what": "the small sign with the red word 'DUPLA' on top and 'BLACK' above 'JACK' in red block letters on white tiles.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "h_dupla",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "h_extra",
+  "rect": [
+   575,
+   1745,
+   160,
+   145
+  ],
+  "what": "the small dark red oval sign reading 'EXTRA' above 'LÉPÉS' (Hungarian).",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "h_extra",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "h_joaz",
+  "rect": [
+   725,
+   1750,
+   160,
+   135
+  ],
+  "what": "the small dark red oval sign reading 'JÓ AZ' above 'EGYENLŐ' (Hungarian).",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "h_joaz",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "h_masik",
+  "rect": [
+   870,
+   1750,
+   165,
+   135
+  ],
+  "what": "the small dark red oval sign reading 'MÁSIK' above 'KÁRTYA' (Hungarian).",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "h_masik",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "joker",
+  "rect": [
+   980,
+   1690,
+   220,
+   190
+  ],
+  "what": "the cartoon joker jester face with a red and yellow hat and the word 'JOKER' on the hat.",
+  "pad": 0.12,
+  "key": "green",
+  "lamp": "joker",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "tri0",
+  "rect": [
+   455,
+   1935,
+   185,
+   110
+  ],
+  "what": "the triangular lamp button with its printed icon exactly as it appears.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "tri0",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "tri1",
+  "rect": [
+   790,
+   1935,
+   175,
+   110
+  ],
+  "what": "the triangular lamp button with its printed icon exactly as it appears.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "tri1",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "tri2",
+  "rect": [
+   1120,
+   1932,
+   170,
+   115
+  ],
+  "what": "the triangular lamp button with its printed icon exactly as it appears.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "tri2",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "tri3",
+  "rect": [
+   1445,
+   1935,
+   175,
+   112
+  ],
+  "what": "the triangular lamp button with its printed icon exactly as it appears.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "tri3",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "hdrSuper",
+  "rect": [
+   1330,
+   590,
+   230,
+   150
+  ],
+  "what": "the yellow word 'SUPER' above a small 'Classic BLACK JACK' logo.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "hdrSuper",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "hdrDupla",
+  "rect": [
+   1560,
+   620,
+   170,
+   90
+  ],
+  "what": "the yellow word 'DUPLA' with its dark outline.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "hdrDupla",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "hdrClassic",
+  "rect": [
+   1775,
+   615,
+   230,
+   140
+  ],
+  "what": "the small 'Classic BLACK JACK' logo.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "hdrClassic",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "haVilagit",
+  "rect": [
+   1225,
+   815,
+   180,
+   420
+  ],
+  "what": "the tall yellow panel headed 'HA VILÁGÍT' with its list of small lines exactly as printed.",
+  "pad": 0.12,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "orangePanel",
+  "rect": [
+   1225,
+   1235,
+   175,
+   160
+  ],
+  "what": "the small orange panel with its fine lines exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bps_17",
+  "rect": [
+   1440,
+   1298,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '20' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bps_17",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bps_18",
+  "rect": [
+   1440,
+   1168,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bps_18",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bps_19",
+  "rect": [
+   1440,
+   1033,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bps_19",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bps_20",
+  "rect": [
+   1440,
+   898,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bps_20",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bps_21",
+  "rect": [
+   1440,
+   768,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bps_21",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bpc_17",
+  "rect": [
+   1735,
+   1298,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '10' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bpc_17",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bpc_18",
+  "rect": [
+   1735,
+   1168,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '20' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bpc_18",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bpc_19",
+  "rect": [
+   1735,
+   1033,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bpc_19",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bpc_20",
+  "rect": [
+   1735,
+   898,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bpc_20",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bpc_21",
+  "rect": [
+   1735,
+   768,
+   165,
+   106
+  ],
+  "what": "the sign with the big glowing orange-red number '25' with a thick yellow outline and the small text below it exactly as printed, including its backing panel.",
+  "pad": 0.25,
+  "key": "green",
+  "lamp": "bpc_21",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bjCircle",
+  "rect": [
+   1612,
+   760,
+   110,
+   110
+  ],
+  "what": "one round red lamp disc with a dark center circle. Remove the number, leave the center circle empty.",
+  "pad": 0.3,
+  "key": "blue",
+  "lamp": null,
+  "reuse": [
+   {
+    "id": "bc_17",
+    "rect": [
+     1612,
+     1290,
+     110,
+     110
+    ]
+   },
+   {
+    "id": "bc_18",
+    "rect": [
+     1612,
+     1160,
+     110,
+     110
+    ]
+   },
+   {
+    "id": "bc_19",
+    "rect": [
+     1612,
+     1025,
+     110,
+     110
+    ]
+   },
+   {
+    "id": "bc_20",
+    "rect": [
+     1612,
+     890,
+     110,
+     110
+    ]
+   },
+   {
+    "id": "bc_21",
+    "rect": [
+     1612,
+     760,
+     110,
+     110
+    ]
+   }
+  ],
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "kartyaPontszam",
+  "rect": [
+   1265,
+   1385,
+   330,
+   80
+  ],
+  "what": "the thin label reading 'KÁRTYA PONTSZÁM' (Hungarian, accents on both Á).",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_1",
+  "rect": [
+   1199,
+   1766,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_1",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_2",
+  "rect": [
+   1309,
+   1769,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_2",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_3",
+  "rect": [
+   1416,
+   1771,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_3",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_4",
+  "rect": [
+   1524,
+   1771,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_4",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_5",
+  "rect": [
+   1633,
+   1774,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_5",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_6",
+  "rect": [
+   1741,
+   1776,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_6",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_7",
+  "rect": [
+   1830,
+   1690,
+   110,
+   150
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_7",
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "t_8",
+  "rect": [
+   1646,
+   1631,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_8",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_9",
+  "rect": [
+   1549,
+   1629,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_9",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_10",
+  "rect": [
+   1451,
+   1629,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_10",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_11",
+  "rect": [
+   1349,
+   1628,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_11",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_12",
+  "rect": [
+   1250,
+   1626,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_12",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_13",
+  "rect": [
+   1175,
+   1550,
+   130,
+   180
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_13",
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "t_14",
+  "rect": [
+   1345,
+   1486,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_14",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_15",
+  "rect": [
+   1445,
+   1489,
+   132,
+   112
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_15",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "t_16",
+  "rect": [
+   1580,
+   1430,
+   140,
+   100
+  ],
+  "what": "only the single red track field (arrow-shaped piece) that contains the small circle closest to the center of the image. Remove the number from its circle and leave the circle empty and dark.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "t_16",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "trackWhole",
+  "rect": [
+   1165,
+   1425,
+   790,
+   450
+  ],
+  "what": "the whole red snake-shaped track made of connected red arrow-shaped fields: the bottom row of arrows pointing right, the U-shaped turn on the right, the middle row of arrows pointing left, the bracket-shaped turn on the left, the upper arrows pointing right and the corner piece at the top. Every field has one small dark round circle; remove all numbers and leave all sixteen circles empty. Do not include the separate red box at the top right, the label above, the yellow track or the background.",
+  "pad": 0.04,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "top",
+  "id": "trackBox",
+  "rect": [
+   1690,
+   1445,
+   245,
+   125
+  ],
+  "what": "the red rectangular box with its faint lettering exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "topLeftIcons",
+  "rect": [
+   40,
+   50,
+   260,
+   140
+  ],
+  "what": "the small round icons exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "topRightLamps",
+  "rect": [
+   1630,
+   40,
+   330,
+   150
+  ],
+  "what": "the two small red lamp windows.",
+  "pad": 0.15,
+  "key": "blue",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "topRightSigns",
+  "rect": [
+   1640,
+   380,
+   300,
+   230
+  ],
+  "what": "the small yellow label and the small 'PLAY' sign with a playing card, exactly as printed.",
+  "pad": 0.12,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "top",
+  "id": "bottomRightLabel",
+  "rect": [
+   1590,
+   1960,
+   230,
+   60
+  ],
+  "what": "the small yellow label with its lettering exactly as printed.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_2",
+  "rect": [
+   112,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 2 of hearts, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_2",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_3",
+  "rect": [
+   205,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 3 of spades, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_3",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_4",
+  "rect": [
+   298,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 4 of diamonds, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_4",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_5",
+  "rect": [
+   392,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 5 of clubs, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_5",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_6",
+  "rect": [
+   485,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 6 of hearts, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_6",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_7",
+  "rect": [
+   578,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 7 of spades, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_7",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_8",
+  "rect": [
+   671,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 8 of diamonds, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_8",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_9",
+  "rect": [
+   764,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the 9 of clubs, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_9",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_J",
+  "rect": [
+   857,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the J of hearts with its portrait picture, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_J",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_Q",
+  "rect": [
+   951,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the Q of spades with its portrait picture, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_Q",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_K",
+  "rect": [
+   1044,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the K of diamonds with its portrait picture, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "r_K",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "r_A",
+  "rect": [
+   1137,
+   80,
+   93,
+   170
+  ],
+  "what": "only the single playing card in the center: the A of clubs, with its corner index and pips exactly as printed and its light blue edge.",
+  "pad": 0.15,
+  "key": "magenta",
+  "lamp": "r_A",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "kisebb",
+  "rect": [
+   315,
+   250,
+   250,
+   58
+  ],
+  "what": "the red sign reading 'KISEBB' (Hungarian).",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "kisebb",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "nagyobb",
+  "rect": [
+   630,
+   250,
+   330,
+   58
+  ],
+  "what": "the red sign reading 'NAGYOBB' (Hungarian).",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": "nagyobb",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "finePrintKN",
+  "rect": [
+   300,
+   300,
+   760,
+   40
+  ],
+  "what": "the thin line of small light print exactly as it appears.",
+  "pad": 0.3,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "reelFrame",
+  "rect": [
+   390,
+   340,
+   310,
+   500
+  ],
+  "what": "the golden ornamental reel window frame. Remove the reel with its fruit symbols and cards completely and fill the whole window opening inside the frame with the chroma-key color, so only the golden frame remains.",
+  "pad": 0.08,
+  "key": "magenta",
+  "lamp": null,
+  "reuse": [
+   {
+    "id": "frame0",
+    "rect": [
+     80,
+     340,
+     310,
+     500
+    ]
+   },
+   {
+    "id": "frame1",
+    "rect": [
+     390,
+     340,
+     310,
+     500
+    ]
+   },
+   {
+    "id": "frame2",
+    "rect": [
+     710,
+     340,
+     310,
+     500
+    ]
+   },
+   {
+    "id": "frame3",
+    "rect": [
+     1020,
+     340,
+     310,
+     500
+    ]
+   }
+  ],
+  "z": 3
+ },
+ {
+  "panel": "reel",
+  "id": "kerekSign",
+  "rect": [
+   1305,
+   268,
+   310,
+   150
+  ],
+  "what": "only the fan-shaped golden sign with the brown letters 'KÁRTYA' on the upper arc and 'KERÉK' below it (Hungarian, accents on Á and É). Nothing below the sign.",
+  "pad": 0.12,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 3
+ },
+ {
+  "panel": "reel",
+  "id": "m_x6",
+  "rect": [
+   1585,
+   70,
+   185,
+   140
+  ],
+  "what": "the tilted card-shaped panel with the red label 'X6' and the small printed cards on it exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "m_x6",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "m_x3",
+  "rect": [
+   1600,
+   210,
+   175,
+   140
+  ],
+  "what": "the tilted card-shaped panel with the red label 'X3' and the small printed cards on it exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "m_x3",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "m_x2b",
+  "rect": [
+   1590,
+   355,
+   180,
+   150
+  ],
+  "what": "the tilted card-shaped panel with the red label 'X2' and the small printed cards on it exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "m_x2b",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "m_x2r",
+  "rect": [
+   1600,
+   515,
+   175,
+   150
+  ],
+  "what": "the tilted card-shaped panel with the red label 'X2' and the small printed cards on it exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "m_x2r",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "m_x1",
+  "rect": [
+   1600,
+   675,
+   185,
+   165
+  ],
+  "what": "the tilted card-shaped panel with the red label 'X1' and the small printed cards on it exactly as printed.",
+  "pad": 0.15,
+  "key": "green",
+  "lamp": "m_x1",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_2",
+  "rect": [
+   1740,
+   630,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '2' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_2",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_3",
+  "rect": [
+   1835,
+   580,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '3' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_3",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_4",
+  "rect": [
+   1735,
+   470,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '4' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_4",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_5",
+  "rect": [
+   1825,
+   390,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '5' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_5",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_6",
+  "rect": [
+   1720,
+   310,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '6' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_6",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_7",
+  "rect": [
+   1810,
+   235,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '7' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_7",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_8",
+  "rect": [
+   1710,
+   150,
+   92,
+   122
+  ],
+  "what": "the single tilted white playing card '8' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_8",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "c_9",
+  "rect": [
+   1800,
+   75,
+   92,
+   118
+  ],
+  "what": "the single tilted white playing card '9' with its pips exactly as printed and the small golden coin next to it.",
+  "pad": 0.2,
+  "key": "magenta",
+  "lamp": "c_9",
+  "reuse": null,
+  "z": 2
+ },
+ {
+  "panel": "reel",
+  "id": "cardRibbon",
+  "rect": [
+   1690,
+   50,
+   320,
+   790
+  ],
+  "what": "the vertical light-blue zig-zag ribbon strip that runs down behind the column of playing cards, with its golden outline and the small round golden coins along it. Remove all the white playing cards and the tilted multiplier panels on the left; keep only the ribbon and the coins.",
+  "pad": 0.05,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 1
+ },
+ {
+  "panel": "reel",
+  "id": "kartyaOszto",
+  "rect": [
+   1830,
+   830,
+   175,
+   80
+  ],
+  "what": "the small red label reading 'KÁRTYA' above 'OSZTÓ' (Hungarian).",
+  "pad": 0.2,
+  "key": "green",
+  "lamp": null,
+  "reuse": null,
+  "z": 2
+ }
+]

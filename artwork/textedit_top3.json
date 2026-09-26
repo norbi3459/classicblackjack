@@ -1,0 +1,6 @@
+[
+  { "name": "t_plus_stop", "x": 505, "y": 1185, "w": 215, "h": 230,
+    "text": "Replace the blurry lettering with clear, sharp, correctly spelled text: the upper green sign reads 'PLUS' in light green letters and the lower dark red sign reads 'STOP' in red letters, same style, size and position. Sharpen the whole image. Keep everything else exactly the same." },
+  { "name": "t_ha_vilagit", "x": 1225, "y": 820, "w": 190, "h": 80,
+    "text": "Replace the blurry lettering on the small curved yellow label with clear, sharp, correctly spelled text: 'HA VILÁGÍT' in dark red letters, same style, size and position. Keep everything else exactly the same." }
+]

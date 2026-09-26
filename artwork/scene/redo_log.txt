@@ -1,0 +1,11 @@
+isolated t_1
+isolated t_11
+isolated t_15
+isolated t_7
+isolated t_13
+isolated bpc_18
+isolated m_x3
+isolated m_x2b
+isolated m_x2r
+isolated m_x1
+REDO DONE

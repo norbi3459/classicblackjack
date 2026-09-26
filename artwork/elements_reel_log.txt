@@ -1,0 +1,19 @@
+card_strip seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+card_strip seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+kisebb_nagyobb seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,997
+kisebb_nagyobb seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+reel_1 seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+reel_1 seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+reel_2 seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,999
+reel_2 seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+reel_3 seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,999
+reel_3 seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+reel_4 seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+reel_4 seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+kartya_kerek seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+kartya_kerek seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+tet_display seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+tet_display seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+kartya_oszto seed 42 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,997
+kartya_oszto seed 7 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,997
+ELEMENTS DONE

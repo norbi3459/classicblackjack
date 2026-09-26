@@ -1,0 +1,8 @@
+[
+  { "name": "s_dupla_bj", "x": 465, "y": 1740, "w": 185, "h": 140,
+    "text": "a small sign with the red word 'DUPLA' on top and below it the word 'BLACK' above the word 'JACK' in red block letters on white tiles. The spelling must be exactly D-U-P-L-A, B-L-A-C-K, J-A-C-K." },
+  { "name": "s_masik_kartya", "x": 875, "y": 1760, "w": 160, "h": 115,
+    "text": "a small dark red sign with the word 'MÁSIK' on the first line and 'KÁRTYA' on the second line (Hungarian, spelled exactly M-Á-S-I-K and K-Á-R-T-Y-A, with accents on the Á letters)." },
+  { "name": "s_wheel_logo", "x": 1050, "y": 1070, "w": 190, "h": 150,
+    "text": "a small glowing logo: red script 'Classic' at the top and below it red block letters 'BLACK' on one line and 'JACK' on the next line, on light blue tiles with a golden outline. Spelled exactly B-L-A-C-K and J-A-C-K." }
+]

@@ -1,0 +1,22 @@
+# huge or regenerable intermediate files (kept on disk, not versioned)
+artwork/comfy_out/
+artwork/groups_top/
+artwork/groups_reel/
+artwork/focus_top/
+artwork/textedit_top/
+artwork/elements_top/
+artwork/elements_reel/
+*_raw.png
+*.log
+*.bak
+*.blend1
+# shortcuts that do not belong to the project
+*.lnk
+node_modules/
+.wrangler/
+tools/audio_libs/
+
+forras_kepek_videok/*.mp4
+artwork/video/
+*.npy
+

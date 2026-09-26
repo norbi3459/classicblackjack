@@ -1,0 +1,9 @@
+[
+  { "src": "textedit_top/t_extra_s5.png",           "src_rect": [555, 1745, 185, 145],  "paste": [612, 1750, 125, 135], "feather": 8 },
+  { "src": "textedit_top/t_joaz_s5.png",            "src_rect": [700, 1745, 190, 145],  "paste": [725, 1750, 160, 135], "feather": 10 },
+  { "src": "textedit_top/t_masik_s2.png",           "src_rect": [860, 1745, 190, 145],  "paste": [870, 1750, 165, 135], "feather": 10 },
+  { "src": "textedit_top/t_match_right_s21.png",    "src_rect": [300, 910, 230, 165],   "paste": [300, 910, 230, 165],  "feather": 14 },
+  { "src": "textedit_top/t_super_lepesek_s5.png",   "src_rect": [305, 1205, 220, 170],  "paste": [310, 1205, 210, 165], "feather": 14 },
+  { "src": "textedit_top/t_kartya_pontszam_s5.png", "src_rect": [1265, 1385, 330, 80],  "paste": [1265, 1385, 330, 80],  "feather": 8 },
+  { "src": "textedit_top/t_dupla_s13.png",          "src_rect": [450, 1730, 175, 155],  "paste": [450, 1730, 175, 155], "feather": 4 }
+]

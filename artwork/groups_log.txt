@@ -1,0 +1,10 @@
+g1_left_top seed 427123 : scale=1,0100 dx=0,00 dy=0,00 ncc=0,944
+g2_left_mid seed 427123 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,991
+g3_left_low seed 427123 : scale=1,0000 dx=2,00 dy=0,00 ncc=0,950
+g4_bottom_row seed 427123 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,996
+g5_wheel seed 427123 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,969
+g6_lepes seed 427123 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,993
+g7_right_header seed 427123 : scale=1,0000 dx=0,00 dy=0,00 ncc=0,998
+g8_right_grid seed 427123 : scale=1,0025 dx=7,00 dy=-2,00 ncc=0,903
+g9_track seed 427123 : scale=1,0050 dx=1,00 dy=0,00 ncc=0,891
+ELEMENTS DONE

@@ -1,0 +1,18 @@
+[
+  { "name": "r1_cards", "x": 95, "y": 70, "w": 1150, "h": 190,
+    "text": "a row of twelve white playing cards with light blue edges, from left to right: 2 of hearts, 3 of spades, 4 of diamonds, 5 of clubs, 6 of hearts, 7 of spades, 8 of diamonds, 9 of clubs, then three face cards with portraits: 'B' of hearts (jack), 'D' of spades (queen), 'K' of diamonds (king), and finally the ace of clubs 'A'. Keep every pip layout and the portraits as they appear." },
+  { "name": "r2_kisebb", "x": 300, "y": 240, "w": 730, "h": 115,
+    "text": "the left red sign reads 'KISEBB' and the right red sign reads 'NAGYOBB' (Hungarian). Keep the thin line of fine print below them as neat small text lines." },
+  { "name": "r3_reels12", "x": 60, "y": 340, "w": 680, "h": 495,
+    "text": "no lettering except the small playing-card tags. Two golden ornamental reel windows on white reels: left window from top: dark plum, yellow lemon, orange; right window from top: watermelon slice, red star, orange. Keep the small card tags and the narrow printed symbol strips beside the windows exactly as they are." },
+  { "name": "r4_reels34", "x": 690, "y": 340, "w": 680, "h": 495,
+    "text": "no lettering except the small playing-card tags and 'BAR'. Two golden ornamental reel windows on white reels: left window from top: dark plum, red apple, golden bell; right window from top: yellow lemon, orange, a 'BAR' sign. Keep the small card tags and the narrow printed symbol strips beside the windows exactly as they are." },
+  { "name": "r5_kerek", "x": 1300, "y": 270, "w": 320, "h": 550,
+    "text": "a fan-shaped golden sign with 'KÁRTYA' on the top line and 'KERÉK' below it (Hungarian), above a card window showing a red 'K' with a red diamond. Keep the small label below the window exactly as it is." },
+  { "name": "r6_right", "x": 1540, "y": 80, "w": 470, "h": 840,
+    "text": "a column of tilted card panels with red multiplier labels (keep each label exactly as it is, for example 'X6' at the top) and a second column of white playing cards with small golden coins, ending in a small red label reading 'KÁRTYA' above 'OSZTÓ' (Hungarian)." },
+  { "name": "r7_paytable", "x": 30, "y": 850, "w": 1180, "h": 270,
+    "text": "a light blue pay table with rows of small fruit-machine symbols (plums, cherries, oranges, lemons, pears, watermelons, grapes, bells, BAR signs, stars) followed by red numbers. Keep every symbol and every number exactly as it is; only make them sharp." },
+  { "name": "r8_tet", "x": 1330, "y": 880, "w": 630, "h": 280,
+    "text": "a small yellow label 'TÉT' above a dark blue LED display with cyan seven-segment digits (keep the digits exactly as they are), and three small yellow labels below reading 'NYEREMÉNY', 'BONUS BANK' and 'KREDIT'. Keep the thin fine-print line at the very bottom as neat small text lines." }
+]

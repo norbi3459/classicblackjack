@@ -1,0 +1,12 @@
+[
+  { "name": "f_bj_lepesek", "x": 90, "y": 1185, "w": 430, "h": 215,
+    "text": "The left sign is a small 'Classic BLACK JACK' logo: red script 'Classic' at its top-left, then red block letters 'BLACK' on the first line and 'JACK' on the second line, on light blue tiles with a golden outline. The right red sign reads 'SUPER' on the first line and 'LÉPÉSEK' on the second line (Hungarian, accents on both É letters)." },
+  { "name": "f_helps", "x": 455, "y": 1690, "w": 560, "h": 190,
+    "text": "Keep the small yellow-green header at the top exactly as it is. Below it four small red signs on a dark blue banner, from left to right: 'DUPLA' above 'BLACK JACK', 'EXTRA' above 'LÉPÉS', 'JÓ AZ' above 'EGYENLŐ', 'MÁSIK' above 'KÁRTYA' (Hungarian, keep all accents). Keep the tiny fine print below as neat illegible lines." },
+  { "name": "f_wheel_logo", "x": 1020, "y": 1040, "w": 240, "h": 200,
+    "text": "In the centre-right there is a small glowing 'Classic BLACK JACK' logo: red script 'Classic' above red block letters 'BLACK' and 'JACK' on light blue tiles with a golden outline." },
+  { "name": "f_hdr_left", "x": 1300, "y": 570, "w": 360, "h": 175,
+    "text": "The yellow word 'SUPER' above a small 'BLACK JACK' logo with red block letters 'BLACK' and 'JACK' on light blue tiles. On the right edge part of the yellow word 'DUPLA'." },
+  { "name": "f_hdr_right", "x": 1640, "y": 570, "w": 350, "h": 175,
+    "text": "On the left edge part of the yellow word 'DUPLA'. On the right a small 'Classic BLACK JACK' logo: red script 'Classic' above red block letters 'BLACK' and 'JACK' on light blue tiles." }
+]

@@ -1,0 +1,7 @@
+[
+  { "src": "groups_reel/r1_cards_s3.png",   "src_rect": [95, 70, 1150, 190],  "paste": [95, 70, 1150, 190] },
+  { "src": "groups_reel/r3_reels12_s3.png", "src_rect": [60, 340, 680, 495],  "paste": [60, 340, 680, 495] },
+  { "src": "groups_reel/r4_reels34_s3.png", "src_rect": [690, 340, 680, 495], "paste": [700, 340, 670, 495] },
+  { "src": "groups_reel/r5_kerek_s4.png",   "src_rect": [1300, 270, 320, 550], "paste": [1300, 270, 320, 550] },
+  { "src": "groups_reel/r6_right_s2.png",   "src_rect": [1540, 80, 470, 840], "paste": [1540, 80, 470, 840] }
+]

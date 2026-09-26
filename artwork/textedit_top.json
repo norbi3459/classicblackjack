@@ -1,0 +1,16 @@
+[
+  { "name": "t_masik", "x": 860, "y": 1745, "w": 190, "h": 145,
+    "text": "Replace the blurry lettering on the dark red oval sign with clear, sharp, correctly spelled text: 'MÁSIK' on the first line and 'KÁRTYA' on the second line, in the same bold red letters with a thin light outline, same size and position. Sharpen the whole image. Keep everything else exactly the same." },
+  { "name": "t_joaz", "x": 700, "y": 1745, "w": 190, "h": 145,
+    "text": "Replace the blurry lettering on the dark red oval sign with clear, sharp, correctly spelled text: 'JÓ AZ' on the first line and 'EGYENLŐ' on the second line, in the same bold red letters with a thin light outline, same size and position. Sharpen the whole image. Keep everything else exactly the same." },
+  { "name": "t_extra", "x": 555, "y": 1745, "w": 185, "h": 145,
+    "text": "Replace the blurry lettering on the dark red oval sign with clear, sharp, correctly spelled text: 'EXTRA' on the first line and 'LÉPÉS' on the second line, in the same bold red letters with a thin light outline, same size and position. Sharpen the whole image. Keep everything else exactly the same." },
+  { "name": "t_dupla", "x": 450, "y": 1730, "w": 175, "h": 155,
+    "text": "Replace the blurry lettering with clear, sharp, correctly spelled text: the red sign at the top reads 'DUPLA'; the white tiles below read 'BLACK' on the first line and 'JACK' on the second line in red block letters. Same style, size and position. Sharpen the whole image. Keep everything else exactly the same." },
+  { "name": "t_match_right", "x": 300, "y": 910, "w": 230, "h": 165,
+    "text": "Replace the blurry lettering on the glowing red sign with clear, sharp, correctly spelled text: 'MATCH' on the first line and 'PLAY' on the second line, in the same bold glowing red letters, same size and position. Keep everything else exactly the same." },
+  { "name": "t_super_lepesek", "x": 305, "y": 1205, "w": 220, "h": 170,
+    "text": "Replace the blurry lettering on the glowing sign with clear, sharp, correctly spelled text: 'SUPER' on the first line in orange letters and 'LÉPÉSEK' on the second line in red letters, same style, size and position. Keep everything else exactly the same." },
+  { "name": "t_kartya_pontszam", "x": 1265, "y": 1385, "w": 330, "h": 80,
+    "text": "Replace the blurry lettering on the thin label with clear, sharp, correctly spelled text: 'KÁRTYA PONTSZÁM', in the same light grey letters, same size and position. Keep everything else exactly the same." }
+]

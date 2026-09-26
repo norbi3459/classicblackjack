@@ -1,0 +1,29 @@
+[1/16] t_0000_0000.png  scale=1,0025 dx=5,00 dy=-2,00 ncc=0,942
+[2/16] skip t_0000_0580.png
+[3/16] t_0000_1160.png  scale=1,0000 dx=2,00 dy=-1,00 ncc=0,963
+[4/16] t_0000_1348.png  scale=0,9975 dx=2,00 dy=-1,00 ncc=0,876
+[5/16] t_0580_0000.png  scale=1,0000 dx=5,00 dy=0,00 ncc=0,893
+[6/16] t_0580_0580.png  scale=1,0000 dx=6,00 dy=-1,00 ncc=0,935
+[7/16] t_0580_1160.png  scale=1,0025 dx=7,00 dy=-2,00 ncc=0,851
+[8/16] t_0580_1348.png  scale=1,0000 dx=5,00 dy=-2,00 ncc=0,914
+[9/16] t_1160_0000.png  scale=1,0000 dx=3,00 dy=0,00 ncc=0,950
+[10/16] t_1160_0580.png  scale=1,0000 dx=1,00 dy=0,00 ncc=0,954
+[11/16] t_1160_1160.png  scale=1,0000 dx=4,00 dy=-1,00 ncc=0,888
+[12/16] t_1160_1348.png  scale=1,0000 dx=5,00 dy=0,00 ncc=0,876
+[13/16] t_1416_0000.png  scale=1,0025 dx=3,00 dy=0,00 ncc=0,924
+[14/16] t_1416_0580.png  scale=1,0000 dx=5,00 dy=0,00 ncc=0,929
+[15/16] t_1416_1160.png  scale=1,0025 dx=4,00 dy=0,00 ncc=0,879
+[16/16] t_1416_1348.png  scale=1,0000 dx=5,00 dy=0,00 ncc=0,923
+DONE C:\Users\balaz\Desktop\ClassicBlackJack\artwork\top_glass
+stitched 4096 x 4232 -> C:\Users\balaz\Desktop\ClassicBlackJack\artwork\top_glass_v2.png
+[1/8] t_0000_0000.png  scale=1,0025 dx=5,00 dy=-2,00 ncc=0,940
+[2/8] t_0000_0580.png  scale=1,0025 dx=6,00 dy=-2,00 ncc=0,931
+[3/8] t_0000_1160.png  scale=1,0025 dx=6,00 dy=-3,00 ncc=0,954
+[4/8] t_0000_1348.png  scale=1,0025 dx=5,00 dy=-2,00 ncc=0,941
+[5/8] t_0460_0000.png  scale=0,9750 dx=-1,00 dy=9,00 ncc=0,749
+[6/8] t_0460_0580.png  scale=1,0025 dx=5,00 dy=-2,00 ncc=0,957
+[7/8] t_0460_1160.png  scale=1,0025 dx=5,00 dy=0,00 ncc=0,925
+[8/8] t_0460_1348.png  scale=1,0025 dx=8,00 dy=0,00 ncc=0,925
+DONE C:\Users\balaz\Desktop\ClassicBlackJack\artwork\reel_glass
+stitched 4096 x 2320 -> C:\Users\balaz\Desktop\ClassicBlackJack\artwork\reel_glass_v2.png
+ALL DONE
