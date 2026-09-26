@@ -17,6 +17,6 @@ node_modules/
 tools/audio_libs/
 
 forras_kepek_videok/*.mp4
-artwork/video/
+artwork/video/*.wav
 *.npy
 

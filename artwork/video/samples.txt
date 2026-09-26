@@ -1,0 +1,19 @@
+spin 109.70 1.75
+hold 99.00 0.50
+nudgeStep 22.50 0.30
+nudgeArrive 22.97 0.32
+cardAdd 100.40 1.10
+gambleStart 170.30 0.60
+wheelSpin 173.50 0.45
+guessWin 173.85 1.15
+trigger21 215.05 4.95
+winCount 416.95 1.65
+mpLoop 0.00 6.30
+mpResult 9.60 4.00
+multiLoop 28.49 6.80
+rowLoop 37.50 1.40
+nudgePick 75.30 3.00
+chooseLoop 304.50 3.50
+gambleIntro 351.00 3.00
+guessLoop synth (artwork/video/synth_guess.py, pattern from 3:43.0 and 2:51.9)
+joker 156.95 1.25
