@@ -17,5 +17,11 @@
 ## Következő lépések
 1. A 107 objektum átnézése, hibásak újrarajzolása, finomhangolás (elhelyezés, lámpaállapotok).
 2. Ami még hiányzik: apró feliratok / fine print, felső sarkok, a tárcsakeretek mögé a tárcsa-illesztés.
-3. **3D mód** (a felhasználóval egyeztetve, a 2D grafika után): a játék képe élő textúraként a Blender-modell
-   üvegein (three.js, glTF export), szabad kamera, kattintható 3D gombok; a 2D nézet marad alapnak.
+3. ~~3D mód~~ → kész, lásd lent.
+
+## 3D nézet (`game/view3d.js`, „3D gép” gomb)
+- A gépház a `3d/build_cabinet.py` méreteiből épül fel three.js-szel (`game/vendor/three`, MIT), nincs glTF export.
+- A két üveg maga az élő 2D játék (`#topGlass`, `#reelGlass`) CSS 3D-ben elhelyezve: éles és kattintható marad.
+  A WebGL-gépház felül van, az üvegek helyén átlátszó „lyukkal”, így oldalról a gépház eltakarja az üveg szélét.
+- A pult 6 gombja 3D-s, kattintható, a 2D gombok feliratát és világítását veszi át. Billentyűk ugyanúgy működnek.
+- Egér: húzás = forgatás, görgő = nagyítás, jobb gomb = eltolás. A választás megmarad (localStorage).

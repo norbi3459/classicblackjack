@@ -244,6 +244,8 @@
   const WIDE_GAP = 40;
   function fit() {
     const b = document.body.classList, compact = b.contains("compact"), wide = b.contains("wide");
+    // 3D view (view3d.js): the glasses are shown in 3D at roughly their own size
+    if (b.contains("view3d")) { setResolution(Math.min(1.6, window.devicePixelRatio || 1)); return; }
     const lower = L.msgH + L.reelGlass.h + L.deckH;
     const h = compact ? lower : wide ? Math.max(L.top.h, lower) : L.top.h + lower;
     const W = wide ? 4096 + WIDE_GAP : 2048;

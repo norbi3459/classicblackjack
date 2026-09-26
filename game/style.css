@@ -157,3 +157,12 @@ body.debug .lamp::after { content: attr(data-id); position: absolute; left: 4px;
 .panel .note { color: #b8b8c0; }
 .panel .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 kbd { background: #2a2b33; border: 1px solid #555; border-radius: 4px; padding: 0 5px; font-size: 12px; }
+
+/* 3D view (view3d.js): the DOM glasses in CSS 3D below, the WebGL cabinet on top with holes for them */
+#view3d { position: fixed; inset: 0; z-index: 5; background: #0d0d11; }
+#view3d[hidden] { display: none; }
+#view3d .v3d-css, #view3d .v3d-gl { position: absolute; inset: 0; }
+#view3d .v3d-gl { pointer-events: none; }
+body.view3d #viewport { visibility: hidden; }
+body.view3d #btnView { display: none; }
+#side { z-index: 10; }

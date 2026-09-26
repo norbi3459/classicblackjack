@@ -54,6 +54,7 @@
 <div id="side">
   <button id="btnFull" title="Teljes képernyő (F11)">Teljes képernyő</button>
   <button id="btnView" title="Nézet váltása">Nézet</button>
+  <button id="btn3d" title="A gép 3D-ben: forgatás egérrel, görgővel nagyítás">3D gép</button>
   <button id="btnSound">Hang: be</button>
   <button id="btnHelp">Súgó</button>
   <button id="btnTest">Teszt</button>
@@ -108,5 +109,7 @@
 <script src="circles.js" onerror="void 0"></script>
 <script src="engine.js"></script>
 <script src="ui.js"></script>
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
+<script type="module" src="view3d.js"></script>
 </body>
 </html>
