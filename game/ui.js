@@ -316,6 +316,7 @@
     fire: { fill: [[0, "#ffd84d"], [0.45, "#ff6d1c"], [0.7, "#ef2e17"], [1, "#b20c0c"]], line: [[0, "#fff3a0"], [1, "#ffbf1a"]], rim: "#2a0303", lw: 0.13, rw: 0.27 },
     gold: { fill: [[0, "#fff8b0"], [0.5, "#ffd21f"], [1, "#c98f00"]], line: [[0, "#5a2c00"], [1, "#2e1500"]], rim: null, lw: 0.1, rw: 0 },
     bright: { fill: [[0, "#fffde0"], [0.45, "#ffe64d"], [1, "#ffae00"]], line: [[0, "#7a1a00"], [1, "#3a0800"]], rim: "#000000", lw: 0.16, rw: 0.3 },
+    ruby: { fill: [[0, "#ff9486"], [0.42, "#f4322c"], [1, "#a50b14"]], line: [[0, "#3d0307"], [1, "#1c0103"]], rim: "#120102", lw: 0.1, rw: 0.2 },
     cream: { fill: [[0, "#fffdf4"], [1, "#eed9ae"]], line: [[0, "#8a0c12"], [1, "#5a0409"]], rim: "#210202", lw: 0.12, rw: 0.22 },
   };
   function machineText(g, text, x, y, size, variant = "fire", squeeze = 1) {
@@ -668,19 +669,21 @@
         g.translate(R[2] / 2, R[3] / 2); g.rotate((i % 2 ? -1 : 1) * 0.1);
         drawPlayingCard(g, rank, suitOf[rank], r[2] * 0.94, r[3] * 0.94);
       });
-      // multiplier panels, drawn crisp: tilted light-blue card panel, big red label, the winning cards on it
+      // multiplier panels as on the machine: slanted light-blue glass cards in a silver rim,
+      // red "X6" on a dark red cushion, below it the cards (or suit signs) the multiplier pays for
       const multiLook = {
-        x6: { label: "X6", cards: [["K", "d"], ["A", "c"]] },
-        x3: { label: "X3", cards: [["J", "h"], ["Q", "s"], ["K", "d"], ["A", "c"]] },
-        x2b: { label: "X2", cards: [["", "c"], ["", "s"]] },
-        x2r: { label: "X2", cards: [["", "h"], ["", "d"]] },
-        x1: { label: "X1½", cards: [["2", "h"], ["5", "s"], ["9", "d"]] },
+        x6: { label: "X6", cards: ["K", "A"] },
+        x3: { label: "X3", cards: ["J", "Q", "K", "A"] },
+        x2b: { label: "X2", pips: ["c", "s"] },
+        x2r: { label: "X2", pips: ["h", "d"] },
+        x1: { label: "X1½", cards: ["2", "3", "4", "5", "6", "7", "8", "9"] },
       };
       for (const [id, r] of Object.entries(L.multi)) {
         const look = multiLook[id];
         const R = [r[0] - 6, r[1] - 6, r[2] + 12, r[3] + 12];
         const g = codeCanvas("reelObjects", R, 2, "m_" + id);
-        drawMultiPanel(g, R[2], R[3], look);
+        const imgs = (look.cards || []).map(cardImage);
+        Promise.all(imgs.map(imgReady)).then(() => drawMultiPanel(g, R[2], R[3], look, imgs));
       }
       const w = L.cardWheel, F = [w.x - 16, w.y - 14, w.w + 32, w.h + 28];
       const g = codeCanvas("reelObjects", F, 3, null);
@@ -990,66 +993,84 @@
     g.restore();
   }
 
-  // ---- multiplier panel: tilted glass card in a gold bevel frame, red plaque with the multiplier, fanned cards
-  function drawMultiPanel(g, W, H, look) {
-    const sk = 0.18, pw = W * 0.84, ph = H * 0.8, rad = 16;
+  // ---- multiplier panel (see artwork/m_right.png): slanted glass card, silver rim, red label cushion, cards below
+  function cardImage(rank) {
+    const cache = (cardImage.cache = cardImage.cache || {});
+    if (!cache[rank]) { const im = new Image(); im.src = `assets/objects/r_${rank}.png`; cache[rank] = im; }
+    return cache[rank];
+  }
+  function imgReady(im) {
+    return im.complete ? Promise.resolve() : new Promise((res) => im.addEventListener("load", res) || im.addEventListener("error", res));
+  }
+
+  function drawMultiPanel(g, W, H, look, imgs) {
+    const sk = 0.2, ph = H - 12, pw = W - sk * ph - 12, rad = 14;
     g.save();
-    g.translate(W / 2, H / 2); g.transform(1, -0.06, -sk, 1, 0, 0);
-    // gold bevel frame
-    g.save(); g.shadowColor = "rgba(0,0,0,0.65)"; g.shadowBlur = 12; g.shadowOffsetX = 3; g.shadowOffsetY = 5;
+    g.translate(W / 2, H / 2); g.transform(1, 0.03, sk, 1, 0, 0);
+    // silver rim with a drop shadow
+    g.save(); g.shadowColor = "rgba(0,0,0,0.7)"; g.shadowBlur = 10; g.shadowOffsetX = 3; g.shadowOffsetY = 5;
     roundRect(g, -pw / 2, -ph / 2, pw, ph, rad);
-    const gold = g.createLinearGradient(-pw / 2, -ph / 2, pw / 2, ph / 2);
-    gold.addColorStop(0, "#fff3b0"); gold.addColorStop(0.25, "#f2b632"); gold.addColorStop(0.55, "#a8680c"); gold.addColorStop(0.8, "#f7c948"); gold.addColorStop(1, "#7a4a06");
-    g.fillStyle = gold; g.fill(); g.restore();
-    roundRect(g, -pw / 2, -ph / 2, pw, ph, rad); g.lineWidth = 2; g.strokeStyle = "#4a2a02"; g.stroke();
-    // glass
-    const b = 7, gw = pw - 2 * b, gh = ph - 2 * b;
-    roundRect(g, -gw / 2, -gh / 2, gw, gh, rad - 5);
-    const glass = g.createRadialGradient(-gw * 0.15, -gh * 0.3, gw * 0.05, 0, 0, gw * 0.75);
-    glass.addColorStop(0, "#f4fcff"); glass.addColorStop(0.55, "#bfe4f2"); glass.addColorStop(1, "#6fa9c4");
-    g.fillStyle = glass; g.fill();
-    g.lineWidth = 2; g.strokeStyle = "rgba(60,90,110,0.8)"; g.stroke();
-    // glossy diagonal sheen
-    g.save(); roundRect(g, -gw / 2, -gh / 2, gw, gh, rad - 5); g.clip();
-    const sheen = g.createLinearGradient(-gw / 2, -gh / 2, gw * 0.1, gh * 0.1);
-    sheen.addColorStop(0, "rgba(255,255,255,0.55)"); sheen.addColorStop(0.45, "rgba(255,255,255,0.12)"); sheen.addColorStop(0.46, "rgba(255,255,255,0)");
-    g.fillStyle = sheen; g.fillRect(-gw / 2, -gh / 2, gw, gh); g.restore();
+    const rim = g.createLinearGradient(-pw / 2, -ph / 2, pw / 2, ph / 2);
+    rim.addColorStop(0, "#ffffff"); rim.addColorStop(0.3, "#c9d3da"); rim.addColorStop(0.55, "#7f8c96"); rim.addColorStop(0.8, "#e3e9ed"); rim.addColorStop(1, "#6b7780");
+    g.fillStyle = rim; g.fill(); g.restore();
+    roundRect(g, -pw / 2, -ph / 2, pw, ph, rad); g.lineWidth = 2.5; g.strokeStyle = "#1d2429"; g.stroke();
+    // light blue field
+    const b = 8, fw = pw - 2 * b, fh = ph - 2 * b;
+    roundRect(g, -fw / 2, -fh / 2, fw, fh, rad - 5);
+    const field = g.createLinearGradient(0, -fh / 2, 0, fh / 2);
+    field.addColorStop(0, "#d8f0f8"); field.addColorStop(0.5, "#aad5e7"); field.addColorStop(1, "#86bcd3");
+    g.fillStyle = field; g.fill(); g.lineWidth = 1.5; g.strokeStyle = "#4d7f96"; g.stroke();
 
-    const cards = look.cards, hasCards = cards.length > 0;
-    // red plaque with gold rim
-    const bw = gw * 0.78, bh = gh * (hasCards ? 0.44 : 0.62), by = hasCards ? -gh * 0.2 : 0;
-    g.save(); g.shadowColor = "rgba(0,0,0,0.5)"; g.shadowBlur = 6; g.shadowOffsetY = 2;
-    roundRect(g, -bw / 2, by - bh / 2, bw, bh, bh * 0.35);
-    const red = g.createLinearGradient(0, by - bh / 2, 0, by + bh / 2);
-    red.addColorStop(0, "#ff5040"); red.addColorStop(0.45, "#c3121d"); red.addColorStop(1, "#5c040b");
-    g.fillStyle = red; g.fill(); g.restore();
-    roundRect(g, -bw / 2, by - bh / 2, bw, bh, bh * 0.35); g.lineWidth = 3; g.strokeStyle = "#f7c948"; g.stroke();
-    roundRect(g, -bw / 2 + 4, by - bh / 2 + 3, bw - 8, bh * 0.38, bh * 0.25);
-    g.fillStyle = "rgba(255,255,255,0.18)"; g.fill();
-    // the multiplier: slanted, bright
-    g.save(); g.translate(0, by); g.transform(1, 0, -0.12, 1, 0, 0);
-    machineText(g, look.label, 0, bh * 0.02, bh * 0.82, "bright", 1.05);
+    // dark red cushion with the red multiplier on it
+    const lh = fh * 0.4, lw = fw * 0.88, ly = -fh / 2 + fh * 0.05 + lh / 2;
+    g.save(); g.shadowColor = "rgba(20,0,0,0.5)"; g.shadowBlur = 4; g.shadowOffsetY = 2;
+    roundRect(g, -lw / 2, ly - lh / 2, lw, lh, lh * 0.45);
+    const cush = g.createLinearGradient(0, ly - lh / 2, 0, ly + lh / 2);
+    cush.addColorStop(0, "#a3141d"); cush.addColorStop(0.5, "#730910"); cush.addColorStop(1, "#4a0409");
+    g.fillStyle = cush; g.fill(); g.restore();
+    roundRect(g, -lw / 2, ly - lh / 2, lw, lh, lh * 0.45); g.lineWidth = 2; g.strokeStyle = "#2a0205"; g.stroke();
+    roundRect(g, -lw / 2 + 5, ly - lh / 2 + 3, lw - 10, lh * 0.34, lh * 0.2); g.fillStyle = "rgba(255,190,190,0.16)"; g.fill();
+    const size = lh * 0.98;
+    g.font = `${size}px ${MFONT}`;
+    const squeeze = Math.min(1.08, (lw * 0.84) / g.measureText(look.label).width);
+    g.save(); g.translate(0, ly); g.transform(1, 0, -0.16, 1, 0, 0);
+    machineText(g, look.label, 0, size * 0.03, size, "ruby", squeeze);
     g.restore();
 
-    // fanned mini cards
-    const n = cards.length;
-    cards.forEach(([rk, su], i) => {
-      const cw = Math.min((gw * 0.86) / n - 2, 30), chh = cw * 1.38;
-      const t = n > 1 ? i / (n - 1) - 0.5 : 0;
-      const x = t * Math.min(gw * 0.62, (cw + 4) * (n - 1)), y = gh * 0.26 + Math.abs(t) * 5;
-      g.save(); g.translate(x, y); g.rotate(t * 0.45);
-      g.save(); g.shadowColor = "rgba(0,0,0,0.45)"; g.shadowBlur = 4; g.shadowOffsetY = 2;
-      roundRect(g, -cw / 2, -chh / 2, cw, chh, 4); g.fillStyle = "#ffffff"; g.fill(); g.restore();
-      roundRect(g, -cw / 2, -chh / 2, cw, chh, 4); g.lineWidth = 1.2; g.strokeStyle = "#6f8795"; g.stroke();
-      const c = ink(su);
-      if (rk) {
-        g.font = `${cw * 0.5}px ${MFONT}`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = c.fill[1];
-        g.fillText(rk, 0, -chh * 0.2);
-        drawPip(g, su, 0, chh * 0.2, cw * 0.24);
-      } else drawPip(g, su, 0, 0, cw * 0.36);
-      g.restore();
-    });
+    // what the multiplier pays for
+    const top = ly + lh / 2 + 3, ah = fh / 2 - top - 5, cy = top + ah / 2;
+    if (look.pips) {
+      const s = ah * 0.43;
+      look.pips.forEach((su, i) => glossyPip(g, su, (i ? 1 : -1) * fw * 0.2, cy, s));
+    } else {
+      const n = imgs.length, ch = ah * 0.96, cw = ch * (259 / 366), room = fw * 0.9;
+      const gap = 4, step = n * cw + (n - 1) * gap <= room ? cw + gap : (room - cw) / (n - 1);
+      const x0 = -((n - 1) * step + cw) / 2;
+      imgs.forEach((im, i) => {
+        if (!im.naturalWidth) return;
+        g.save(); g.shadowColor = "rgba(20,40,60,0.45)"; g.shadowBlur = 4; g.shadowOffsetX = 1; g.shadowOffsetY = 2;
+        g.drawImage(im, x0 + i * step, cy - ch / 2, cw, ch); g.restore();
+      });
+    }
+
+    // glass sheen over the whole card
+    g.save(); roundRect(g, -fw / 2, -fh / 2, fw, fh, rad - 5); g.clip();
+    const sheen = g.createLinearGradient(-fw / 2, -fh / 2, fw * 0.15, fh * 0.2);
+    sheen.addColorStop(0, "rgba(255,255,255,0.4)"); sheen.addColorStop(0.42, "rgba(255,255,255,0.08)"); sheen.addColorStop(0.43, "rgba(255,255,255,0)");
+    g.fillStyle = sheen; g.fillRect(-fw / 2, -fh / 2, fw, fh);
     g.restore();
+    g.restore();
+  }
+  // a big suit sign with a glossy highlight (the ×2 panels)
+  function glossyPip(g, suit, x, y, s) {
+    g.save(); g.shadowColor = "rgba(20,40,60,0.5)"; g.shadowBlur = 5; g.shadowOffsetY = 2;
+    drawPip(g, suit, x, y, s); g.restore();
+    g.save(); g.translate(x, y); pipPath(g, suit, s); g.clip();
+    const hl = g.createLinearGradient(-s, -s, s * 0.2, s * 0.2);
+    hl.addColorStop(0, "rgba(255,255,255,0.75)"); hl.addColorStop(0.45, "rgba(255,255,255,0.15)"); hl.addColorStop(0.46, "rgba(255,255,255,0)");
+    g.fillStyle = hl; g.fillRect(-s * 1.4, -s * 1.2, s * 2.8, s * 2.4);
+    g.restore();
+    g.save(); g.translate(x, y); pipPath(g, suit, s); g.lineWidth = Math.max(1.5, s * 0.1); g.strokeStyle = "#e9f3f7"; g.globalAlpha = 0.35; g.stroke(); g.restore();
   }
 
   // a full playing card (number cards 2..9) centred on the origin
