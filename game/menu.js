@@ -12,26 +12,38 @@
   if (!dev) $("btnTest").remove();
   if (!document.fullscreenEnabled) { $("mnFull").hidden = true; $("btnFull").hidden = true; }
 
-  // ---- 3D, loaded on demand
-  let v3d = null;
-  const load3d = () => v3d || (v3d = import("./view3d.js").then(() => CBJ.set3d, (e) => { v3d = null; throw e; }));
-  // build the 3D scene while the menu is up (shaders, textures), so JÁTÉK goes straight in
-  let ready3d = null;
-  const prep3d = () => ready3d || (ready3d = load3d().then((set) => new Promise((ok, bad) => {
-    setTimeout(() => { try { CBJ.prep3d(); ok(set); } catch (e) { ready3d = null; bad(e); } }, 30);
-  })));
   const note = (t) => { const n = $("mnNote"); n.textContent = t || ""; n.hidden = !t; };
-  const is3d = () => document.body.classList.contains("view3d");
+  // ---- 3D. Computers: the real, turnable 3D (view3d.js + three.js, loaded on demand). Phones: the rendered
+  // cabinet picture with the live glasses (cabinet.js), which works wherever 2D works. A computer whose real 3D
+  // did not come up last time gets the picture too.
+  if (store.get("cbj-3d-boot")) {
+    store.set("cbj-3d-boot", "");
+    if (store.get("cbj-3d-cab") !== "1") {
+      store.set("cbj-3d-cab", "1");
+      setTimeout(() => note("A teljes 3D legutóbb nem indult el ezen a készüléken, ezért a könnyített 3D-vel indul."), 0);
+    } else {
+      store.set("cbj-3d", "0");
+      setTimeout(() => note("A 3D nézet legutóbb nem indult el ezen a készüléken, ezért 2D-ben indul."), 0);
+    }
+  }
+  const q = location.search;
+  const CAB = /[?&]cab/.test(q) || (!/[?&]full3d/.test(q) && (CBJ.LITE || store.get("cbj-3d-cab") === "1"));
+  const cabSet = (on) => { on ? CBJ.cab.enter() : CBJ.cab.leave(); store.set("cbj-3d", on ? "1" : "0"); };
+  let v3d = null;
+  const load3d = CAB ? () => Promise.resolve(cabSet)
+    : () => v3d || (v3d = import("./view3d.js").then(() => CBJ.set3d, (e) => { v3d = null; throw e; }));
+  // get the 3D ready while the menu is up (the pictures; or the scene, shaders and textures), so JÁTÉK goes straight in
+  let ready3d = null;
+  const prep3d = CAB
+    ? () => ready3d || (ready3d = CBJ.cab.ready().then(() => cabSet, (e) => { ready3d = null; throw e; }))
+    : () => ready3d || (ready3d = load3d().then((set) => new Promise((ok, bad) => {
+      setTimeout(() => { try { CBJ.prep3d(); ok(set); } catch (e) { ready3d = null; bad(e); } }, 30);
+    })));
+  const is3d = () => document.body.classList.contains("view3d") || document.body.classList.contains("cab3d");
   $("btn3d").onclick = () => load3d().then((set) => set(!is3d()));
 
   // ---- choices
   let want3d = store.get("cbj-3d") === "1";
-  // 3D was being started last time and the page never got past it (a phone that ran out of memory reloads the
-  // page): start in 2D and say so
-  if (store.get("cbj-3d-boot")) {
-    store.set("cbj-3d-boot", ""); store.set("cbj-3d", "0"); want3d = false;
-    setTimeout(() => note("A 3D nézet legutóbb nem indult el ezen a készüléken, ezért 2D-ben indul. Újra kipróbálhatod."), 0);
-  }
   if (want3d) prep3d().catch(() => {});
   const paint = () => {
     document.querySelectorAll("#mnView button").forEach((b) => b.classList.toggle("on", (b.dataset.v === "3d") === want3d));
@@ -76,9 +88,18 @@
           setTimeout(() => store.set("cbj-3d-boot", ""), 5000);
         } else (await load3d())(false);
       } catch (e) {
-        want3d = false; store.set("cbj-3d", "0"); store.set("cbj-3d-boot", "");
-        b.disabled = false; label.textContent = "JÁTÉK"; paint();
-        note("A 3D nézet nem indult el ezen a készüléken (" + (e && e.message ? e.message : e) + "). Játssz 2D-ben!");
+        store.set("cbj-3d-boot", "");
+        b.disabled = false; label.textContent = "JÁTÉK";
+        const why = e && e.message ? e.message : String(e);
+        if (!CAB) {
+          // the real 3D failed: the picture version comes up after a reload, which it gets straight away
+          store.set("cbj-3d-cab", "1"); store.set("cbj-3d", "1");
+          note("A teljes 3D nem indult el (" + why + "), átváltunk a könnyített 3D-re…");
+          setTimeout(() => location.reload(), 1600);
+        } else {
+          want3d = false; store.set("cbj-3d", "0"); paint();
+          note("A 3D nézet nem indult el ezen a készüléken (" + why + "). Játssz 2D-ben!");
+        }
         return;
       }
       b.disabled = false;
@@ -101,18 +122,28 @@
   (function watchLoad() {
     menu.classList.add("loading");
     const fill = $("mnLoad").firstElementChild, txt = $("mnLoadTxt"), t0 = performance.now();
-    const SOUNDS = ["spin", "hold", "multiLoop", "guessLoop", "mpLoop", "trigger21", "wheelSpin", "joker"];
     const audio = !!(window.AudioContext || window.webkitAudioContext);
     let threeOk = !want3d;
     if (want3d) prep3d().then(() => (threeOk = true), () => (threeOk = true));
+    // pictures used later (the banknotes, the phones' cabinet pictures): fetched and decoded now, not mid-game
+    const extra = [1000, 2000, 5000, 10000, 20000, 500].map((v) => `assets/money/ft${v}.jpg`);
+    if (CAB) extra.push("assets/cab/portrait.webp", "assets/cab/landscape.webp");
+    let extraDone = 0;
+    extra.forEach((u) => { const im = new Image(); im.src = u; (im.decode ? im.decode() : Promise.resolve()).then(() => extraDone++, () => extraDone++); });
+    // every picture of the machine decoded in advance (decoding them on first sight is what makes a phone stutter)
+    const decoded = new WeakSet(), asked = new WeakSet();
     const tick = () => {
-      const imgs = [...document.images].filter((im) => im.getAttribute("src") && !im.src.startsWith("data:"));
-      const pi = imgs.length ? imgs.filter((im) => im.complete).length / imgs.length : 1;
-      const ps = audio ? SOUNDS.filter((n) => SFX.has(n)).length / SOUNDS.length : 1;
-      const p = pi * 0.7 + ps * 0.2 + (threeOk ? 0.1 : 0);
+      const imgs = [...document.images].filter((im) => im.getAttribute("src"));
+      for (const im of imgs) if (im.complete && !asked.has(im)) { asked.add(im); (im.decode ? im.decode() : Promise.resolve()).then(() => decoded.add(im), () => decoded.add(im)); }
+      const pi = imgs.length ? imgs.filter((im) => decoded.has(im)).length / imgs.length : 1;
+      const names = SFX.names || [];
+      const ps = audio && names.length ? names.filter((n) => SFX.has(n)).length / names.length : 1;
+      const pu = ui.ready && ui.ready() ? 1 : 0;
+      const px = (extraDone / extra.length) * 0.5 + (threeOk ? 0.5 : 0);
+      const p = pi * 0.45 + ps * 0.25 + pu * 0.15 + px * 0.15;
       fill.style.width = Math.round(p * 100) + "%";
       txt.textContent = "BETÖLTÉS " + Math.round(p * 100) + "%";
-      if ((p >= 0.999 && document.readyState === "complete") || performance.now() - t0 > 25000) {
+      if ((p >= 0.999 && document.readyState === "complete") || performance.now() - t0 > 40000) {
         fill.style.width = "100%";
         setTimeout(() => menu.classList.remove("loading"), 250);
         return;

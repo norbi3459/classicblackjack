@@ -42,3 +42,10 @@
 - Telefonra: `viewport-fit=cover`, biztonsági margók, fekvő nézetben kétoszlopos menü, „Kezdőképernyőhöz adás”
   (`manifest.webmanifest`, `icon-192.png`, `icon-512.png`, teljes képernyős indulás). A Teszt gomb csak helyben
   (localhost) vagy `?teszt` címmel látszik.
+
+## Telefonos 3D: kép + élő üvegek (2026-09-28)
+- Telefonon a 3D a gépszekrény előre renderelt képe (`assets/cab/portrait.webp`, `landscape.webp`, helyek: `cab.json`,
+  készíti: `node tools/render_cabinet.js`), rajta az élő játék üvegei (perspektivikusan ráillesztve) és nyomható gombok
+  (`game/cabinet.js`). Nincs WebGL/three.js → nem omlik össze, nem melegszik. Számítógépen marad a forgatható 3D;
+  ha az ott nem indul, a következő indítás a képes 3D-t használja. `?cab` / `?full3d` kényszeríti.
+- A betöltő képernyő mindent előre betölt és dekódol (képek, hangok, szimbólumok, bankjegyek, 3D).

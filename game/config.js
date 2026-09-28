@@ -58,8 +58,8 @@
         { id: "lClassic", label: "Classic Black Jack", prize: { feature: "classicbj" } },
         { id: "lSuperLep", label: "Super lépések", prize: { feature: "superlepesek" } },
       ] },
-      // at 20 the machine offers a risk by itself: Classic Black Jack and Super Classic Black Jack flash in turn,
-      // START catches one, TÉT takes the 20, TART goes on guessing (owner, 2026-09-28)
+      // at 20, TÉT (stop) is not paid out: Classic Black Jack and Super Classic Black Jack flash in turn (up and
+      // down), START catches one, then that row's two fields flash side by side and START picks (owner, 2026-09-28)
       { id: "l20", label: "20", prize: { credit: 20 }, risk: ["lClassic", "lSuperBJ"] },
       { options: [
         { id: "lSuperBJ", label: "Super Classic Black Jack", prize: { feature: "superbj" } },
@@ -87,7 +87,7 @@
     roundLamps: { count: 5, perLamp: 4, fullPrize: 20 },
 
     // Super lépések: the number of steps is caught on the right-hand track, then the reels are moved by hand
-    nudge: { maxSteps: 16 },
+    nudge: { maxSteps: 21 },
 
     matchPlay: {
       wheel: ["bar", "csengo", "bj", "szilva", "citrom", "dinnye", "narancs", "szolo"], // clockwise from top

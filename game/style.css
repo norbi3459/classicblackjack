@@ -25,7 +25,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: #eee; font-f
 #topGlass { height: 2116px; }
 #reelGlass { height: 1160px; }
 .glass > img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; pointer-events: none; }
-body.compact:not(.view3d) #topGlass { display: none; }
+body.compact:not(.view3d):not(.cab3d) #topGlass { display: none; }
 /* wide view: top glass on the left, message bar + reel glass + buttons on the right */
 body.wide #stage { width: 4136px; display: grid; grid-template-columns: 2048px 2048px; grid-template-rows: 120px 1160px 330px 1fr; column-gap: 40px; align-items: start; }
 body.wide #topGlass { grid-column: 1; grid-row: 1 / span 4; }
@@ -48,7 +48,7 @@ canvas.strip { position: absolute; pointer-events: none; filter: drop-shadow(0 0
 .lamp { position: absolute; pointer-events: none; }
 .lamp > img {
   position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; user-select: none;
-  filter: brightness(1.12) saturate(1.12) drop-shadow(0 0 12px rgba(255, 185, 80, 0.55));
+  filter: brightness(1.12) saturate(1.02) drop-shadow(0 0 6px rgba(255, 244, 214, 0.6));
   transition: opacity 70ms linear;
 }
 .lamp.on > img { opacity: 1; }
@@ -76,21 +76,22 @@ body.scene #reelBase { display: none; }
 #reelLamps, #display, #ledStake, #tetPanel { z-index: 3; }
 .obj { position: absolute; user-select: none; }
 .obj.z1 { z-index: 1; } .obj.z2 { z-index: 2; } .obj.z3 { z-index: 3; }
-/* the glass is backlit: printed parts always glow warm orange; a lamp that is off is only a bit dimmer */
+/* the glass is backlit: a lamp that is off is darker; one that is on is a bulb behind the glass: brighter, with a soft
+   warm-white halo (not an orange one) */
 .obj { filter: drop-shadow(0 0 6px rgba(255, 150, 40, 0.35)); }
-.obj.lamp { filter: brightness(0.84) saturate(0.95) drop-shadow(0 0 5px rgba(255, 140, 30, 0.25)); transition: filter 70ms linear; }
-.obj.lamp.on { filter: brightness(1.18) saturate(1.15) drop-shadow(0 0 14px rgba(255, 170, 60, 0.85)); }
+.obj.lamp { filter: brightness(0.74) saturate(0.9); transition: filter 70ms linear; }
+.obj.lamp.on { filter: brightness(1.2) saturate(1.02) drop-shadow(0 0 7px rgba(255, 244, 214, 0.7)); }
 .obj.lamp.blink { animation: objblink 0.5s steps(1, end) infinite; }
 .obj.lamp.fast { animation-duration: 0.18s; }
 .obj.lamp.clickable { pointer-events: auto; cursor: pointer; }
 @keyframes objblink {
-  0% { filter: brightness(1.18) saturate(1.15) drop-shadow(0 0 14px rgba(255, 170, 60, 0.85)); }
-  50% { filter: brightness(0.84) saturate(0.95) drop-shadow(0 0 5px rgba(255, 140, 30, 0.25)); }
+  0% { filter: brightness(1.2) saturate(1.02) drop-shadow(0 0 7px rgba(255, 244, 214, 0.7)); }
+  50% { filter: brightness(0.74) saturate(0.9); }
 }
 /* a field of the one-piece track: invisible when off, a brighter copy of that part of the track when on */
 canvas.num.disclamp { filter: none !important; }
-.obj.lamp.cliplamp, canvas.num.cliplamp { overflow: hidden; opacity: 0; filter: brightness(1.35) saturate(1.2) drop-shadow(0 0 10px rgba(255, 170, 60, 0.9)); transition: opacity 70ms; }
-.obj.lamp.cliplamp.on { opacity: 1; filter: brightness(1.35) saturate(1.2) drop-shadow(0 0 10px rgba(255, 170, 60, 0.9)); }
+.obj.lamp.cliplamp, canvas.num.cliplamp { overflow: hidden; opacity: 0; filter: brightness(1.3) saturate(1.02) drop-shadow(0 0 6px rgba(255, 244, 214, 0.75)); transition: opacity 70ms; }
+.obj.lamp.cliplamp.on { opacity: 1; filter: brightness(1.3) saturate(1.02) drop-shadow(0 0 6px rgba(255, 244, 214, 0.75)); }
 .cliplamp.on, canvas.num.cliplamp.on { opacity: 1; }
 .cliplamp.blink, canvas.num.cliplamp.blink { animation: clipblink 0.5s steps(1, end) infinite; }
 .cliplamp.fast, canvas.num.cliplamp.fast { animation-duration: 0.18s; }
@@ -211,3 +212,24 @@ button, .mbtn, .lamp.clickable { touch-action: manipulation; }
   #side button:not(#btnMenu) { display: none; }
   #side button { padding: 5px 9px; font-size: 11px; opacity: 0.8; }
 }
+
+/* phones' 3D (cabinet.js): the rendered cabinet with the live glasses and pressable buttons laid onto it */
+#cab { position: fixed; inset: 0; z-index: 3; background: #0d0d11; overflow: hidden; touch-action: manipulation; }
+#cab[hidden] { display: none; }
+body.cab3d #viewport { display: none; }
+.cab-shot { position: absolute; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.cab-glass, .cab-btn, .cab-acc { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.cab-glass { overflow: hidden; }
+.cab-glass > .glass { position: absolute; left: 0; top: 0; }
+.cab-btn { cursor: pointer; border-radius: 22%; -webkit-tap-highlight-color: transparent; }
+.cab-glow { position: absolute; inset: -22%; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 236, 170, 0.8), rgba(255, 170, 60, 0.35) 60%, rgba(255, 150, 40, 0)); transition: opacity 120ms; }
+.cab-btn.lit .cab-glow { opacity: 1; }
+.cab-btn.dim::after { content: ""; position: absolute; inset: 3%; border-radius: 22%; background: rgba(0, 0, 0, 0.45); pointer-events: none; }
+.cab-cap { position: absolute; left: 11%; right: 11%; top: 34%; height: 32%; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  font: 400 15px/1 "Titan One", sans-serif; color: #fff4c8; }
+.cab-cap img { max-width: 100%; max-height: 100%; }
+.cab-btn.press { animation: cabpress 0.2s ease-out; }
+@keyframes cabpress { 40% { filter: brightness(1.6); } }
+.cab-acc { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cab-slot { position: absolute; left: 12%; right: 12%; top: 26%; height: 5%; pointer-events: none; }

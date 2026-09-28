@@ -124,11 +124,15 @@ A játék a **0. szintről** indul: már az 1. szintre (4) is tippelni kell.
 - A TART gombokkal ez átállítható (max. 3 tárcsa). Tartott pörgetés után nincs újabb tartás.
 - Az üzenetsáv (a két üveg között) üres, mint az eredeti gépen.
 
-## Kockázat a 20-asnál (felhasználó, 2026-09-28)
-- Ha a Kisebb/Nagyobb létrán eléred a **20**-at, a gép **magától** felajánlja a kockázatot: a **Classic Black Jack**
-  és a **Super Classic Black Jack** mező felváltva villog, a **START** azt adja, amelyik épp ég.
-- **TÉT (ELVISZ)** = elviszed a 20-at; **TART (TOVÁBB)** = tovább tippelsz a Kisebb/Nagyobb-ban.
-- A mezők listája: `config.js`, a létra 20-as lépcsőjének `risk` listája.
+## A 20-as szint (felhasználó, 2026-09-28)
+- A 20-asnál is lehet tovább tippelni (Extra lépés, Másik kártya is használható).
+- Ha a **TÉT**-tel megállsz, a gép **nem írja fel a 20-at**: a **Classic Black Jack** (lent) és a **Super Classic
+  Black Jack** (fent) felváltva villog **függőlegesen**, a START elkapja az egyiket.
+- Utána az elkapott mező sora villog **vízszintesen**: Super Classic Black Jack ↔ Match Play, illetve
+  Classic Black Jack ↔ Super lépések — a START választ.
+
+## Másik kártya (Kisebb/Nagyobb)
+- Ha a kártya nehéz (pl. 8-as), a Másik kártya segítség új véletlen kártyát pörget, és arról kell tippelni.
 
 ## A 4 háromszög gomb (felhasználó, 2026-09-28)
 - Balról jobbra: **?** (egyelőre Dupla Black Jack) · **Extra lépés** · **Másik kártya** · **Kifizetés**.

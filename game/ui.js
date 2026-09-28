@@ -173,6 +173,7 @@
     };
     return {
       has: (name) => !!buffers[name],
+      names: SAMPLE_NAMES,
       length: (name) => (buffers[name] ? buffers[name].duration : 0),
       play, stopChannel,
       unlock() { const c = ensure(); if (c) loadSamples(); return c; },
@@ -257,6 +258,8 @@
   function fit() {
     const b = document.body.classList, compact = b.contains("compact"), wide = b.contains("wide");
     // 3D view (view3d.js): the glasses are shown in 3D at roughly their own size
+    // phones' 3D: the glasses are drawn at their size on the cabinet picture
+    if (b.contains("cab3d")) { setResolution((CBJ.cab ? CBJ.cab.zoom() : 0.5) * (window.devicePixelRatio || 1)); return; }
     if (b.contains("view3d")) { setResolution(Math.min(1.6, window.devicePixelRatio || 1) * (CBJ.LITE ? 0.45 : 1)); return; }
     const lower = L.msgH + L.reelGlass.h + L.deckH;
     const h = compact ? lower : wide ? Math.max(L.top.h, lower) : L.top.h + lower;
@@ -1120,7 +1123,6 @@
     wake();
   }
   let riskRun = false; // the "risk it at 20" run is on (Kisebb/Nagyobb)
-  let riskDeclinedAt = null; // ladder level where TART said "go on guessing" instead
   let nudgeSel = null; // reel chosen with TART during Super lépések
 
   function roundRect(g, x, y, w, h, r) {
@@ -1639,9 +1641,11 @@
     el.dataset.v = txt;
     el.innerHTML = `<span class="ghost">${"8".repeat(digits)}</span><span class="val">${"!".repeat(digits - txt.length)}${txt}</span>`;
   }
+  // (the engine knows the outcome before the reels have shown it: the win stays hidden until they stop)
+  let hideWin = false;
   function updateLeds() {
-    setLed("ledWin", M.s.lastWin, 5);
-    setLed("ledBank", bankValue(), 5);
+    setLed("ledWin", hideWin ? 0 : M.s.lastWin, 5);
+    setLed("ledBank", hideWin ? 0 : bankValue(), 5);
     setLed("ledCredit", shownCredit ?? M.s.credit, 6);
     setLed("ledStake", M.stake, 4);
   }
@@ -1664,8 +1668,8 @@
     const hot = [false, false, false, false, false, false];
     const tartCaps = (label) => { for (let i = 0; i < 4; i++) { caps[i] = label; hot[i] = !!label; } };
     if (ph === "multi" || ph === "gamble") { tartCaps(""); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "VÁLASZT"; hot[5] = true; }
-    if (ph === "gamble" && M.riskOptions() && !riskRun) tartCaps("KOCKÁZAT");
-    if (riskRun) { tartCaps("TOVÁBB"); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "ELKAP"; hot[5] = true; }
+    if (ph === "gamble" && M.riskOptions() && !riskRun) { caps[4] = "MEGÁLL"; hot[4] = true; }
+    if (riskRun) { tartCaps(""); caps[4] = ""; hot[4] = false; caps[5] = "ELKAP"; hot[5] = true; }
     if (["joker", "choose", "matchplay", "mpdir", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : ph === "mpdir" ? "FEL / LE" : ph === "matchplay" ? "START" : "VÁLASZT"; hot[5] = true; }
     if (ph === "nudge") { tartCaps("TÁRCSA"); caps[4] = "KÉSZ"; hot[4] = true; caps[5] = picker ? "FEL / LE" : ""; hot[5] = !!picker; }
     if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[4] = "MEGÁLL"; hot[4] = true; caps[5] = "LAP"; hot[5] = true; }
@@ -1722,7 +1726,7 @@
     if ((ph === "gamble" && g) || ph === "choose") {
       const lvl = ph === "choose" ? s.choice.level : g.level;
       if (lvl >= 0) levelIds(lvl).forEach((id) => setLamp(id, "on"));
-      if (ph === "gamble" && lvl + 1 < cfg.ladder.length) levelIds(lvl + 1).forEach((id) => setLamp(id, "blink"));
+      if (ph === "gamble" && !riskRun && lvl + 1 < cfg.ladder.length) levelIds(lvl + 1).forEach((id) => setLamp(id, "blink"));
     }
     cfg.matchPlay.wheel.forEach((sym, i) => setLamp("w_" + sym, s.wheelLit[i] ? "on" : "off"));
     const nextRound = s.roundLit.indexOf(false);
@@ -1747,7 +1751,7 @@
     cfg.ranks.forEach((r) => setLamp("r_" + r, showCard && M.card.r === r ? "on" : "off"));
     // black jack
     // the score runs along the track (1-16) and on up the circles (17-21): all passed lamps stay lit
-    const bj = s.bj, pts = bjRun != null ? bjRun : bj ? bj.points : 0;
+    const bj = s.bj, pts = bjRun != null ? bjRun : bj ? bj.points : ph === "nudge" && ng ? ng.steps : 0;
     for (let p = 1; p <= 16; p++) setLamp("t_" + p, pts >= p || (ph === "nudge" && ng.steps >= p) ? "on" : "off");
     for (let p = 17; p <= 21; p++) {
       setLamp("bc_" + p, pts > p ? "on" : pts === p ? (bjRun != null ? "on" : "blink") : "off");
@@ -1787,8 +1791,10 @@
     shownCollect = collectBefore;
     shownCredit = M.s.phase === "idle" ? M.s.credit - res.win.amount : M.s.credit;
     const lastWin = M.s.lastWin; M.s.lastWin = 0;
+    hideWin = true;
     refresh();
     await spinReels(res.stops, res.held);
+    hideWin = false;
     M.s.lastWin = lastWin; shownCredit = null;
     if (res.win.amount) {
       markWin(res.win.cells); if (!SFX.has("multiLoop")) SFX.win();
@@ -1884,8 +1890,6 @@
   }
   function startGuessPicker() {
     if (M.s.phase !== "gamble") return;
-    // at 20 the machine offers the risk by itself: Classic / Super Black Jack flash in turn (TART = go on guessing)
-    if (M.riskOptions() && riskDeclinedAt !== M.s.gamble.level) { startRisk(); return; }
     say(`${cardName(M.card)} — KISEBB vagy NAGYOBB? (START)`, 0);
     startPicker({ ids: ["kisebb", "nagyobb"], values: ["lower", "higher"], ms: 700, loop: "guessLoop", onPick: (dir) => run(() => doGuess(dir)) });
     refresh();
@@ -2053,14 +2057,14 @@
     const before = M.s.credit;
     const r = M.matchStep(dir);
     if (r.error) return;
-    shownCredit = before;
+    shownCredit = before; hideWin = true;
     refresh();
     setLamp(dir === "up" ? "lepesFel" : "lepesLe", "on");
     for (const st of r.steps) {
       SFX.play("nudgeStep", {});
       await Promise.all(st.moved.map((i) => nudgeAnim(i, dir === "up" ? 1 : -1, st.stops[i])));
     }
-    shownCredit = null;
+    shownCredit = null; hideWin = false;
     markWin(r.cells);
     say(`${r.count} × ${symName(r.sym)} — ${r.amount - r.jackpot} Ft`, 2200);
     refresh();
@@ -2108,9 +2112,10 @@
   // -- Super lépések: first the number of steps is caught on the right-hand track
   function startNudgePicker() {
     say("SUPER LÉPÉSEK — kapd el a lépésszámot a START-tal!", 0);
+    // the light runs the whole track, 1-16, and on up the 17-21 circles
     const n = cfg.nudge.maxSteps;
     startPicker({
-      ids: [...Array(n).keys()].map((i) => "t_" + (i + 1)), values: [...Array(n).keys()].map((i) => i + 1), ms: 110,
+      ids: [...Array(n).keys()].map((i) => (i < 16 ? "t_" : "bc_") + (i + 1)), values: [...Array(n).keys()].map((i) => i + 1), ms: 110,
       onPick: (steps) => run(async () => {
         M.nudgePick(steps);
         say(`SUPER LÉPÉSEK: ${steps} lépés — válassz tárcsát a TART-tal`, 0);
@@ -2191,8 +2196,6 @@
   function onTart(i) {
     if (busy) return;
     const ph = M.s.phase;
-    if (ph === "gamble" && riskRun) { stopPicker(); riskRun = false; riskDeclinedAt = M.s.gamble.level; startGuessPicker(); return; }
-    if (ph === "gamble" && M.riskOptions()) { riskDeclinedAt = null; startRisk(); return; }
     if (ph === "idle") { if (M.toggleHold(i)) refresh(); return; }
     if (ph === "nudge") selectNudgeReel(i);
     if (ph === "blackjack") run(bjStand);
@@ -2211,7 +2214,10 @@
     if (M.s.phase === "nudge") { stopPicker(); run(async () => { await nudgeResult(M.nudgeFinish()); }); return; }
     // TÉT doubles as ELVISZ: take the win from the multiplier menu, stop on the ladder
     if (M.s.phase === "multi") { stopPicker(); run(() => doMulti(null)); return; }
-    if (M.s.phase === "gamble") { if (riskRun) { stopPicker(); riskRun = false; } run(doCollect); return; }
+    // at 20, stopping is not paid out at once: Classic and Super Classic Black Jack flash in turn (START catches)
+    if (M.s.phase === "gamble" && riskRun) return;
+    if (M.s.phase === "gamble" && M.riskOptions()) { startRisk(); return; }
+    if (M.s.phase === "gamble") { run(doCollect); return; }
     if (M.s.phase === "blackjack") { run(bjStand); return; }
     if (M.cycleStake()) { refresh(); save(); }
   }
@@ -2325,8 +2331,10 @@
   function prewarm() {
     const cells = M.strips.flat();
     let i = 0;
-    const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); };
+    const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); else warmDone = true; };
     (window.requestIdleCallback || setTimeout)(step);
   }
-  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view, debug: () => ({ busy, picker: !!picker, riskRun }) };
+  // everything drawn in advance (the loading screen waits for it)
+  let warmDone = false;
+  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view, ready: () => resReady && warmDone, debug: () => ({ busy, picker: !!picker, riskRun }) };
 })();

@@ -23,7 +23,9 @@
 
   // 2D: the note flies from the tray to the slot, then disappears into it top edge first
   async function fly2d(v, from) {
-    const a = from.getBoundingClientRect(), s = acc.querySelector(".slot").getBoundingClientRect();
+    // (the phones' 3D picture has its own slot)
+    const slot = (document.body.classList.contains("cab3d") && document.querySelector("#cab .cab-slot")) || acc.querySelector(".slot");
+    const a = from.getBoundingClientRect(), s = slot.getBoundingClientRect();
     const n = new Image();
     n.src = from.src; n.className = "flynote";
     Object.assign(n.style, { left: a.left + "px", top: a.top + "px", width: a.width + "px", height: a.height + "px" });

@@ -360,12 +360,19 @@
       const all = this.cfg.ladder.flatMap((st) => (st.options ? st.options : [st]));
       return ids.map((id) => all.find((o) => o.id === id)).filter(Boolean);
     }
+    // the field caught at 20: a field of a "V" row brings that row's choice (its two fields flash side by side)
     riskPick(id) {
       const opts = this.riskOptions();
       if (!opts) return { error: "Itt nem lehet kockáztatni." };
       const opt = opts.find((o) => o.id === id);
       if (!opt) return { error: "Ismeretlen mező." };
       this.s.gamble = null;
+      const level = this.cfg.ladder.findIndex((st) => st.options && st.options.some((o) => o.id === id));
+      if (level >= 0) {
+        this.s.phase = "choose";
+        this.s.choice = { level, options: this.cfg.ladder[level].options, from: id };
+        return { choose: true, options: this.cfg.ladder[level].options };
+      }
       return this.applyPrize(opt);
     }
 

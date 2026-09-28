@@ -414,7 +414,7 @@ function build() {
     css.render(cssScene, camera);
     requestAnimationFrame(loop);
   }
-  return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, insertNote, resize, loop, active: false };
+  return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, acc, triangles, insertNote, resize, loop, active: false };
 }
 
 // the panels stay in the 2D page until 3D is really entered (the menu may build the scene in advance)
