@@ -170,6 +170,7 @@
     };
     return {
       has: (name) => !!buffers[name],
+      length: (name) => (buffers[name] ? buffers[name].duration : 0),
       play, stopChannel,
       unlock() { const c = ensure(); if (c) loadSamples(); return c; },
       toggle() { muted = !muted; if (master) master.gain.value = muted ? 0 : VOL; try { localStorage.setItem("cbj-mute", muted ? "1" : "0"); } catch (e) { /* ignore */ } return muted; },
@@ -703,22 +704,22 @@
           payPlaque(codeCanvas("topObjects", R, 2, id), P.w, P.h, String(pays ? pays[pts] : ""));
         }
       }
-      // sun rays behind EXTRA LÉPÉS: turn slowly, shine up when the help is yours
+      // sun rays behind the help signs: turn slowly, shine up a little when the help is yours
       for (const S of L.sunbursts || []) {
         const R = [S.cx - S.r, S.cy - S.r, S.r * 2, S.r * 2];
         const g = codeCanvas("topObjects", R, 1, null);
         g.canvas.classList.add("sunburst"); if (S.soft) g.canvas.classList.add("soft"); g.canvas.dataset.for = S.for;
         g.translate(S.r, S.r);
-        const n = S.soft ? 20 : 16;
+        const n = 16;
         for (let k = 0; k < n; k++) {
           const a0 = (k / n) * Math.PI * 2, a1 = a0 + (Math.PI * 2) / n / 2;
           g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, S.r, a0, a1); g.closePath();
           const rg = g.createRadialGradient(0, 0, S.r * 0.15, 0, 0, S.r);
-          rg.addColorStop(0, k % 2 ? "rgba(255,244,170,0.95)" : "rgba(255,210,90,0.95)"); rg.addColorStop(0.6, "rgba(255,170,40,0.5)"); rg.addColorStop(1, "rgba(255,140,20,0)");
+          rg.addColorStop(0, k % 2 ? "rgba(255,244,170,0.6)" : "rgba(255,210,90,0.6)"); rg.addColorStop(0.6, "rgba(255,170,40,0.25)"); rg.addColorStop(1, "rgba(255,140,20,0)");
           g.fillStyle = rg; g.fill();
         }
         const core = g.createRadialGradient(0, 0, 0, 0, 0, S.r * 0.55);
-        core.addColorStop(0, "rgba(255,250,210,0.9)"); core.addColorStop(1, "rgba(255,220,120,0)");
+        core.addColorStop(0, "rgba(255,250,210,0.45)"); core.addColorStop(1, "rgba(255,220,120,0)");
         g.fillStyle = core; g.beginPath(); g.arc(0, 0, S.r * 0.55, 0, Math.PI * 2); g.fill();
       }
       if (L.wheelDisc) {
@@ -1614,7 +1615,7 @@
     if (ph === "multi" || ph === "gamble") { tartCaps(""); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "VÁLASZT"; hot[5] = true; }
     if (ph === "gamble" && M.riskOptions() && !riskRun) tartCaps("KOCKÁZAT");
     if (riskRun) { tartCaps(""); caps[4] = ""; hot[4] = false; caps[5] = "ELKAP"; hot[5] = true; }
-    if (["joker", "choose", "matchplay", "mpdir", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : ph === "mpdir" ? "FEL / LE" : "VÁLASZT"; hot[5] = true; }
+    if (["joker", "choose", "matchplay", "mpdir", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : ph === "mpdir" ? "FEL / LE" : ph === "matchplay" ? "START" : "VÁLASZT"; hot[5] = true; }
     if (ph === "nudge") { tartCaps("TÁRCSA"); caps[4] = "KÉSZ"; hot[4] = true; caps[5] = picker ? "FEL / LE" : ""; hot[5] = !!picker; }
     if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[4] = "MEGÁLL"; hot[4] = true; caps[5] = "LAP"; hot[5] = true; }
     caps.forEach((c, i) => {
@@ -1637,15 +1638,15 @@
   // ---------------------------------------------------------------- picker: options alternate, START takes the lit one
   let picker = null;
   // order: the sequence the light walks (e.g. up and down); default is round and round
-  function startPicker({ ids, values, ms, onPick, hi = "on", base = () => "off", random = false, loop = null, order = null }) {
+  function startPicker({ ids, values, ms, onPick, hi = "on", base = () => "off", random = false, loop = null, order = null, quiet = false, exact = false }) {
     stopPicker();
-    picker = { ids, values, idx: 0, pos: 0, onPick, hi, base, loop: loop && SFX.play(loop, { loop: true, channel: "bg" }) };
+    picker = { ids, values, idx: 0, pos: 0, onPick, hi, base, exact, loop: loop && SFX.play(loop, { loop: true, channel: "bg" }) };
     const step = () => {
       picker.prev = picker.idx; picker.t = performance.now();
       if (random) picker.idx = Math.floor(Math.random() * ids.length);
       else if (order) { picker.pos = (picker.pos + 1) % order.length; picker.idx = order[picker.pos]; }
       else picker.idx = (picker.idx + 1) % ids.length;
-      applyPicker(); if (!picker.loop) SFX.blip(picker.idx % 2);
+      applyPicker(); if (!picker.loop && !quiet) SFX.blip(picker.idx % 2);
     };
     picker.timer = setInterval(step, ms);
     applyPicker();
@@ -1657,7 +1658,7 @@
   function takePick() {
     const p = picker;
     stopPicker();
-    if (p.t && p.prev != null && performance.now() - p.t < REACT_MS) p.idx = p.prev;
+    if (!p.exact && p.t && p.prev != null && performance.now() - p.t < REACT_MS) p.idx = p.prev;
     setLamp(p.ids[p.idx], "fast");
     p.onPick(p.values[p.idx], p.idx);
   }
@@ -1920,28 +1921,46 @@
     });
   }
 
-  // -- Match Play
+  // -- Match Play: START sets the wheel's lamps flashing at random, in time with the tune, until they stop on one
+  const MP_BEAT = 0.1585, MP_PHASE = 0.015; // the tune's pulse (artwork/video: mpLoop), one lamp per beat
   function startMatchRunner() {
-    say(M.s.mp && M.s.mp.plus ? "MATCH PLAY + — kapd el a START-tal!" : "MATCH PLAY — kapd el a START-tal!", 0);
-    const wheel = cfg.matchPlay.wheel;
-    startPicker({
-      ids: wheel.map((s) => "w_" + s), values: wheel.map((_, i) => i), ms: 130, hi: "fast", loop: "mpLoop",
-      base: (id) => (M.s.wheelLit[wheel.indexOf(id.slice(2))] ? "on" : "off"),
-      onPick: (idx) => run(() => mpCatch(idx)),
-    });
+    stopPicker();
+    say(M.s.mp && M.s.mp.plus ? "MATCH PLAY + — START!" : "MATCH PLAY — START!", 0);
     refresh();
+  }
+  async function mpRoll() {
+    const wheel = cfg.matchPlay.wheel, ids = wheel.map((s) => "w_" + s);
+    const base = (i) => (M.s.wheelLit[i] ? "on" : "off");
+    const idx = Math.floor(Math.random() * wheel.length);
+    const played = SFX.play("mpLoop", { channel: "bg" });
+    const len = played ? SFX.length("mpLoop") : 3.2;
+    const beats = Math.max(8, Math.floor((len - MP_PHASE) / MP_BEAT));
+    const t0 = performance.now();
+    let cur = -1;
+    for (let k = 0; k < beats; k++) {
+      let n = k === beats - 1 ? idx : Math.floor(Math.random() * wheel.length);
+      if (k === beats - 2 && n === idx) n = (idx + 1) % wheel.length;
+      if (n === cur) n = (n + 1) % wheel.length;
+      if (k === beats - 2 && n === idx) n = (idx + 1) % wheel.length;
+      const wait = t0 + (MP_PHASE + k * MP_BEAT) * 1000 - performance.now();
+      if (wait > 0) await sleep(wait);
+      if (cur >= 0) setLamp(ids[cur], base(cur));
+      cur = n; setLamp(ids[cur], "on");
+      if (!played) SFX.blip(k % 2);
+    }
+    const rest = t0 + len * 1000 - performance.now();
+    if (rest > 0) await sleep(rest);
+    setLamp(ids[idx], "fast");
+    await mpCatch(idx);
   }
   async function mpCatch(idx) {
     const r = M.matchCatch(idx);
     if (r.error) return;
-    SFX.play("mpResult", {});
     say(`Elkapva: ${symName(r.sym)}`, 0);
-    refresh();
-    await spinReels(r.stops, null);
-    await sleep(300);
+    await sleep(600);
     startMpDir();
   }
-  // the caught symbol sits on 2 reels: LÉPÉS FEL / LE flash in turn, START picks which way the others step
+  // LÉPÉS FEL / LE flash in turn, START picks which way the reels step (from where they stand, no spin)
   function startMpDir() {
     say(`${symName(M.s.mp.caught.sym)} — FEL vagy LE? (START)`, 0);
     startPicker({ ids: ["lepesFel", "lepesLe"], values: ["up", "down"], ms: 420, loop: "nudgePick", onPick: (dir) => run(() => mpStep(dir)) });
@@ -1958,18 +1977,18 @@
       SFX.play("nudgeStep", {});
       await Promise.all(st.moved.map((i) => nudgeAnim(i, dir === "up" ? 1 : -1, st.stops[i])));
     }
-    SFX.play("nudgeArrive", {});
     shownCredit = null;
     winMark = { cells: r.cells, t0: performance.now() };
     say(`${r.count} × ${symName(r.sym)} — ${r.amount - r.jackpot} Ft`, 2200);
     refresh();
-    if (r.jackpot) { await sleep(1600); setLamp("wc", "fast"); say(`HA MINDEN VILÁGÍT — JACKPOT ${r.jackpot} Ft!`, 3000); SFX.jackpot(); await sleep(2600); }
-    await sleep(1000);
+    // the machine's Match Play win tune, heard to its end before the multiplier menu comes up
+    if (SFX.play("mpResult", { channel: "bg" })) await sleep(SFX.length("mpResult") * 1000 - 150); else { SFX.win(); await sleep(1400); }
+    if (r.jackpot) { setLamp("wc", "fast"); say(`HA MINDEN VILÁGÍT — JACKPOT ${r.jackpot} Ft!`, 3000); SFX.jackpot(); await sleep(2600); }
     await next();
   }
   function startPlusStop() {
     say("PLUS vagy STOP — START!", 0);
-    startPicker({ ids: ["plus", "stop"], values: [true, false], ms: 300, onPick: (isPlus) => run(() => psCatch(isPlus)) });
+    startPicker({ ids: ["plus", "stop"], values: [true, false], ms: 75, quiet: true, exact: true, onPick: (isPlus) => run(() => psCatch(isPlus)) });
     refresh();
   }
   async function psCatch(isPlus) {
@@ -2112,6 +2131,7 @@
     const ph = M.s.phase;
     if (ph === "idle") run(doSpin);
     else if (ph === "blackjack") run(async () => { await showDeal(M.bjHit()); });
+    else if (ph === "matchplay") run(mpRoll);
     else if (ph === "nudge") say(`Előbb válassz tárcsát a TART-tal · még ${M.s.nudge.steps} lépés`, 0);
   }
   document.querySelectorAll(".mbtn").forEach((b) => b.addEventListener("pointerdown", () => {

@@ -89,11 +89,8 @@ canvas.num.disclamp { filter: none !important; }
   background: radial-gradient(ellipse at 50% 45%, rgba(255, 150, 60, 0.07), rgba(0, 0, 0, 0) 60%); }
 canvas.num { position: absolute; z-index: 4; pointer-events: none; }
 /* sun rays behind EXTRA LÉPÉS: always turning slowly, bright when the help is lit */
-canvas.sunburst { opacity: 0.75; filter: none !important; animation: sunturn 14s linear infinite; will-change: transform; transition: opacity 200ms; }
-canvas.sunburst.lit { opacity: 1; animation-duration: 6s; }
-/* the softer rays behind DUPLA BJ, JÓ AZ EGYENLŐ, MÁSIK KÁRTYA */
-canvas.sunburst.soft { opacity: 0.3; animation-duration: 24s; animation-direction: reverse; }
-canvas.sunburst.soft.lit { opacity: 0.6; animation-duration: 12s; }
+canvas.sunburst { opacity: 0.25; filter: none !important; animation: sunturn 24s linear infinite; will-change: transform; transition: opacity 200ms; }
+canvas.sunburst.lit { opacity: 0.55; animation-duration: 14s; }
 @keyframes sunturn { to { transform: rotate(360deg); } }
 #paytable { position: absolute; z-index: 1; }
 #tetPanel { position: absolute; left: 1335px; top: 852px; width: 630px; height: 290px; }

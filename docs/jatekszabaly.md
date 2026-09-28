@@ -56,18 +56,19 @@
 - Egyszerre **legfeljebb 4** segítség lehet nálad (mindegyikből egy).
 
 ## Match Play
-- A kerék (középen, 8 nagy szimbólum) szimbólumaiból **egyet el lehet kapni** (START).
-- Az elkapott szimbólum **2 tárcsán** beáll a középső sorba. Utána a **LÉPÉS FEL / LÉPÉS LE** felváltva villog,
-  a **START** választ irányt, és a többi tárcsa **magától lépked** abba az irányba: amelyik elérte a szimbólumot,
-  megáll, a többi addig megy, amíg nyerő sor nem lesz (felhasználó, 2026-09-28).
-  - Ha a két **szélén** van → mindkét középsőnek oda kell érnie → **4** egyforma.
-  - Ha **középen** van → az első odaérő szélső már **3**-at ad.
+- **START** → a kerék szimbólumainak háttérvilágítása véletlenszerűen villog, a Match Play dallam ütemére
+  (kb. 0,16 mp-enként), és a dallam végén **magától megáll** egy szimbólumon.
+- Nincs pörgetés: utána a **LÉPÉS FEL / LÉPÉS LE** felváltva villog, a **START** választ irányt, és a tárcsák
+  onnan, ahol állnak, **magától lépkednek** abba az irányba. Amelyik elérte a szimbólumot, megáll, a többi addig megy,
+  amíg nyerő sor nem lesz (felhasználó, 2026-09-28).
+  - Ha a két **szélén** ér oda először → mindkét középsőnek oda kell érnie → **4** egyforma.
+  - Ha **középen** → az első odaérő szélső már **3**-at ad.
 - Az elkapott szimbólum kigyullad a keréken. Ha **mind kigyullad** ("HA MINDEN VILÁGÍT"), plusz
   **25/175 jackpotot** ad, és a kerék **nullázódik**; a nullázás után **egy darab** világítva marad.
 
 ## Match Play +
-- Ugyanaz, mint a Match Play, de utána a **PLUS / STOP** felváltva villog; a **START**-tal lehet
-  elkapni. PLUS → újabb Match Play kör; ez addig ismétlődik, amíg STOP nem jön.
+- Ugyanaz, mint a Match Play, de utána a **PLUS / STOP** gyorsan vibrálva váltakozik; a **START**-tal lehet
+  elkapni (pontosan azt adja, ami épp ég). PLUS → újabb Match Play kör; ez addig ismétlődik, amíg STOP nem jön.
 
 ## Választás: mindig a START-tal (felhasználó, 2026-09-25)
 - Ahol több lehetőség van, azok **felváltva villognak lassan**, és a **START** azt választja, amelyik épp ég:

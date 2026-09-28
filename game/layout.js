@@ -81,12 +81,12 @@
       super: { x: 1440, w: 165, h: 102, y: { 21: 770, 20: 900, 19: 1033, 18: 1170, 17: 1302 } },
       classic: { x: 1737, w: 162, h: 104, y: { 21: 769, 20: 899, 19: 1033, 18: 1169, 17: 1300 } },
     },
-    // sun rays behind the help signs: EXTRA LÉPÉS strong, the other three softer
+    // sun rays behind the help signs: the same, soft glow behind all four
     sunbursts: [
-      { cx: 690, cy: 1812, r: 105, for: "h_extra" },
-      { cx: 547, cy: 1810, r: 82, for: "h_dupla", soft: true },
-      { cx: 821, cy: 1818, r: 82, for: "h_joaz", soft: true },
-      { cx: 954, cy: 1821, r: 82, for: "h_masik", soft: true },
+      { cx: 547, cy: 1810, r: 78, for: "h_dupla" },
+      { cx: 690, cy: 1812, r: 78, for: "h_extra" },
+      { cx: 821, cy: 1818, r: 78, for: "h_joaz" },
+      { cx: 954, cy: 1821, r: 78, for: "h_masik" },
     ],
     // Match Play wheel disc (drawn in code): 8 segments, the symbols sit in their middles
     wheelDisc: { cx: 957, cy: 1150, r: 272, inner: 128 },

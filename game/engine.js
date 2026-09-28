@@ -486,23 +486,16 @@
       this.s.mp = { plus, rounds: 0 };
     }
 
-    // The caught symbol lands on 2 of the reels (the other reels show something else), then LÉPÉS FEL / LE picks
-    // the direction and the other reels step that way together; a reel that reaches the symbol stays put, the
-    // rest go on until the symbol makes a win. Symbols on the two edges -> both middle reels have to reach it
-    // -> 4 of a kind; in the middle -> the first edge reel to arrive already makes 3.
+    // The wheel's lamps flash at random and stop on one symbol; then LÉPÉS FEL / LE picks the direction and the
+    // reels step that way from where they are (no spin): a reel that reaches the symbol stays put, the rest go on
+    // until the symbol makes a win. Arriving on the two edges first -> both middle reels have to reach it -> 4 of
+    // a kind; in the middle -> the first edge reel to arrive already makes 3.
     matchCatch(idx) {
       if (this.s.phase !== "matchplay") return { error: "Nincs Match Play." };
       const sym = this.cfg.matchPlay.wheel[idx];
-      const pairs = [[0, 3], [1, 2], [0, 1], [2, 3], [0, 2], [1, 3]];
-      const pair = pairs[this.randInt(pairs.length)];
-      this.s.stops = this.strips.map((st, i) => {
-        const want = pair.includes(i) ? (c) => c.s === sym : (c) => c.s !== sym;
-        const idxs = st.map((c, k) => (want(c) ? k : -1)).filter((k) => k >= 0);
-        return idxs.length ? idxs[this.randInt(idxs.length)] : this.s.stops[i];
-      });
-      this.s.mp.caught = { idx, sym, pair };
+      this.s.mp.caught = { idx, sym };
       this.s.phase = "mpdir";
-      return { sym, pair, stops: this.s.stops.slice() };
+      return { sym };
     }
 
     matchStep(dir) {
