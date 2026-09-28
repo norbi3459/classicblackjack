@@ -127,7 +127,6 @@
     if (want3d) prep3d().then(() => (threeOk = true), () => (threeOk = true));
     // pictures used later (the banknotes, the phones' cabinet pictures): fetched and decoded now, not mid-game
     const extra = [1000, 2000, 5000, 10000, 20000, 500].map((v) => `assets/money/ft${v}.jpg`);
-    if (CAB) extra.push("assets/cab/portrait.webp", "assets/cab/landscape.webp");
     let extraDone = 0;
     extra.forEach((u) => { const im = new Image(); im.src = u; (im.decode ? im.decode() : Promise.resolve()).then(() => extraDone++, () => extraDone++); });
     // every picture of the machine decoded in advance (decoding them on first sight is what makes a phone stutter)

@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a1640">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,6 +28,8 @@
       return (lite || big) && /^assets\/(?!m\/).*\.webp$/.test(p) ? "assets/m/" + p.slice(7) : p;
     };
     if (lite) document.documentElement.classList.add("lite");
+    // Safari ignores user-scalable=no: its pinch gestures are stopped here (see style.css)
+    ["gesturestart", "gesturechange"].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
   })();
 </script>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/titan-one-latin-400-normal.woff2" crossorigin>

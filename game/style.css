@@ -214,12 +214,13 @@ button, .mbtn, .lamp.clickable { touch-action: manipulation; }
 }
 
 /* phones' 3D (cabinet.js): the rendered cabinet with the live glasses and pressable buttons laid onto it */
-#cab { position: fixed; inset: 0; z-index: 3; background: #0d0d11; overflow: hidden; touch-action: manipulation; }
+#cab { position: fixed; inset: 0; z-index: 3; background: #0d0d11; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
 #cab[hidden] { display: none; }
 body.cab3d #viewport { display: none; }
-.cab-shot { position: absolute; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.cab-shot { position: absolute; pointer-events: none; user-select: none; -webkit-user-select: none; visibility: hidden; }
+.cab-shot.front { visibility: visible; }
 .cab-glass, .cab-btn, .cab-acc { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
-.cab-glass { overflow: hidden; }
+.cab-glass { overflow: hidden; visibility: hidden; }
 .cab-glass > .glass { position: absolute; left: 0; top: 0; }
 .cab-btn { cursor: pointer; border-radius: 22%; -webkit-tap-highlight-color: transparent; }
 .cab-glow { position: absolute; inset: -22%; border-radius: 50%; opacity: 0; pointer-events: none;
@@ -233,3 +234,10 @@ body.cab3d #viewport { display: none; }
 @keyframes cabpress { 40% { filter: brightness(1.6); } }
 .cab-acc { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .cab-slot { position: absolute; left: 12%; right: 12%; top: 26%; height: 5%; pointer-events: none; }
+.cab-hint { position: absolute; left: 50%; bottom: max(44px, env(safe-area-inset-bottom)); translate: -50% 0; z-index: 5; pointer-events: none;
+  font: 400 13px/1.2 "Titan One", sans-serif; letter-spacing: 0.04em; color: #ffe2a0; background: rgba(0, 0, 0, 0.6);
+  padding: 8px 12px; border-radius: 10px; width: max-content; max-width: 88vw; text-align: center; transition: opacity 600ms; }
+.cab-hint.gone { opacity: 0; }
+/* the browser's own pinch zoom is off: it blows the page's pictures up past what a phone's memory holds (the 3D
+   picture has its own zoom) */
+html, body { touch-action: pan-x pan-y; }

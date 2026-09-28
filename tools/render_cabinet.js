@@ -2,17 +2,24 @@
 // Phones show this picture with the live game laid onto the glasses (game/cabinet.js): no WebGL, no three.js,
 // nothing that can fail on an iPhone.
 //   node tools/render_cabinet.js        (needs the game served on localhost:5173 and Playwright)
-// Writes game/assets/cab/portrait.webp, landscape.webp and cab.json.
+// Writes game/assets/cab/<portrait|landscape>_<0..6>.webp and cab.json.
 const path = require("path"), fs = require("fs");
 let chromium;
 try { ({ chromium } = require("playwright")); } catch { ({ chromium } = require(require("child_process").execSync("npm root -g").toString().trim() + "/playwright")); }
 const OUT = path.join(__dirname, "..", "game", "assets", "cab");
-const SHOTS = {
-  // upright phone: the glasses and the buttons fill the screen, a little from the right so the side shows
-  portrait: { w: 1200, h: 2600, pos: [0.3, 1.5, 2.02], target: [0, 1.4, 0.1], fov: 43 },
-  // phone on its side: the upper half of the machine, from the right
-  landscape: { w: 2600, h: 1200, pos: [0.6, 1.56, 2.3], target: [0.02, 1.5, 0.1], fov: 31 },
+// every orientation is shot from 7 angles around the machine (dragging on the phone turns between them)
+const AZ = [-0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42];
+const ORIENT = {
+  // upright phone: the glasses and the buttons fill the screen
+  portrait: { w: 1100, h: 2390, R: 1.94, y: 1.5, target: [0, 1.4, 0.1], fov: 43, start: 5 },
+  // phone on its side: the upper half of the machine
+  landscape: { w: 2390, h: 1100, R: 2.28, y: 1.56, target: [0.02, 1.5, 0.1], fov: 31, start: 5 },
 };
+const SHOTS = {};
+for (const [o, S] of Object.entries(ORIENT)) AZ.forEach((az, i) => {
+  SHOTS[`${o}_${i}`] = { o, az, w: S.w, h: S.h, fov: S.fov, target: S.target,
+    pos: [S.target[0] + Math.sin(az) * S.R, S.y, S.target[2] + Math.cos(az) * S.R] };
+});
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const b = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
@@ -38,7 +45,7 @@ const SHOTS = {
       st.active = true; st.loop(performance.now()); st.active = false;
       st.camera.position.set(...S.pos); st.camera.lookAt(...S.target); st.camera.updateMatrixWorld();
       st.gl.render(st.scene, st.camera);
-      const url = st.gl.domElement.toDataURL("image/webp", 0.9);
+      const url = st.gl.domElement.toDataURL("image/webp", 0.88);
       const proj = (v) => { const q = v.clone().project(st.camera); return [+((q.x + 1) / 2).toFixed(5), +((1 - q.y) / 2).toFixed(5)]; };
       // a glass: its four corners (top-left, top-right, bottom-right, bottom-left of the panel)
       const quad = (g) => {
@@ -58,8 +65,10 @@ const SHOTS = {
       return { url, glasses, buttons, acc };
     }, S);
     fs.writeFileSync(path.join(OUT, name + ".webp"), Buffer.from(r.url.split(",")[1], "base64"));
-    meta[name] = { w: S.w, h: S.h, glasses: r.glasses, buttons: r.buttons, acc: r.acc };
-    console.log(name, "saved", JSON.stringify(r.glasses.map((g) => g.quad)));
+    const O = ORIENT[S.o];
+    meta[S.o] = meta[S.o] || { w: S.w, h: S.h, start: O.start, views: [] };
+    meta[S.o].views.push({ az: S.az, src: name + ".webp", glasses: r.glasses, buttons: r.buttons, acc: r.acc });
+    console.log(name, "saved");
   }
   fs.writeFileSync(path.join(OUT, "cab.json"), JSON.stringify(meta));
   await b.close();

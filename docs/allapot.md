@@ -44,7 +44,9 @@
   (localhost) vagy `?teszt` címmel látszik.
 
 ## Telefonos 3D: kép + élő üvegek (2026-09-28)
-- Telefonon a 3D a gépszekrény előre renderelt képe (`assets/cab/portrait.webp`, `landscape.webp`, helyek: `cab.json`,
+- Telefonon a 3D a gépszekrény előre renderelt képe, 7 szögből álló és fekvő telefonra (`assets/cab/<portrait|landscape>_0..6.webp`,
+  helyek: `cab.json`); húzással forog szögről szögre, két ujjal nagyít/mozgat (max. 2,2×), dupla koppintás visszaállít.
+  A böngésző saját csippentő nagyítása ki van kapcsolva (az omlasztotta össze a telefont). Régi leírás:
   készíti: `node tools/render_cabinet.js`), rajta az élő játék üvegei (perspektivikusan ráillesztve) és nyomható gombok
   (`game/cabinet.js`). Nincs WebGL/three.js → nem omlik össze, nem melegszik. Számítógépen marad a forgatható 3D;
   ha az ott nem indul, a következő indítás a képes 3D-t használja. `?cab` / `?full3d` kényszeríti.
