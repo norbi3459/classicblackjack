@@ -51,3 +51,10 @@
   (`game/cabinet.js`). Nincs WebGL/three.js → nem omlik össze, nem melegszik. Számítógépen marad a forgatható 3D;
   ha az ott nem indul, a következő indítás a képes 3D-t használja. `?cab` / `?full3d` kényszeríti.
 - A betöltő képernyő mindent előre betölt és dekódol (képek, hangok, szimbólumok, bankjegyek, 3D).
+
+## Betöltés-ellenőrzés (2026-09-28)
+- A betöltő képernyő végén a játék ellenőriz minden képet (megjött-e, nem üres-e) és minden kódból rajzolt részt.
+  Hiányzó kép: újra letölti (legfeljebb 4-szer). Üres rajzolt rész: egyszer, még a menü előtt, újratölti az oldalt.
+- Játék közben 8 másodpercenként újra ellenőriz, és pótolja, ami eltűnt.
+- Telefonon kikapcsolva a képek „élesített” másolatai (ott nem kellenek, és a memóriát fogyasztották: emiatt
+  tűntek el képek iPhone-on).

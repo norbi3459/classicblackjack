@@ -304,13 +304,21 @@
       if (!tw || !th || tw > o.naturalWidth * 0.7) { if (im.getAttribute("src") !== src0) im.src = src0; return; }
       if (im.dataset.tw === String(tw) && im.dataset.th === String(th)) return;
       im.dataset.tw = tw; im.dataset.th = th;
-      const c = document.createElement("canvas"); c.width = tw; c.height = th;
-      const q = c.getContext("2d");
-      drawScaled(q, o, 0, 0, o.naturalWidth, o.naturalHeight, 0, 0, tw, th);
-      im.src = c.toDataURL();
+      // (a browser out of picture memory hands back an empty copy: then the original stays)
+      try {
+        const c = document.createElement("canvas"); c.width = tw; c.height = th;
+        const q = c.getContext("2d");
+        drawScaled(q, o, 0, 0, o.naturalWidth, o.naturalHeight, 0, 0, tw, th);
+        const url = c.toDataURL();
+        if (url.length > 200) im.src = url;
+        c.width = c.height = 0;
+      } catch (e) { /* keep the original */ }
     });
   }
   function sharpenStatic() {
+    // phones show the machine small at a high pixel density: the plain pictures are sharp enough there, and the
+    // copies cost the memory that made pictures go missing on iPhones
+    if (CBJ.LITE) return;
     sharpenImages();
     document.querySelectorAll("#stage canvas:not(.reel)").forEach((c) => {
       const cw = c.offsetWidth, ch = c.offsetHeight;
@@ -2334,7 +2342,37 @@
     const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); else warmDone = true; };
     (window.requestIdleCallback || setTimeout)(step);
   }
+  // ---- every picture and every drawn part really there? Missing pictures are fetched again (up to 4 times);
+  // the loading screen reloads the page once if a drawn part came out empty (see menu.js)
+  function verify() {
+    let bad = 0, blank = 0;
+    document.querySelectorAll("img").forEach((im) => {
+      const src = im.getAttribute("src");
+      if (!src || !im.complete || im.naturalWidth) return;
+      bad++;
+      if (src.startsWith("data:")) { if (im.dataset.src0) { delete im.dataset.tw; im.src = im.dataset.src0; } return; }
+      const n = +(im.dataset.retry || 0) + 1;
+      if (n > 4) return;
+      im.dataset.retry = n;
+      im.src = src.replace(/[?&]r=\d+$/, "") + (src.replace(/[?&]r=\d+$/, "").includes("?") ? "&" : "?") + "r=" + n;
+    });
+    const t = document.createElement("canvas"); t.width = t.height = 16;
+    const g = t.getContext("2d", { willReadFrequently: true });
+    document.querySelectorAll("#topGlass canvas, #reelGlass canvas").forEach((c) => {
+      if (!c.width || !c.height || c.classList.contains("reel") || c.id === "cardWheel") return;
+      try {
+        g.clearRect(0, 0, 16, 16); g.drawImage(c, 0, 0, 16, 16);
+        const d = g.getImageData(0, 0, 16, 16).data;
+        let a = 0; for (let i = 3; i < d.length; i += 4) a += d[i];
+        if (!a) blank++;
+      } catch (e) { /* unreadable: leave it */ }
+    });
+    return { bad, blank };
+  }
+  // and while playing: a picture that went missing is fetched again
+  setInterval(() => { if (!document.hidden) verify(); }, 8000);
+
   // everything drawn in advance (the loading screen waits for it)
   let warmDone = false;
-  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view, ready: () => resReady && warmDone, debug: () => ({ busy, picker: !!picker, riskRun }) };
+  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view, ready: () => resReady && warmDone, verify, debug: () => ({ busy, picker: !!picker, riskRun }) };
 })();

@@ -131,6 +131,7 @@
     extra.forEach((u) => { const im = new Image(); im.src = u; (im.decode ? im.decode() : Promise.resolve()).then(() => extraDone++, () => extraDone++); });
     // every picture of the machine decoded in advance (decoding them on first sight is what makes a phone stutter)
     const decoded = new WeakSet(), asked = new WeakSet();
+    let checks = 0;
     const tick = () => {
       const imgs = [...document.images].filter((im) => im.getAttribute("src"));
       for (const im of imgs) if (im.complete && !asked.has(im)) { asked.add(im); (im.decode ? im.decode() : Promise.resolve()).then(() => decoded.add(im), () => decoded.add(im)); }
@@ -143,6 +144,16 @@
       fill.style.width = Math.round(p * 100) + "%";
       txt.textContent = "BETÖLTÉS " + Math.round(p * 100) + "%";
       if ((p >= 0.999 && document.readyState === "complete") || performance.now() - t0 > 40000) {
+        // the final check: every picture there, no drawn part empty. Missing pictures are fetched again (and
+        // waited for); an empty drawn part means the page is reloaded once, before anything is shown
+        const v = ui.verify ? ui.verify() : { bad: 0, blank: 0 };
+        if (v.bad && checks++ < 6) { txt.textContent = "ELLENŐRZÉS…"; setTimeout(tick, 400); return; }
+        if (v.blank) {
+          let again = false;
+          try { again = !sessionStorage.getItem("cbj-reloaded"); if (again) sessionStorage.setItem("cbj-reloaded", "1"); } catch (e) { /* no storage */ }
+          if (again) { txt.textContent = "ÚJRATÖLTÉS…"; location.reload(); return; }
+        }
+        if (!v.blank) try { sessionStorage.removeItem("cbj-reloaded"); } catch (e) { /* no storage */ }
         fill.style.width = "100%";
         setTimeout(() => menu.classList.remove("loading"), 250);
         return;
