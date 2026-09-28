@@ -91,18 +91,33 @@
   window.addEventListener("keydown", (e) => {
     if (menu.hidden) return;
     e.stopImmediatePropagation();
+    if (menu.classList.contains("loading")) return;
     if ((e.key === "Enter" || e.key === " ") && !$("mnPlay").disabled && document.activeElement === document.body) { e.preventDefault(); $("mnPlay").click(); }
   }, true);
 
   // ---- loading: the bar under the button until every picture of the machine has arrived
+  // ---- loading first: the choices only come up once the pictures, the sounds (and a 3D chosen last time) are ready,
+  // so nobody presses JÁTÉK on a half-loaded machine
   (function watchLoad() {
-    const bar = $("mnLoad"), fill = bar.firstElementChild, t0 = performance.now();
+    menu.classList.add("loading");
+    const fill = $("mnLoad").firstElementChild, txt = $("mnLoadTxt"), t0 = performance.now();
+    const SOUNDS = ["spin", "hold", "multiLoop", "guessLoop", "mpLoop", "trigger21", "wheelSpin", "joker"];
+    const audio = !!(window.AudioContext || window.webkitAudioContext);
+    let threeOk = !want3d;
+    if (want3d) prep3d().then(() => (threeOk = true), () => (threeOk = true));
     const tick = () => {
       const imgs = [...document.images].filter((im) => im.getAttribute("src") && !im.src.startsWith("data:"));
-      const done = imgs.filter((im) => im.complete).length;
-      fill.style.width = (imgs.length ? (100 * done) / imgs.length : 100) + "%";
-      if ((done === imgs.length && document.readyState === "complete") || performance.now() - t0 > 20000) { bar.classList.add("done"); return; }
-      setTimeout(tick, 150);
+      const pi = imgs.length ? imgs.filter((im) => im.complete).length / imgs.length : 1;
+      const ps = audio ? SOUNDS.filter((n) => SFX.has(n)).length / SOUNDS.length : 1;
+      const p = pi * 0.7 + ps * 0.2 + (threeOk ? 0.1 : 0);
+      fill.style.width = Math.round(p * 100) + "%";
+      txt.textContent = "BETÖLTÉS " + Math.round(p * 100) + "%";
+      if ((p >= 0.999 && document.readyState === "complete") || performance.now() - t0 > 25000) {
+        fill.style.width = "100%";
+        setTimeout(() => menu.classList.remove("loading"), 250);
+        return;
+      }
+      setTimeout(tick, 120);
     };
     tick();
   })();

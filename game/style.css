@@ -56,10 +56,10 @@ canvas.strip { position: absolute; pointer-events: none; filter: drop-shadow(0 0
 .lamp.fast > img { animation-duration: 0.18s; }
 @keyframes lampblink { 0% { opacity: 1; } 50% { opacity: 0; } }
 .lamp.clickable { pointer-events: auto; cursor: pointer; }
-.triLabel { position: absolute; z-index: 4; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-  padding-bottom: 14px; font: 400 23px/1.02 "Titan One", "Arial Black", sans-serif; letter-spacing: 0.04em; color: #fff6dc;
-  text-shadow: 0 0 3px #2a0804, 0 0 3px #2a0804, 0 2px 2px #2a0804; }
-.triLabel.one { padding-bottom: 20px; font-size: 21px; }
+.triLabel { position: absolute; z-index: 4; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0; padding-bottom: 12px; }
+.triLabel img { width: auto !important; height: 30px !important; max-width: 76%; object-fit: contain; margin-top: -5px; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
+.triLabel.one { padding-bottom: 18px; }
+.triLabel.one img { height: 28px !important; }
 .lamp.tri.usable::after { content: ""; position: absolute; inset: 10px 30px 6px; border-bottom: 5px solid rgba(255, 215, 130, 0.95); filter: drop-shadow(0 0 6px #ffcc66); }
 .lamp.nolayer.on, .lamp.nolayer.blink { box-shadow: 0 0 0 4px #ffcc66 inset; }
 body.debug .lamp { outline: 3px solid #0f0; }
@@ -99,8 +99,9 @@ canvas.num.disclamp { filter: none !important; }
   background: radial-gradient(ellipse at 50% 45%, rgba(255, 150, 60, 0.07), rgba(0, 0, 0, 0) 60%); }
 canvas.num { position: absolute; z-index: 4; pointer-events: none; }
 /* sun rays behind EXTRA LÉPÉS: always turning slowly, bright when the help is lit */
-canvas.sunburst { opacity: 0.25; filter: none !important; animation: sunturn 24s linear infinite; will-change: transform; transition: opacity 200ms; }
-canvas.sunburst.lit { opacity: 0.55; animation-duration: 14s; }
+/* (they stand still: a turning layer keeps the phone drawing every frame and it heats up) */
+canvas.sunburst { opacity: 0.25; filter: none !important; transition: opacity 200ms; }
+canvas.sunburst.lit { opacity: 0.55; }
 @keyframes sunturn { to { transform: rotate(360deg); } }
 #paytable { position: absolute; z-index: 1; }
 #tetPanel { position: absolute; left: 1335px; top: 852px; width: 630px; height: 290px; }
@@ -179,7 +180,7 @@ body.view3d #btnView { display: none; }
   background: linear-gradient(90deg, #0d0d10, #26262b 45%, #0d0d10); border: 3px solid #3b3b42; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7); }
 #acceptor .led { position: absolute; left: 22px; right: 22px; top: 22px; height: 10px; border-radius: 5px; background: #0f3a18;
   box-shadow: inset 0 0 3px #000; }
-#acceptor.ready .led { background: #36ff6a; box-shadow: 0 0 12px #36ff6a; animation: accblink 1.4s ease-in-out infinite; }
+#acceptor.ready .led { background: #36ff6a; box-shadow: 0 0 12px #36ff6a; animation: accblink 1.4s steps(1, end) infinite; }
 #acceptor.busy .led { background: #ffb020; box-shadow: 0 0 12px #ffb020; animation: none; }
 @keyframes accblink { 50% { opacity: 0.35; } }
 #acceptor .slot { position: absolute; left: 16px; right: 16px; top: 52px; height: 16px; border-radius: 4px;

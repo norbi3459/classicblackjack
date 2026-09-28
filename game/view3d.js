@@ -27,8 +27,9 @@ const REEL_A = [0.585, 1.03], REEL_B = [0.415, 1.335];
 const DECK_TOP_A = [0.585, 1.03], DECK_TOP_B = [0.715, 1.0];
 
 let state = null;
-// phones: the glasses are laid out at this fraction of their size while they are in 3D (CSS zoom), so the browser
-// keeps a quarter of the picture memory; and the WebGL side is drawn a little lighter
+// phones: the glasses are shrunk to this fraction inside a box of that size while they are in 3D (a plain 2D scale:
+// Safari's CSS zoom came out smaller than the glass), so the browser keeps a quarter of the picture memory; and the
+// WebGL side is drawn lighter, at 30 frames a second
 const LITE = !!(window.CBJ && window.CBJ.LITE);
 const GLASS_ZOOM = LITE ? 0.45 : 1;
 
@@ -394,6 +395,8 @@ function build() {
 
   function loop(t) {
     if (!state.active) return;
+    if (LITE && t - (state.lastT || 0) < 30) { requestAnimationFrame(loop); return; }
+    state.lastT = t;
     controls.update();
     ledMat.emissiveIntensity = 0.55 + 0.45 * Math.sin(t / 220);
     triangles.forEach((tr, i) => {
@@ -418,7 +421,7 @@ function build() {
 const unplug = (g) => {
   const [parent, next] = g.home;
   parent.insertBefore(g.el, next && next.parentNode === parent ? next : null);
-  Object.assign(g.el.style, { position: "", transform: "", pointerEvents: "", userSelect: "", display: "", zoom: "" });
+  Object.assign(g.el.style, { position: "", left: "", top: "", transform: "", transformOrigin: "", pointerEvents: "", userSelect: "", display: "" });
 };
 function prepare() {
   if (state) return state;
@@ -438,7 +441,10 @@ function enter() {
   document.body.classList.add("view3d");
   // (re)attach the panels: CSS3DRenderer takes the elements out of the page while they are in 3D
   state.glasses.forEach((g) => {
-    if (g.node !== g.el) { g.node.appendChild(g.el); g.el.style.zoom = GLASS_ZOOM; }
+    if (g.node !== g.el) {
+      g.node.appendChild(g.el);
+      Object.assign(g.el.style, { position: "absolute", left: "0", top: "0", transformOrigin: "0 0", transform: `scale(${GLASS_ZOOM})` });
+    }
     Object.assign(g.node.style, { position: "absolute", pointerEvents: "auto", userSelect: "none" });
     if (!g.obj.parent) state.cssScene.add(g.obj);
   });

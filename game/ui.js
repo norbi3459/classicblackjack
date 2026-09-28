@@ -272,7 +272,7 @@
 
   // Canvases are drawn at the size they really appear on screen: a 3x canvas shrunk 10x by the browser
   // is both slow and pixelated. Static canvases keep their big original and get a high quality downscale.
-  let RES = 1, resReady = false, resDone = 0;
+  let RES = 1, resReady = false, resDone = 0, frameOn = false;
   function setResolution(px) {
     const want = Math.min(3, Math.max(0.35, px * 1.1));
     // phones resize the page whenever the address bar slides in or out: redrawing everything for a few
@@ -284,6 +284,7 @@
     for (const R of [...reels, cardWheel]) {
       R.k = RES; R.c.width = Math.round(R.W * RES); R.c.height = Math.round(R.H * RES); R.key = null;
     }
+    wake();
     symCache.clear(); prewarm();
     clearTimeout(setResolution.t);
     setResolution.t = setTimeout(sharpenStatic, 150);
@@ -336,7 +337,8 @@
   }
 
   // ---------------------------------------------------------------- the machine's lettering (as on the 25 / 175 signs)
-  const MFONT = '"Cooper Black", "Cooper Std", "Goudy Stout", Georgia, serif';
+  // (phones have no Cooper Black: they get the bundled Titan One, the nearest chunky face, not a plain serif)
+  const MFONT = '"Cooper Black", "Cooper Std", "Titan One", Georgia, serif';
   // western lettering of the KÁRTYA KERÉK sign (bundled font, style.css)
   const WFONT = '"Smokum", "Rockwell Extra Bold", Georgia, serif';
   const RED = { fill: ["#ff5a5f", "#e0212c", "#a8101b"], line: "#6e0b13" };
@@ -860,15 +862,27 @@
   L.triangles.forEach((r, i) => makeLamp(topL, "tri" + i, r, { cls: "tri", onClick: () => onTriangle(i) }));
   // their names printed on them (the leftmost one has no job yet, so no name)
   const TRI_NAME = { extra: ["EXTRA", "LÉPÉS"], masik: ["MÁSIK", "KÁRTYA"], fizet: ["KIFIZETÉS"], joaz: ["JÓ AZ", "EGYENLŐ"] };
-  L.triangles.forEach(([x, y, w, h], i) => {
+  // in the machine's own lettering (the yellow of its signs, black rim), like the rest of the glass
+  const triLabels = L.triangles.map(([x, y, w, h], i) => {
     const lines = TRI_NAME[cfg.triangles[i]];
-    if (!lines) return;
+    if (!lines) return null;
     const d = document.createElement("div");
     d.className = "triLabel" + (lines.length === 1 ? " one" : "");
     Object.assign(d.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
-    d.innerHTML = lines.map((t) => `<span>${t}</span>`).join("");
     topL.appendChild(d);
+    return { d, lines };
   });
+  function drawTriLabels() {
+    for (const t of triLabels) if (t) t.d.replaceChildren(...t.lines.map((line) => mtImg(line, 40, "bright")));
+  }
+  drawTriLabels();
+  // the lettering is drawn once the bundled font is there (else the first captions come out in a fallback face)
+  if (document.fonts && document.fonts.load) document.fonts.load('40px "Titan One"').then(() => {
+    for (const k of Object.keys(mtCache)) delete mtCache[k];
+    document.querySelectorAll(".cap").forEach((el) => (el.dataset.t = ""));
+    drawTriLabels();
+    if (typeof refresh === "function") refresh();
+  }, () => {});
   makeLamp(topL, "joker", L.joker, { round: true });
   L.bjTrack.forEach((r, i) => makeLamp(topL, "t_" + (i + 1), r, { round: true }));
   for (const [p, r] of Object.entries(L.bjCircle)) makeLamp(topL, "bc_" + p, r, { round: true });
@@ -1103,6 +1117,7 @@
     winMark = cells && cells.length ? { cells, t0: performance.now() } : null;
     reelGlows.forEach((d, i) => d.classList.toggle("on", !!winMark && winMark.cells.includes(i)));
     reels.forEach((R) => (R.key = null));
+    wake();
   }
   let riskRun = false; // the "risk it at 20" run is on (Kisebb/Nagyobb)
   let riskDeclinedAt = null; // ladder level where TART said "go on guessing" instead
@@ -1543,8 +1558,10 @@
     reels.forEach((R, i) => { if (R.anim || R.vel !== R.lastVel) { SFX.reel(i, R.vel || 0); R.lastVel = R.vel; } drawReel(i, t); });
     if (cardWheel.anim || cardWheel.vel !== cardWheel.lastVel) { SFX.reel(4, cardWheel.vel || 0); cardWheel.lastVel = cardWheel.vel; }
     drawCardWheel();
-    requestAnimationFrame(frame);
+    if ([...reels, cardWheel].some((R) => R.anim)) requestAnimationFrame(frame); else frameOn = false;
   }
+  // the drawing loop sleeps while nothing moves: anything that changes the reels wakes it for a frame or more
+  function wake() { if (!frameOn && resReady) { frameOn = true; requestAnimationFrame(frame); } }
 
   // Reel motion like a real stepper reel: a short kick backwards, a hard spin-up, even cruising speed,
   // braking a little past the symbol, one small spring back. A step (Super lépések) is one quick snap.
@@ -1579,6 +1596,7 @@
       const D = speed * (ACC_T / 2 + cruise + DEC_T / 2) - BOUNCE;
       const dist = mod + n * Math.max(1, Math.round((D - mod) / n));
       R.anim = { t0: performance.now(), T, tb: BOUNCE_T, from, dist: D, jump: D - dist, jumpAt: WIND_T + ACC_T + cruise * 0.5, end: target, done };
+      wake();
     });
   }
   const REEL_SPEED = 46; // symbols per second at full speed
@@ -1744,6 +1762,7 @@
   // the collected cards 2..9 as shown: the old row stays lit while the reels turn, and after a win until it is paid
   let shownCollect = null, clearCardsWhenPaid = false;
   function refresh() {
+    wake(); // holds, the chosen reel... are drawn on the reels
     if (winMark && !busy && M.s.phase !== "multi") markWin(null);
     let cleared = [];
     if (clearCardsWhenPaid && !busy && M.s.phase === "idle") {
@@ -2106,6 +2125,7 @@
     return new Promise((done) => {
       const from = R.pos;
       R.anim = { t0: performance.now(), step: true, T: 0.11 + 0.05 * Math.abs(delta), tb: 0.1, bounce: 0.09 * Math.sign(-delta), from, dist: -delta, end: stop, done };
+      wake();
     });
   }
   function selectNudgeReel(i) {
@@ -2300,7 +2320,7 @@
   fit();
   refresh();
   say("CLASSIC BLACK JACK — START", 3000);
-  loadSprites().then(() => { drawPrintedStrips(); if (SCENE) drawPaytable(); resReady = true; fit(); requestAnimationFrame(frame); prewarm(); });
+  loadSprites().then(() => { drawPrintedStrips(); if (SCENE) drawPaytable(); resReady = true; fit(); wake(); prewarm(); });
   // draw every reel symbol once in the background, so the first spin does not stutter
   function prewarm() {
     const cells = M.strips.flat();
