@@ -102,18 +102,40 @@ jk2.s.phase = "joker"; jk2.jokerCatch("c_5");
 assert.strictEqual(jk2.s.collectIdx, 4);
 assert.strictEqual(jk2.s.phase, "idle");
 
-// long simulation: invariants hold and the features are reachable
-const sim = new Machine(cfg, seeded(42));
+// every stake keeps its own collected cards and helps
+const ps = new Machine(cfg, seeded(21));
+ps.s.collectIdx = 6; ps.s.helps.extra = true; ps.s.helps.masik = true;
+assert.ok(ps.cycleStake());
+assert.strictEqual(ps.s.collectIdx, 0);
+assert.ok(!ps.s.helps.extra && !ps.s.helps.masik);
+ps.s.collectIdx = 2; ps.s.helps.joaz = true;
+ps.cycleStake(); ps.cycleStake(); // 200, then back to 50
+assert.strictEqual(ps.stake, 50);
+assert.strictEqual(ps.s.collectIdx, 6);
+assert.ok(ps.s.helps.extra && ps.s.helps.masik && !ps.s.helps.joaz);
+ps.cycleStake(); // 100 again
+assert.strictEqual(ps.s.collectIdx, 2);
+assert.ok(ps.s.helps.joaz && !ps.s.helps.extra);
+const snap = JSON.parse(JSON.stringify(ps.snapshot()));
+const ps2 = new Machine(cfg, seeded(22)); ps2.restore(snap);
+ps2.cycleStake(); ps2.cycleStake();
+assert.strictEqual(ps2.s.collectIdx, 6); // survives a reload
+
+// long simulation, one per stake: invariants hold, the features are reachable, and every stake pays its own way
+function simulate(stakeIdx, seed, spins) {
+const sim = new Machine(cfg, seeded(seed));
+sim.s.stakeIdx = stakeIdx;
 sim.s.credit = 1e9;
 const stats = { spins: 0, wins: 0, t21: 0, tcol: 0, jokers: 0, gambles: 0, chooses: 0, mp: 0, jackpots: 0, bj: 0 };
-let moneyIn = 0, moneyOut = 0;
-for (let i = 0; i < 200000; i++) {
+let moneyIn = 0, moneyOut = 0, dry = 0, longestDry = 0;
+for (let i = 0; i < spins; i++) {
   const before = sim.s.credit;
   const r = sim.spin();
   if (r.autoHeld) sim.applyHolds(r.autoHeld);
   stats.spins++;
   moneyIn += sim.stake;
   if (r.win.amount) stats.wins++;
+  if (r.win.amount || r.trigger) { longestDry = Math.max(longestDry, dry); dry = 0; } else dry++;
   if (r.joker) stats.jokers++;
   if (r.trigger === "21") stats.t21++;
   if (r.trigger === "collection") stats.tcol++;
@@ -143,11 +165,17 @@ for (let i = 0; i < 200000; i++) {
     } else if (ph === "plusstop") sim.plusStop(sim.rng() < 0.4);
     else if (ph === "blackjack") { stats.bj++; if (sim.s.bj.points < 17) sim.bjHit(); else sim.bjStand(); }
     else if (ph === "rowcatch") { stats.rows = (stats.rows || 0) + 1; if (sim.rng() < 0.3) sim.rowStop(); else sim.rowCatch(sim.rng() < 0.75); }
-    else if (ph === "nudgepick") sim.nudgePick(1 + sim.randInt(16));
+    else if (ph === "nudgepick") sim.nudgePick(1 + sim.randInt(21));
     else if (ph === "nudge") { stats.nudges = (stats.nudges || 0) + 1; if (sim.rng() < 0.3) sim.nudgeToggleDir(); sim.nudgeMove(sim.randInt(4)); }
   }
   moneyOut += sim.s.credit - before + sim.stake;
 }
-console.log(stats);
-console.log("visszafizetés (RTP) a jelenlegi tervezet-beállításokkal:", ((moneyOut / moneyIn) * 100).toFixed(1) + "%");
+return { stats, rtp: moneyOut / moneyIn, longestDry };
+}
+for (const [k, stake] of cfg.stakes.entries()) {
+  const r = simulate(k, 42 + k, 150000);
+  if (k === 0) console.log(r.stats);
+  console.log(`${stake} Ft: visszafizetés ${(r.rtp * 100).toFixed(1)}% (cél ${(cfg.stakeProfiles[k].rtp * 100).toFixed(0)}%), nyerés a pörgetések ${((r.stats.wins / r.stats.spins) * 100).toFixed(1)}%-ánál, leghosszabb nyeretlen széria ${r.longestDry}`);
+  assert.ok(Math.abs(r.rtp - cfg.stakeProfiles[k].rtp) < 0.06, "stake " + stake + " pays " + r.rtp);
+}
 console.log("OK");

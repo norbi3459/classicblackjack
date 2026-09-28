@@ -6,6 +6,15 @@
   CBJ.config = {
     startCredit: 10000,
     stakes: [50, 100, 200],
+    // TERVEZET: every stake plays its own way (owner: "50-esen mindig rossz szériát dobott, 100-ason más volt").
+    // rtp = the share of the money in that the stake pays back in the long run; window = how many stakes of
+    // debt or credit swing it fully tight or loose; swing = how much the wandering mood counts (0..1) against
+    // the books; drift = how fast the mood wanders (bigger = shorter series).
+    stakeProfiles: [
+      { rtp: 0.82, window: 40, swing: 0.5, drift: 0.22 }, // 50 Ft: the stingy one, long bad series
+      { rtp: 0.95, window: 50, swing: 0.45, drift: 0.28 }, // 100 Ft
+      { rtp: 1.02, window: 60, swing: 0.4, drift: 0.3 }, // 200 Ft
+    ],
 
     symbols: {
       szilva: "Szilva", citrom: "Citrom", narancs: "Narancs", dinnye: "Dinnye", alma: "Alma",

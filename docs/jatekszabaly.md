@@ -142,3 +142,13 @@ A játék a **0. szintről** indul: már az 1. szintre (4) is tippelni kell.
 - **Nyereménynél** a nyerő tárcsák hátulról kivilágosodnak (pulzáló háttérvilágítás), amíg a nyereményt el nem viszed / tovább nem kockáztatod.
 - **Bónusz** (21 a sorban vagy 2–9 összegyűjtve): a kerék közepéből kifelé haladó fénygyűrűk futnak végig a gép összes lámpáján.
 - **Kisebb/Nagyobb találat**: a létra futófénnyel felfut az elért szintig.
+
+## Tétenként más gép (felhasználó, 2026-09-28)
+- Minden tét (50 / 100 / 200) **külön gépként** viselkedik:
+  - **saját kártyasor (2–9) és saját segítségek**: tétváltáskor a gép az adott tét állapotát hozza vissza
+    (pl. 50-en 8-ig gyűjtött lapok és 4 segítség csak az 50-es téten vannak meg);
+  - **saját kifizetés-vezérlés**: minden tét külön számolja, mennyi ment be és mennyi jött ki. Ha egy tét
+    sokat fizetett, „szorít” (rossz széria), ha tartozik, „enged”. Ehhez jön egy lassan változó „hangulat”,
+    így a szériák tétenként eltérnek: az 50-es lehet épp rossz szériában, a 100-as közben fizet.
+- Beállítás: `config.js` → `stakeProfiles` (tervezet: 50 Ft 82%, 100 Ft 95%, 200 Ft 102% visszafizetés).
+  A vezérlés a tárcsákra, a Kisebb/Nagyobb és a szorzó kártyáira hat.

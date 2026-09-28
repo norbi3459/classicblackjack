@@ -63,17 +63,21 @@
         choice: null,
         mp: null,
         bj: null,
+        // every stake is a machine of its own: its own collection and helps (kept here while another stake is
+        // played) and its own payout control (ctrl: money in, money out, mood)
+        perStake: {},
+        ctrl: {},
       };
     }
 
     // ---- persistence -------------------------------------------------------
     snapshot() {
-      const { credit, stakeIdx, stops, cardPos, collectIdx, helps, wheelLit } = this.s;
-      return { credit, stakeIdx, stops, cardPos, collectIdx, helps, wheelLit };
+      const { credit, stakeIdx, stops, cardPos, collectIdx, helps, wheelLit, perStake, ctrl } = this.s;
+      return { credit, stakeIdx, stops, cardPos, collectIdx, helps, wheelLit, perStake, ctrl };
     }
     restore(o) {
       if (!o) return;
-      for (const k of ["credit", "stakeIdx", "stops", "cardPos", "collectIdx", "helps", "wheelLit"]) {
+      for (const k of ["credit", "stakeIdx", "stops", "cardPos", "collectIdx", "helps", "wheelLit", "perStake", "ctrl"]) {
         if (o[k] !== undefined) this.s[k] = o[k];
       }
     }
@@ -105,10 +109,43 @@
     }
 
     // ---- base game ---------------------------------------------------------
+    // a new stake brings back that stake's own collected cards and helps (owner, 2026-09-28)
     cycleStake() {
-      if (this.s.phase !== "idle") return false;
-      this.s.stakeIdx = (this.s.stakeIdx + 1) % this.cfg.stakes.length;
+      const s = this.s;
+      if (s.phase !== "idle") return false;
+      s.perStake[s.stakeIdx] = { collectIdx: s.collectIdx, helps: { ...s.helps } };
+      s.stakeIdx = (s.stakeIdx + 1) % this.cfg.stakes.length;
+      const o = s.perStake[s.stakeIdx];
+      s.collectIdx = o ? o.collectIdx : 0;
+      s.helps = o ? { ...o.helps } : Object.fromEntries(Object.keys(s.helps).map((k) => [k, false]));
       return true;
+    }
+
+    // ---- payout control, one per stake ---------------------------------------------------------------
+    // As on the real machine, every stake plays its own way: each keeps its own books (money in, money out)
+    // and a slowly wandering mood. When a stake has paid out more than its share it runs tight (wins are
+    // turned away: a bad series), when it owes, it runs loose. Separate books = separate series: 50 may be in a
+    // bad run while 100 pays. The shares and the swing are in config.stakeProfiles.
+    ctl() {
+      const k = this.s.stakeIdx;
+      if (!this.s.ctrl[k]) this.s.ctrl[k] = { in: 0, out: 0, mood: this.rng() * 2 - 1 };
+      return this.s.ctrl[k];
+    }
+    profile() { return (this.cfg.stakeProfiles || [])[this.s.stakeIdx] || { rtp: 0.95, window: 50, swing: 0.4, drift: 0.25 }; }
+    // -1 (tight) .. +1 (loose)
+    pressure() {
+      const c = this.ctl(), P = this.profile();
+      const owed = (c.in * P.rtp - c.out) / this.stake;
+      return Math.max(-1, Math.min(1, Math.tanh(owed / P.window) * (1 - P.swing) + c.mood * P.swing));
+    }
+    paid(amount) { if (amount > 0) this.ctl().out += amount; }
+    // a card for a bet on it: a tight stake now and then turns a winning card away, a loose one a losing card
+    fairCard(wins) {
+      let card = this.turnCardWheel();
+      const p = this.pressure();
+      if (p < 0 && wins(card) && this.rng() < -p * 0.5) card = this.turnCardWheel();
+      else if (p > 0 && !wins(card) && this.rng() < p * 0.35) card = this.turnCardWheel();
+      return card;
     }
 
     toggleHold(i) {
@@ -156,13 +193,34 @@
       return best;
     }
 
+    // the reels' stop: drawn at random, then the stake's payout control may turn it away (see pressure)
+    drawStops(held) {
+      const roll = () => this.s.stops.map((p, i) => (held[i] ? p : this.randInt(this.strips[i].length)));
+      const worth = (stops) => {
+        const line = stops.map((p, i) => this.cell(i, p));
+        const ranks = line.filter((x) => x.c && x.c !== "JOKER").map((x) => x.c);
+        return this.evaluate(line).mult + (ranks.length >= 2 && canMake21(ranks) ? 15 : 0);
+      };
+      const p = this.pressure();
+      let best = roll(), v = worth(best);
+      if (p < 0 && v > 0 && this.rng() < -p) {
+        for (let k = 0; k < 3 && v > 0; k++) { const c = roll(), w = worth(c); if (w < v) { best = c; v = w; } }
+      } else if (p > 0 && v === 0 && this.rng() < p * 0.6) {
+        for (let k = 0; k < 4; k++) { const c = roll(); if (worth(c) > 0) { best = c; break; } }
+      }
+      return best;
+    }
+
     spin() {
       const s = this.s;
       if (s.phase !== "idle") return { error: "Most nem lehet pörgetni." };
       if (s.credit < this.stake) return { error: "Nincs elég kredit." };
       s.credit -= this.stake;
       const held = s.holds.slice();
-      s.stops = s.stops.map((p, i) => (held[i] ? p : this.randInt(this.strips[i].length)));
+      const c = this.ctl(), P = this.profile();
+      c.in += this.stake;
+      c.mood = Math.max(-1, Math.min(1, c.mood + (this.rng() - 0.5) * P.drift));
+      s.stops = this.drawStops(held);
       s.holds = [false, false, false, false];
 
       const line = this.line();
@@ -214,6 +272,7 @@
       const s = this.s;
       if (s.pending > 0 && this.cfg.multiplier.enabled) { s.phase = "multi"; return s.phase; }
       s.credit += s.pending;
+      this.paid(s.pending);
       s.pending = 0;
       return this.resume();
     }
@@ -256,8 +315,9 @@
       if (s.phase !== "multi") return { error: "Nincs kockáztatható nyeremény." };
       const opt = this.cfg.multiplier.options.find((o) => o.id === id);
       if (!opt || opt.mult === 1) return this.finishPending(s.pending, { opt, keep: true });
-      const card = this.turnCardWheel();
-      const hit = opt.ranks ? opt.ranks.includes(card.r) : opt.color === (isRed(card.suit) ? "red" : "black");
+      const hits = (c) => (opt.ranks ? opt.ranks.includes(c.r) : opt.color === (isRed(c.suit) ? "red" : "black"));
+      const card = this.fairCard(hits);
+      const hit = hits(card);
       if (hit) {
         s.pending = Math.floor(s.pending * opt.mult);
         s.lastWin = s.pending;
@@ -273,6 +333,7 @@
       const s = this.s;
       const trigger = s.pendingTrigger;
       s.credit += amount;
+      this.paid(amount);
       s.lastWin = amount;
       s.pending = 0;
       this.resume();
@@ -292,7 +353,8 @@
       const g = this.s.gamble;
       if (this.s.phase !== "gamble" || !g) return { error: "Nincs Kisebb/Nagyobb játék." };
       const prev = g.card;
-      const next = this.turnCardWheel();
+      const a0 = this.rankIdx(prev.r);
+      const next = this.fairCard((c) => { const b = this.rankIdx(c.r); return (dir === "higher" && b > a0) || (dir === "lower" && b < a0); });
       const a = this.rankIdx(prev.r), b = this.rankIdx(next.r);
       let result;
       if (a === b) {
