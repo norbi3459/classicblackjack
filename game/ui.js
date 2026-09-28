@@ -132,7 +132,7 @@
     };
     // ---- the machine's own sounds, cut from the owner's gameplay video (assets/sfx, see artwork/video/samples.txt)
     const SAMPLE_NAMES = ["spin", "hold", "nudgeStep", "nudgeArrive", "cardAdd", "gambleStart", "gambleIntro", "wheelSpin", "guessWin",
-      "trigger21", "winCount", "mpLoop", "mpResult", "multiLoop", "rowLoop", "nudgePick", "chooseLoop", "guessLoop", "joker"];
+      "trigger21", "winCount", "mpLoop", "mpResult", "multiLoop", "rowLoop", "nudgePick", "chooseLoop", "guessLoop", "joker", "billIn"];
     const buffers = {};
     const channels = {};
     let loading = null;
@@ -2129,5 +2129,5 @@
     const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); };
     (window.requestIdleCallback || setTimeout)(step);
   }
-  CBJ.ui = { M, refresh, say };
+  CBJ.ui = { M, refresh, say, save, SFX };
 })();

@@ -47,6 +47,7 @@
       <div class="btnwrap"><div class="cap" id="cap3">TART</div><button class="mbtn tart" data-b="3">TART</button></div>
       <div class="btnwrap"><div class="cap" id="cap4">TÉT</div><button class="mbtn tet" data-b="4">TÉT</button></div>
       <div class="btnwrap"><div class="cap" id="cap5">START</div><button class="mbtn start" data-b="5">START</button></div>
+      <div id="acceptor" title="Pénz bedobása"><div class="led"></div><div class="slot"></div><div class="label">PÉNZ</div></div>
     </section>
   </div>
 </div>
@@ -81,6 +82,11 @@
   <button data-close>Bezár</button>
 </div>
 
+<div id="moneyTray" hidden>
+  <div class="tray-title">Válassz bankjegyet <button class="tray-close" title="Bezár">✕</button></div>
+  <div class="tray-notes"></div>
+</div>
+
 <div id="testPanel" class="panel" hidden>
   <h2>Teszt mód</h2>
   <div class="grid">
@@ -109,6 +115,7 @@
 <script src="circles.js" onerror="void 0"></script>
 <script src="engine.js"></script>
 <script src="ui.js"></script>
+<script src="money.js"></script>
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
 <script type="module" src="view3d.js"></script>
 </body>

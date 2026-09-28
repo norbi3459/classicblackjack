@@ -242,19 +242,68 @@ function build() {
     b.top.color.setScalar(dim ? 0.5 : 1);
   }
 
+  // ---- bill acceptor in the cash cavity, right of the coin mech (money.js opens the note tray)
+  const ACC = { x: 0.14, f: 0.445, z: 0.79 };        // centre of its front face
+  const acc = new THREE.Group();
+  acc.position.set(ACC.x, ACC.z, ACC.f - YB);
+  scene.add(acc);
+  const accBody = new THREE.Mesh(new RoundedBoxGeometry(0.11, 0.16, 0.085, 3, 0.008), std(0x151518, 0.45));
+  accBody.position.z = -0.0425; accBody.castShadow = true; acc.add(accBody);
+  const accBezel = new THREE.Mesh(new RoundedBoxGeometry(0.1, 0.05, 0.012, 3, 0.004), M.chrome);
+  accBezel.position.set(0, 0.035, 0.002); acc.add(accBezel);
+  const accSlot = new THREE.Mesh(new THREE.BoxGeometry(0.084, 0.006, 0.006), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  accSlot.position.set(0, 0.035, 0.0065); acc.add(accSlot);
+  const ledMat = new THREE.MeshStandardMaterial({ color: 0x0a3a14, emissive: 0x36ff6a, emissiveIntensity: 1 });
+  const accLed = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.004, 0.003), ledMat);
+  accLed.position.set(0, 0.052, 0.009); acc.add(accLed);
+  const accLabel = document.createElement("canvas"); accLabel.width = 256; accLabel.height = 96;
+  { const q = accLabel.getContext("2d"); q.fillStyle = "#151518"; q.fillRect(0, 0, 256, 96);
+    q.font = "bold 44px Segoe UI, Arial, sans-serif"; q.fillStyle = "#9a9aa3"; q.textAlign = "center"; q.textBaseline = "middle"; q.fillText("PÉNZ", 128, 50); }
+  const labelTex = new THREE.CanvasTexture(accLabel); labelTex.colorSpace = THREE.SRGBColorSpace;
+  const accText = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.026), new THREE.MeshBasicMaterial({ map: labelTex }));
+  accText.position.set(0, -0.035, 0.0005); acc.add(accText);
+  const accHit = [accBody, accBezel, accSlot, accText];
+  // a note goes in: it comes to the slot short edge first and is pulled into the machine
+  const noteTex = {};
+  function insertNote(v) {
+    return new Promise((done) => {
+      const tex = noteTex[v] || (noteTex[v] = new THREE.TextureLoader().load(`assets/money/ft${v}.jpg`));
+      tex.colorSpace = THREE.SRGBColorSpace;
+      // 154 x 70 mm, lying flat, long side pointing into the slot
+      const note = new THREE.Mesh(new THREE.PlaneGeometry(0.07, 0.154), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, side: THREE.DoubleSide }));
+      tex.center.set(0.5, 0.5); tex.rotation = Math.PI / 2;
+      note.rotation.x = -Math.PI / 2;
+      acc.add(note);
+      const y = 0.035, t0 = performance.now();
+      ledMat.emissive.setHex(0xffb020);
+      const step = () => {
+        const e = (performance.now() - t0) / 1000; // wall clock: frame timestamps can lag behind
+
+        // 0-0.45 s: glides in from the front; 0.45-1.3 s: pulled in until it is gone
+        if (e < 0.45) { const k = 1 - Math.pow(1 - e / 0.45, 3); note.position.set(0, y + 0.06 * (1 - k), 0.25 - 0.17 * k); }
+        else { const k = Math.min(1, (e - 0.45) / 0.85); note.position.set(0, y, 0.08 - 0.17 * k); }
+        if (e < 1.35) requestAnimationFrame(step);
+        else { acc.remove(note); note.geometry.dispose(); note.material.dispose(); ledMat.emissive.setHex(0x36ff6a); done(); }
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
   // ---- clicks on the 3D buttons (drags still turn the view)
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const pick = (e) => {
     const r = css.domElement.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects(buttons.map((b) => b.cap))[0];
-    return hit ? hit.object.userData.button : null;
+    const hit = ray.intersectObjects([...buttons.map((b) => b.cap), ...accHit])[0];
+    if (!hit) return null;
+    return accHit.includes(hit.object) ? "acceptor" : hit.object.userData.button;
   };
   css.domElement.addEventListener("pointerdown", (e) => {
     const i = pick(e);
     if (i === null) return;
     controls.enabled = false;
+    if (i === "acceptor") { if (window.CBJ.money) window.CBJ.money.open(); return; }
     buttons[i].press = performance.now();
     const dom = document.querySelector(`.mbtn[data-b="${i}"]`);
     if (dom) dom.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
@@ -275,6 +324,7 @@ function build() {
   function loop(t) {
     if (!state.active) return;
     controls.update();
+    ledMat.emissiveIntensity = 0.55 + 0.45 * Math.sin(t / 220);
     buttons.forEach((b, i) => {
       paintButton(b, i);
       const dt = (t - b.press) / 1000;
@@ -284,7 +334,7 @@ function build() {
     css.render(cssScene, camera);
     requestAnimationFrame(loop);
   }
-  return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, resize, loop, active: false };
+  return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, insertNote, resize, loop, active: false };
 }
 
 function enter() {
