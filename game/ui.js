@@ -6,6 +6,8 @@
   const save = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(M.snapshot())); } catch (e) { /* no storage */ } };
 
   const $ = (id) => document.getElementById(id);
+  // the game loads the WebP copies of the PNG masters (tools/make_webp.py): about 15x less to download
+  const IMG = (p) => (p ? p.replace(/\.png$/i, ".webp") : p);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const SUIT = { h: "♥", s: "♠", d: "♦", c: "♣" };
   const rankLabel = (r) => cfg.rankLabel[r] || r;
@@ -540,11 +542,11 @@
   const whenFontsReady = (fn) => (document.fonts && document.fonts.load ? Promise.all([document.fonts.load(`italic 700 60px ${LOGO_SCRIPT}`), document.fonts.load(`900 60px ${LOGO_SLAB}`)]).then(fn, fn) : fn());
   if (SCENE) {
     document.body.classList.add("scene");
-    $("topBase").src = "assets/top_bg.png";
+    $("topBase").src = "assets/top_bg.webp";
     for (const o of SCENE) {
       if (CODE_DRAWN[o.id]) continue;
       const im = document.createElement("img");
-      im.src = o.src; im.alt = ""; im.draggable = false;
+      im.src = IMG(o.src); im.alt = ""; im.draggable = false;
       im.className = `obj z${o.z || 2}` + (o.lamp ? " lamp" : "");
       if (o.lamp) im.dataset.id = o.lamp;
       Object.assign(im.style, { left: o.rect[0] + "px", top: o.rect[1] + "px", width: o.rect[2] + "px", height: o.rect[3] + "px" });
@@ -558,7 +560,7 @@
         whenFontsReady(() => { im.src = bjLogoCanvas(w * 3, h * 3, BJ_LOGOS[o.id]).toDataURL(); });
       }
       // the big top logo on a peach sticker plate (assets/sprites/bj.png, made with tools/add_rim.py)
-      if (USE_MAIN_LOGO[o.id]) im.src = "assets/sprites/bj.png";
+      if (USE_MAIN_LOGO[o.id]) im.src = "assets/sprites/bj.webp";
       if (WHEEL_ORDER.includes(o.id)) im.addEventListener("load", () => { placeOnWheel(im, o.id); delete im.dataset.tw; sharpenImages(); }, { once: true });
       if (MP_SIGNS[o.id]) {
         const c = document.createElement("canvas"); c.width = Math.round(o.rect[2] * 3); c.height = Math.round(o.rect[3] * 3);
@@ -572,7 +574,7 @@
       d.className = "obj z2 lamp cliplamp"; d.dataset.id = id;
       Object.assign(d.style, { left: R[0] + "px", top: R[1] + "px", width: R[2] + "px", height: R[3] + "px" });
       const im = document.createElement("img");
-      im.src = whole.src; im.alt = ""; im.draggable = false;
+      im.src = IMG(whole.src); im.alt = ""; im.draggable = false;
       Object.assign(im.style, { position: "absolute", left: whole.rect[0] - R[0] + "px", top: whole.rect[1] - R[1] + "px", width: whole.rect[2] + "px", height: whole.rect[3] + "px" });
       d.appendChild(im);
       $(parentId).appendChild(d);
@@ -819,7 +821,7 @@
     Object.assign(d.style, { left: rect[0] + "px", top: rect[1] + "px", width: rect[2] + "px", height: rect[3] + "px" });
     if (LR[panel][id]) {
       const im = document.createElement("img");
-      im.src = `assets/lamps/${id}.png`;
+      im.src = `assets/lamps/${id}.webp`;
       im.alt = "";
       im.draggable = false;
       d.appendChild(im);
@@ -876,7 +878,7 @@
     const im = new Image();
     im.onload = () => { const inf = (spriteInfo[n] = measureSprite(im)); sprites[n] = inf ? litSprite(im, inf) : im; res(); };
     im.onerror = () => res();
-    im.src = `assets/sprites/${n}.png`;
+    im.src = `assets/sprites/${n}.webp`;
   })));
   // The fruit drawings differ in shape and in empty margin, so fitting each into the same box makes some look
   // much bigger than others. Instead every symbol is drawn so its visible (opaque) area is the same.
@@ -1057,7 +1059,7 @@
     const hole = fw ? { x: fw.window[0], y: fw.window[1], w: fw.window[2], h: fw.window[3], tilt: fw.window[4] } : { ...hole0, tilt: 0 };
     const c = $("reel" + i);
     if (fw) {
-      const m = `url(${fw.mask})`;
+      const m = `url(${IMG(fw.mask)})`;
       Object.assign(c.style, { maskImage: m, webkitMaskImage: m, maskSize: "100% 100%", webkitMaskSize: "100% 100%", borderRadius: "0" });
     }
     Object.assign(c.style, { left: hole.x + "px", top: hole.y + "px", width: hole.w + "px", height: hole.h + "px" });
@@ -1220,7 +1222,7 @@
   // ---- multiplier panel (see artwork/m_right.png): slanted glass card, silver rim, red label cushion, cards below
   function cardImage(rank) {
     const cache = (cardImage.cache = cardImage.cache || {});
-    if (!cache[rank]) { const im = new Image(); im.src = `assets/objects/r_${rank}.png`; cache[rank] = im; }
+    if (!cache[rank]) { const im = new Image(); im.src = `assets/objects/r_${rank}.webp`; cache[rank] = im; }
     return cache[rank];
   }
   function imgReady(im) {
@@ -1318,7 +1320,7 @@
   }
 
   const jokerImg = new Image();
-  jokerImg.src = "assets/objects/joker.png";
+  jokerImg.src = "assets/objects/joker.webp";
   // the card on a symbol, as printed on the reel strips: an upright matte card, pale greyish pink, thin dark rim,
   // the rank in the top left corner and the suit below the middle; (x, y) is its top left corner
   function drawTag(g, cell, x, y, w, h) {
@@ -2238,5 +2240,5 @@
     const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); };
     (window.requestIdleCallback || setTimeout)(step);
   }
-  CBJ.ui = { M, refresh, say, save, SFX };
+  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view };
 })();

@@ -10,9 +10,9 @@
   const bjRows = { 21: 760, 20: 890, 19: 1025, 18: 1160, 17: 1290 };
 
   CBJ.layout = {
-    top: { w: 2048, h: 2116, img: "assets/top_glass.png" },
+    top: { w: 2048, h: 2116, img: "assets/top_glass.webp" },
     msgH: 120,
-    reelGlass: { w: 2048, h: 1160, img: "assets/reel_glass_holes.png" },
+    reelGlass: { w: 2048, h: 1160, img: "assets/reel_glass_holes.webp" },
     deckH: 330,
 
     reels: [reelHole(235), reelHole(545), reelHole(865), reelHole(1175)],

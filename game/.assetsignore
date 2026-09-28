@@ -1,2 +1,6 @@
 engine.test.js
 hangok*.html
+# the game loads the WebP copies (tools/make_webp.py); the PNG masters stay in the repo only
+assets/**/*.png
+assets/sfx_video
+assets/sfx_before

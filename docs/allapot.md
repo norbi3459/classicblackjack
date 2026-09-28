@@ -25,3 +25,15 @@
   A WebGL-gépház felül van, az üvegek helyén átlátszó „lyukkal”, így oldalról a gépház eltakarja az üveg szélét.
 - A pult 6 gombja 3D-s, kattintható, a 2D gombok feliratát és világítását veszi át. Billentyűk ugyanúgy működnek.
 - Egér: húzás = forgatás, görgő = nagyítás, jobb gomb = eltolás. A választás megmarad (localStorage).
+
+## Főmenü és telefonos demo (2026-09-28)
+- Induláskor **főmenü** (`game/menu.js`, `game/menu.css`): 2D / 3D nézet, 2D-ben elrendezés (Teljes gép / Széles / Közeli),
+  hang, teljes képernyő, súgó, JÁTÉK. Játék közben a **☰ MENÜ** gomb hozza vissza. A sarokban kicsi „DEMO VERZIÓ” felirat.
+- A kinézet a gépé: a felső üveg kék gyűrűi, a kék inda-gyűrű (`assets/menu_swirl.webp`, a háttérképből kivágva),
+  az eredeti logó, tűzszínű betűk (Titan One, OFL), arany keret futófény-izzókkal, 4 magától pörgő mini tárcsa.
+- **Képek WebP-ben**: a játék a PNG-k WebP másolatait tölti (`python tools/make_webp.py`, PNG módosítás után futtatni).
+  Induláskor ~61 MB helyett ~5 MB. A PNG-k mesterpéldányok maradnak, a Cloudflare-re nem mennek fel (`game/.assetsignore`).
+- A 3D (three.js) csak akkor töltődik le, ha a 3D-t választod.
+- Telefonra: `viewport-fit=cover`, biztonsági margók, fekvő nézetben kétoszlopos menü, „Kezdőképernyőhöz adás”
+  (`manifest.webmanifest`, `icon-192.png`, `icon-512.png`, teljes képernyős indulás). A Teszt gomb csak helyben
+  (localhost) vagy `?teszt` címmel látszik.

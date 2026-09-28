@@ -2,28 +2,39 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1640">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Classic Black Jack — a 90-es évek magyar játékgépe a böngészőben. Demo verzió.">
 <title>Classic Black Jack</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" as="image" href="assets/objects/logo.webp">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/titan-one-latin-400-normal.woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="menu.css">
 </head>
 <body>
 <div id="viewport">
   <div id="stage">
     <section id="topGlass" class="glass">
-      <img id="topBase" src="assets/top_glass_base.png" alt="" draggable="false">
+      <img id="topBase" src="assets/top_bg.webp" alt="" draggable="false">
       <div class="objects" id="topObjects"></div>
       <div class="lamps" id="topLamps"></div>
     </section>
     <section id="msgbar"><span id="bannerText"></span></section>
     <section id="reelGlass" class="glass">
-      <img id="reelBg" class="sceneOnly" src="assets/reel_bg.png" alt="" draggable="false">
+      <img id="reelBg" class="sceneOnly" src="assets/reel_bg.webp" alt="" draggable="false">
       <canvas id="paytable" class="sceneOnly"></canvas>
       <canvas class="reel" id="reel0"></canvas>
       <canvas class="reel" id="reel1"></canvas>
       <canvas class="reel" id="reel2"></canvas>
       <canvas class="reel" id="reel3"></canvas>
       <canvas class="reel" id="cardWheel"></canvas>
-      <img id="reelBase" src="assets/reel_glass_holes.png" alt="" draggable="false">
+      <img id="reelBase" src="assets/reel_glass_holes.webp" alt="" draggable="false">
       <div class="objects" id="reelObjects"></div>
       <div class="lamps" id="reelLamps"></div>
       <div id="tetPanel" class="sceneOnly">
@@ -53,6 +64,7 @@
 </div>
 
 <div id="side">
+  <button id="btnMenu" title="Főmenü">☰ MENÜ</button>
   <button id="btnFull" title="Teljes képernyő (F11)">Teljes képernyő</button>
   <button id="btnView" title="Nézet váltása">Nézet</button>
   <button id="btn3d" title="A gép 3D-ben: forgatás egérrel, görgővel nagyítás">3D gép</button>
@@ -61,8 +73,47 @@
   <button id="btnTest">Teszt</button>
 </div>
 
+<div id="menu" hidden>
+  <div class="mn-rings"></div>
+  <img class="mn-swirl" src="assets/menu_swirl.webp" alt="" draggable="false">
+  <div class="mn-vignette"></div>
+  <div class="mn-card">
+    <div class="mn-bulbs" id="mnBulbs" aria-hidden="true"></div>
+    <div class="mn-head">
+      <img class="mn-logo" src="assets/objects/logo.webp" alt="Classic Black Jack" draggable="false">
+      <div class="mn-reels" aria-hidden="true">
+        <div class="mn-reel"><div class="mn-strip"></div></div>
+        <div class="mn-reel"><div class="mn-strip"></div></div>
+        <div class="mn-reel"><div class="mn-strip"></div></div>
+        <div class="mn-reel"><div class="mn-strip"></div></div>
+      </div>
+    </div>
+    <div class="mn-body">
+      <div class="mn-label mn-fire">NÉZET</div>
+      <div class="mn-seg" id="mnView">
+        <button data-v="2d"><b>2D</b><small>Klasszikus</small></button>
+        <button data-v="3d"><b>3D</b><small>Játékgép</small></button>
+      </div>
+      <div class="mn-small" id="mnLayout">
+        <button data-l="full">Teljes gép</button>
+        <button data-l="wide">Széles</button>
+        <button data-l="compact">Közeli</button>
+      </div>
+      <div class="mn-tog">
+        <button id="mnSound">HANG: BE</button>
+        <button id="mnFull">TELJES KÉPERNYŐ</button>
+        <button id="mnHelp">SÚGÓ</button>
+      </div>
+      <button id="mnPlay" class="mn-play"><span>JÁTÉK</span></button>
+      <div class="mn-load" id="mnLoad"><i></i></div>
+    </div>
+  </div>
+</div>
+<div id="demoTag">DEMO VERZIÓ</div>
+
 <div id="helpPanel" class="panel" hidden>
-  <h2>Classic Black Jack — játszható tervezet</h2>
+  <h2>Classic Black Jack — súgó</h2>
+  <p><b>Telefonon:</b> koppints a gépen lévő gombokra (TART, TÉT, START, háromszögek). A ☰ MENÜ-ben válthatsz 2D és 3D között.</p>
   <p><b>Gombok:</b> TART 1–4 = <kbd>1</kbd>–<kbd>4</kbd>, TÉT = <kbd>T</kbd>, START = <kbd>Szóköz</kbd>.
     A felső üveg alján lévő 4 háromszög gomb = <kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> (vagy kattintás).</p>
   <p><b>Automatikus tartás:</b> nem nyerő pörgetés után a gép magától megtartja az elkezdett sort (2–3 egyforma szimbólum balról vagy jobbról) — a TART gombokkal átállíthatod. Tartott pörgetés után nincs újabb tartás.</p>
@@ -70,13 +121,16 @@
     V-s létraszint, Match Play kerék, PLUS/STOP), a START azt választja, amelyik épp ég.</p>
   <p><b>Minden nyerés után:</b> a szorzók (×6 K/A, ×3, ×2 fekete, ×2 piros, ×1) felváltva villognak. Találat után a menü
     újra jön a megszorzott összeggel — addig kockáztatsz, amíg akarsz. A TÉT gomb egyben ELVISZ: ezzel veszed fel a nyereményt. Az ×1½ másfélszerezi a nyereményt, ha 2–9 lap jön.</p>
-  <p><b>Kisebb/Nagyobb:</b> a 0. szintről indul, már a 4-esért is tippelni kell. TÉT (ELVISZ) = megállsz és elviszed. Háromszögek: Dupla Black Jack · Extra lépés · Jó az egyenlő · Másik kártya.</p>
+  <p><b>Kisebb/Nagyobb:</b> a 0. szintről indul, már a 4-esért is tippelni kell. TÉT (ELVISZ) = megállsz és elviszed. Háromszögek: (bal szélső) · Extra lépés · Másik kártya · Kifizetés.</p>
   <p><b>Kerek lámpák (2. szint):</b> a 4-es villog; ha a START-ot akkor nyomod, amikor ég, elkapod a következő kört.
     Minden égő lámpa 4-et ér (3 lámpa = 12). TART = elviszed, mellényomás = elbukod. Mind az 5 = 20.</p>
   <p><b>Super lépések:</b> előbb a jobb oldali pályán végigfutó fényből a START-tal elkapod a lépésszámot. Utána
     TART 1–4 kiválasztja a tárcsát, a LÉPÉS FEL / LE felváltva villog, és a START dönti el az irányt.
     Minden lépés egyet levon. TÉT = kész.</p>
-  <p><b>Black Jack:</b> a „Másik kártya” háromszöggel kérsz lapot, a TART-tal megállsz. 17–21 fizet, 21 fölött bukás.</p>
+  <p><b>Match Play:</b> START → a kerék lámpái a zenére villognak és megállnak egy szimbólumon. Utána a LÉPÉS FEL / LE
+    villog: a START-tal irányt választasz, és a tárcsák maguktól lépkednek, amíg ki nem jön a nyerő sor.
+    Match Play +: utána a PLUS / STOP vibrál — PLUS = újabb kör.</p>
+  <p><b>Black Jack:</b> START (vagy a „Másik kártya” háromszög) = lap, TÉT vagy TART = megállás. 17–21 fizet, 21 fölött bukás.</p>
   <p class="note">A nyereménytábla, a tárcsaszalagok, a „kerek lámpák” szint és a Super lépések még tervezet
     (<code>game/config.js</code>).</p>
   <button data-close>Bezár</button>
@@ -116,7 +170,8 @@
 <script src="engine.js"></script>
 <script src="ui.js"></script>
 <script src="money.js"></script>
+<!-- three.js and the 3D view are only loaded when 3D is chosen (menu.js) -->
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js" } }</script>
-<script type="module" src="view3d.js"></script>
+<script src="menu.js"></script>
 </body>
 </html>

@@ -1,0 +1,171 @@
+/* ---- main menu: the machine's own look (blue glow rings, the swirl ring, fire lettering, gold frame, chase bulbs) */
+/* the menu's heavy arcade lettering (Titan One, OFL 1.1, see assets/fonts): phones have no Arial Black */
+@font-face {
+  font-family: "Titan One"; font-weight: 400; font-display: swap;
+  src: url("assets/fonts/titan-one-latin-ext-400-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Titan One"; font-weight: 400; font-display: swap;
+  src: url("assets/fonts/titan-one-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122, U+FEFF, U+FFFD;
+}
+:root {
+  --mn-navy: #0a1640;
+  --mn-blue: #1c47b0;
+  --mn-gold: #ffc54a;
+  --mn-gold-d: #a8660c;
+}
+#menu {
+  position: fixed; inset: 0; z-index: 100; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  background: var(--mn-navy); color: #fff; font-family: "Segoe UI", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+  transition: opacity 380ms ease, transform 380ms ease;
+}
+#menu[hidden] { display: none; }
+#menu.closing { opacity: 0; transform: scale(1.06); pointer-events: none; }
+/* the concentric glow rings of the top glass */
+.mn-rings {
+  position: absolute; inset: -30%;
+  background: repeating-radial-gradient(circle at 50% 42%, #09153c 0, #0d2462 6vmax, #1d4fc0 8.2vmax, #0d2462 10.4vmax, #09153c 16vmax);
+  animation: mnBreath 7s ease-in-out infinite alternate;
+}
+@keyframes mnBreath { from { filter: brightness(0.8); } to { filter: brightness(1.05); } }
+.mn-swirl {
+  position: absolute; left: 50%; top: 42%; width: min(150vmin, 1100px); aspect-ratio: 1; translate: -50% -50%;
+  opacity: 0.5; pointer-events: none; animation: mnTurn 140s linear infinite;
+}
+@keyframes mnTurn { to { rotate: 360deg; } }
+.mn-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(0, 0, 0, 0.65) 100%); pointer-events: none; }
+
+/* the panel: a gold tube frame with chasing bulbs, dark glass inside */
+.mn-card {
+  position: relative; width: min(94vw, 540px); max-height: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.9vh, 18px);
+  padding: clamp(22px, 3.4vh, 34px) clamp(18px, 4vw, 34px);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(8, 18, 58, 0.78), rgba(5, 10, 34, 0.9));
+  box-shadow: 0 0 0 5px var(--mn-gold-d), 0 0 0 9px var(--mn-gold), 0 0 0 12px #6a3a06, 0 18px 60px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(40, 90, 255, 0.25);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+}
+.mn-bulbs { position: absolute; inset: 0; pointer-events: none; }
+.mn-bulbs i {
+  position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff 0 20%, #ffe38a 45%, #b87a10 100%);
+  opacity: 0.35; animation: mnChase 0.9s steps(1) infinite;
+}
+.mn-bulbs i:nth-child(3n + 1) { animation-delay: -0.3s; }
+.mn-bulbs i:nth-child(3n + 2) { animation-delay: -0.6s; }
+@keyframes mnChase { 0% { opacity: 1; box-shadow: 0 0 8px 3px rgba(255, 210, 90, 0.9); } 33% { opacity: 0.3; box-shadow: none; } }
+#menu.win .mn-bulbs i { animation-duration: 0.3s; }
+
+.mn-head { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.6vh, 16px); width: 100%; }
+.mn-logo {
+  width: min(88%, 440px); max-height: 25vh; object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 18px rgba(255, 110, 40, 0.35));
+  animation: mnLogo 3.2s ease-in-out infinite alternate;
+}
+@keyframes mnLogo { from { transform: scale(1); } to { transform: scale(1.035); } }
+
+/* four little reels that spin by themselves */
+.mn-reels { display: flex; gap: clamp(5px, 1.6vw, 10px); --cell: clamp(40px, 12vw, 64px); }
+.mn-reel {
+  position: relative; width: calc(var(--cell) * 1.05); height: calc(var(--cell) * 1.25); overflow: hidden; border-radius: 10px;
+  background: linear-gradient(180deg, #8d8a84 0%, #f3efe6 22%, #fffdf8 50%, #f3efe6 78%, #8d8a84 100%);
+  box-shadow: 0 0 0 3px #e7b453, 0 0 0 5px #7a4a0c, 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+.mn-reel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 28%, transparent 72%, rgba(0, 0, 0, 0.45)); pointer-events: none; }
+.mn-strip { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+.mn-strip img { display: block; width: 100%; height: var(--cell); padding: 7%; object-fit: contain; }
+.mn-strip.blur img { filter: blur(1.4px); }
+#menu.win .mn-reel { animation: mnWin 0.25s steps(1) infinite; }
+@keyframes mnWin { 50% { box-shadow: 0 0 0 3px #fff3b0, 0 0 0 5px #ff9a1a, 0 0 18px 6px rgba(255, 190, 60, 0.9); } }
+
+.mn-body { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.6vh, 14px); width: 100%; }
+/* fire lettering, like the machine's signs */
+.mn-fire {
+  font-family: "Titan One", "Arial Black", Impact, sans-serif; font-weight: 400; letter-spacing: 0.08em;
+  background: linear-gradient(180deg, #fff7b0 0%, #ffd23a 38%, #ff8a1a 62%, #e0221a 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 1px #4a0804;
+  filter: drop-shadow(0 2px 0 #2a0503) drop-shadow(0 0 8px rgba(255, 120, 30, 0.45));
+}
+.mn-label { font-size: clamp(16px, 2.6vh, 22px); }
+.mn-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.mn-seg button, .mn-small button, .mn-tog button {
+  appearance: none; border: 0; cursor: pointer; color: #fff; font: inherit; touch-action: manipulation;
+}
+.mn-seg button {
+  position: relative; padding: clamp(8px, 1.5vh, 14px) 6px; border-radius: 16px;
+  background: linear-gradient(180deg, #16296b, #0a1440); box-shadow: inset 0 0 0 2px #3a5bd0, 0 4px 0 #050a22;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; transition: transform 120ms, filter 160ms;
+}
+.mn-seg button b { font-family: "Titan One", "Arial Black", Impact, sans-serif; font-size: clamp(26px, 5vh, 40px); line-height: 1; color: #9fb7ff; text-shadow: 0 2px 0 #050a22; }
+.mn-seg button small { font-family: "Titan One", "Arial Black", sans-serif; font-size: clamp(11px, 1.6vh, 13px); color: #b9c6f3; letter-spacing: 0.08em; text-transform: uppercase; }
+/* the chosen one lights up like the machine's caption plates: red to orange, lit from behind */
+.mn-seg button.on {
+  background: linear-gradient(180deg, #ffb02e, #ff6a1a 45%, #c8140e);
+  box-shadow: inset 0 0 0 2px #ffe6a0, 0 4px 0 #6a0a06, 0 0 22px rgba(255, 140, 40, 0.75);
+}
+.mn-seg button.on b { color: #fff8dc; text-shadow: 0 2px 0 #7a0e08, 0 0 12px rgba(255, 240, 180, 0.8); }
+.mn-seg button.on small { color: #fff1d0; }
+.mn-seg button:active { transform: translateY(3px); }
+.mn-small { display: flex; gap: 6px; width: 100%; }
+.mn-small button {
+  flex: 1; padding: 7px 4px; border-radius: 10px; font-family: "Titan One", "Arial Black", sans-serif; font-size: clamp(11px, 1.6vh, 13px); letter-spacing: 0.05em;
+  background: rgba(10, 20, 64, 0.85); box-shadow: inset 0 0 0 1.5px #3a5bd0; color: #b9c6f3;
+}
+.mn-small button.on { background: #2a4cc2; color: #fff; box-shadow: inset 0 0 0 1.5px #9fb7ff, 0 0 10px rgba(80, 130, 255, 0.6); }
+.mn-small[hidden] { display: none; }
+.mn-tog { display: flex; gap: 8px; width: 100%; }
+.mn-tog button {
+  flex: 1; padding: 9px 4px; border-radius: 12px; font-family: "Titan One", "Arial Black", sans-serif; font-size: clamp(11px, 1.6vh, 13px); letter-spacing: 0.06em;
+  background: linear-gradient(180deg, #2a2f44, #14172a); box-shadow: inset 0 0 0 1.5px #c9912a, 0 3px 0 #07080f; color: #ffe2a0;
+}
+.mn-tog button:active { transform: translateY(2px); }
+.mn-tog button[hidden] { display: none; }
+
+/* the big green START button */
+.mn-play {
+  appearance: none; border: 0; cursor: pointer; touch-action: manipulation; position: relative;
+  width: min(100%, 340px); padding: clamp(12px, 2.2vh, 18px) 0; margin-top: 4px; border-radius: 20px;
+  background: linear-gradient(180deg, #b8ffca 0%, #4fe47c 30%, #1fae4a 70%, #12802f 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.7), 0 0 0 4px #d8dde6, 0 0 0 6px #6b7280, 0 8px 0 6px #0b4a1c, 0 0 30px rgba(80, 255, 130, 0.5);
+  font-family: "Titan One", "Arial Black", Impact, sans-serif; font-size: clamp(24px, 4.4vh, 36px); letter-spacing: 0.12em;
+  color: #0c3a18; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: mnPulse 1.4s ease-in-out infinite; transition: transform 100ms;
+}
+.mn-play:active { transform: translateY(6px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.7), 0 0 0 4px #d8dde6, 0 0 0 6px #6b7280, 0 2px 0 6px #0b4a1c; }
+.mn-play:disabled { filter: grayscale(0.7) brightness(0.8); animation: none; cursor: progress; }
+@keyframes mnPulse { 50% { box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.7), 0 0 0 4px #d8dde6, 0 0 0 6px #6b7280, 0 8px 0 6px #0b4a1c, 0 0 46px rgba(80, 255, 130, 0.85); } }
+.mn-load { width: min(100%, 340px); height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.12); overflow: hidden; transition: opacity 400ms; }
+.mn-load i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffb000, #ffe38a); transition: width 200ms; }
+.mn-load.done { opacity: 0; }
+
+/* DEMO VERZIÓ in the corner, small */
+#demoTag {
+  position: fixed; left: max(8px, env(safe-area-inset-left)); bottom: max(6px, env(safe-area-inset-bottom)); z-index: 110;
+  font: 400 10px/1 "Titan One", "Segoe UI", sans-serif; letter-spacing: 0.16em; color: rgba(255, 226, 160, 0.75);
+  padding: 4px 7px; border-radius: 6px; background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 0 0 1px rgba(255, 197, 74, 0.35);
+  pointer-events: none;
+}
+
+/* the in-game MENÜ button */
+#btnMenu { font-weight: 800; letter-spacing: 0.06em; background: linear-gradient(180deg, #2a2f44, #14172a) !important; border-color: #c9912a !important; color: #ffe2a0 !important; }
+
+/* phones held sideways: logo and reels on the left, the choices on the right */
+@media (orientation: landscape) and (max-height: 620px) {
+  .mn-card { width: min(96vw, 900px); flex-direction: row; align-items: center; gap: clamp(14px, 3vw, 30px); padding: 18px 26px; }
+  .mn-head { flex: 1.1; }
+  .mn-body { flex: 1; }
+  .mn-logo { max-height: 44vh; }
+  .mn-reels { --cell: clamp(34px, 11vh, 58px); }
+  .mn-seg button b { font-size: clamp(22px, 7vh, 34px); }
+  .mn-play { font-size: clamp(20px, 6.5vh, 30px); padding: clamp(8px, 2.6vh, 14px) 0; }
+}
+@media (max-height: 560px) and (orientation: portrait) { .mn-reels { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .mn-rings, .mn-swirl, .mn-logo, .mn-play, .mn-bulbs i { animation: none; }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Classic Black Jack",
+  "short_name": "Black Jack",
+  "description": "A 90-es évek magyar Classic Black Jack játékgépe. Demo verzió.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#0a1640",
+  "theme_color": "#0a1640",
+  "lang": "hu",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -424,11 +424,11 @@ function leave() {
   window.dispatchEvent(new Event("resize"));
 }
 
+// loaded on demand by menu.js (the first time 3D is chosen), which also wires the "3D gép" button
 const btn = $("btn3d");
 const set = (on) => {
   on ? enter() : leave();
-  btn.textContent = on ? "2D nézet" : "3D gép";
+  if (btn) btn.textContent = on ? "2D nézet" : "3D gép";
   try { localStorage.setItem("cbj-3d", on ? "1" : "0"); } catch (e) { /* ignore */ }
 };
-btn.onclick = () => set(!document.body.classList.contains("view3d"));
-try { if (localStorage.getItem("cbj-3d") === "1") set(true); } catch (e) { /* ignore */ }
+(window.CBJ = window.CBJ || {}).set3d = set;
