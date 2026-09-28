@@ -45,7 +45,9 @@
       joaz: "Jó az egyenlő",
       masik: "Másik kártya",
     },
-    helpOrder: ["dupla", "extra", "joaz", "masik"], // = the 4 triangle buttons, left to right
+    // the 4 triangle buttons under the top glass, left to right (owner: extra step, other card, pay out;
+    // the leftmost is not known yet - Dupla Black Jack for now). "fizet" = take the win, like TÉT (ELVISZ).
+    triangles: ["dupla", "extra", "masik", "fizet"],
 
     // Kisebb/Nagyobb ladder, bottom to top (confirmed order). "options" = the two alternate, START picks.
     ladder: [
@@ -56,7 +58,8 @@
         { id: "lClassic", label: "Classic Black Jack", prize: { feature: "classicbj" } },
         { id: "lSuperLep", label: "Super lépések", prize: { feature: "superlepesek" } },
       ] },
-      { id: "l20", label: "20", prize: { credit: 20 } },
+      // at 20 you may risk it for a field next to it: they flash in turn, START catches one (owner, 2026-09-28)
+      { id: "l20", label: "20", prize: { credit: 20 }, risk: ["lClassic", "lSuperLep", "lSuperBJ", "lMP"] },
       { options: [
         { id: "lSuperBJ", label: "Super Classic Black Jack", prize: { feature: "superbj" } },
         { id: "lMP", label: "Match Play", prize: { feature: "matchplay" } },

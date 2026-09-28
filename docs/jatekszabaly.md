@@ -117,3 +117,14 @@ A játék a **0. szintről** indul: már az 1. szintre (4) is tippelni kell.
 - Nem nyerő, nem tartott pörgetés után a gép magától megtartja a legjobb elkezdett sort: 2–3 egyforma szimbólum a bal vagy a jobb szélről.
 - A TART gombokkal ez átállítható (max. 3 tárcsa). Tartott pörgetés után nincs újabb tartás.
 - Az üzenetsáv (a két üveg között) üres, mint az eredeti gépen.
+
+## Kockázat a 20-asnál (felhasználó, 2026-09-28)
+- A Kisebb/Nagyobb létrán a **20**-as szinten a nyeremény kockáztatható: a mellette lévő mezők
+  (lent: Classic Black Jack / Super lépések, fent: Super Classic Black Jack / Match Play) felváltva villognak,
+  és a **START** azt adja, amelyik épp ég. Indítás: bármelyik **TART** gomb („KOCKÁZAT”).
+  Hogy pontosan mely mezők vesznek részt, a `config.js` `ladder` 20-as lépcsőjének `risk` listája dönti el
+  (a felhasználó „Match Play +”-t is említett — megerősítendő).
+
+## A 4 háromszög gomb (felhasználó, 2026-09-28)
+- Balról jobbra: **?** (egyelőre Dupla Black Jack) · **Extra lépés** · **Másik kártya** · **Kifizetés**.
+- Ha épp nem használható, rövid „nem” hangjelzést ad. Billentyűk: Q W E R.

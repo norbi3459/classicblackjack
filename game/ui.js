@@ -189,6 +189,7 @@
       // the reel is caught by its latch: sharp click, a thud, a short metallic ring
       stop(i) {
         if (buffers.spin && i < 4) return; // the spin sample already has the machine's own reel stops
+        if (buffers.wheelSpin && i === 4) return; // and the card wheel sample ends with its own clack
         const k = 1 + ((i * 37) % 7) * 0.02;
         noise(0.014, 0.55, 3000 * k, 0, 0.9, "highpass");
         tone(120 * k, 0.07, "sine", 0.45, 0, 0.5);
@@ -1062,6 +1063,7 @@
     return { c, g: c.getContext("2d"), W: w.w, H: w.h, k: 2, pos: M.s.cardPos, anim: null, speed: 0 };
   })();
   let winMark = null;
+  let riskRun = false; // the "risk it at 20" run is on (Kisebb/Nagyobb)
   let nudgeSel = null; // reel chosen with TART during Super lépések
 
   function roundRect(g, x, y, w, h, r) {
@@ -1543,7 +1545,13 @@
   const spinReels = (stops, held) => (SFX.stopChannel("bg"), SFX.stopChannel("count"), SFX.play("spin", { channel: "reels" }), SFX.motorOn(), Promise.all(reels.map((R, i) =>
     held && held[i] ? Promise.resolve() : animateTo(R, M.strips[i].length, stops[i], 0.84 + i * 0.225, REEL_SPEED).then(() => SFX.stop(i)))).then(() => SFX.motorOff()));
   // the card wheel turns quickly, like in the video (~0.5 s)
-  const spinCardWheel = (pos) => (SFX.play("wheelSpin", { channel: "wheel" }), animateTo(cardWheel, M.cards.length, pos, 0.55, 30).then(() => SFX.stop(4)));
+  // the wheelSpin sample ends with the wheel's clack (0.30 s in): start it so that clack lands when the wheel stops
+  // at 0.55 s, otherwise the sound ends early, then a second, synthetic click follows (it sounded choppy)
+  const WHEEL_T = 0.55, WHEEL_CLACK = 0.3;
+  const spinCardWheel = (pos) => {
+    setTimeout(() => SFX.play("wheelSpin", { channel: "wheel" }), (WHEEL_T - WHEEL_CLACK) * 1000);
+    return animateTo(cardWheel, M.cards.length, pos, WHEEL_T, 30).then(() => SFX.stop(4));
+  };
 
   // ---------------------------------------------------------------- LEDs, message bar, buttons
   function bankValue() {
@@ -1587,6 +1595,8 @@
     const hot = [false, false, false, false, false, false];
     const tartCaps = (label) => { for (let i = 0; i < 4; i++) { caps[i] = label; hot[i] = !!label; } };
     if (ph === "multi" || ph === "gamble") { tartCaps(""); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "VÁLASZT"; hot[5] = true; }
+    if (ph === "gamble" && M.riskOptions() && !riskRun) tartCaps("KOCKÁZAT");
+    if (riskRun) { tartCaps(""); caps[4] = ""; hot[4] = false; caps[5] = "ELKAP"; hot[5] = true; }
     if (["joker", "choose", "matchplay", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : "VÁLASZT"; hot[5] = true; }
     if (ph === "nudge") { tartCaps("TÁRCSA"); caps[4] = "KÉSZ"; hot[4] = true; caps[5] = picker ? "FEL / LE" : ""; hot[5] = !!picker; }
     if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[5] = ""; }
@@ -1655,9 +1665,8 @@
     setLamp("plus", "off"); setLamp("stop", "off");
     for (const k of Object.keys(cfg.helps)) setLamp("h_" + k, s.helps[k] ? "on" : "off");
     document.querySelectorAll("canvas.sunburst").forEach((c) => c.classList.toggle("lit", !!(lamps[c.dataset.for] && lamps[c.dataset.for].classList.contains("on"))));
-    cfg.helpOrder.forEach((k, i) => {
-      const usable = (ph === "gamble" && s.helps[k] && (k === "extra" || k === "masik")) ||
-        (ph === "blackjack" && (k === "masik" || (k === "dupla" && s.helps.dupla && s.bj && !s.bj.dupla)));
+    cfg.triangles.forEach((k, i) => {
+      const usable = triangleUsable(k);
       setLamp("tri" + i, usable ? "on" : "off");
       lamps["tri" + i].classList.toggle("usable", usable);
     });
@@ -1850,8 +1859,18 @@
     }
   }
 
+  function triangleUsable(k) {
+    const s = M.s, ph = s.phase;
+    if (riskRun) return false;
+    if (k === "fizet") return (ph === "gamble" && s.gamble && s.gamble.level >= 0) || ph === "multi";
+    return (ph === "gamble" && s.helps[k] && (k === "extra" || k === "masik")) ||
+      (ph === "blackjack" && (k === "masik" || (k === "dupla" && s.helps.dupla && s.bj && !s.bj.dupla)));
+  }
   async function onTriangle(i) {
-    const k = cfg.helpOrder[i];
+    const k = cfg.triangles[i];
+    if (busy) return;
+    if (!triangleUsable(k)) { SFX.blip(0); return; } // not now: a short "no" beep instead of silence
+    if (k === "fizet") { onTet(); return; }
     if (M.s.phase === "blackjack" && k === "masik") return run(async () => { await showDeal(M.bjHit()); });
     return run(async () => {
       const r = M.useHelp(k);
@@ -1994,9 +2013,21 @@
   }
 
   // ---------------------------------------------------------------- input
+  // -- at 20 (Kisebb/Nagyobb) a win can be risked: the fields around it flash in turn, START catches one
+  function startRisk() {
+    const opts = M.riskOptions();
+    if (!opts) return;
+    stopPicker();
+    riskRun = true;
+    say(`Kockázat: ${opts.map((o) => o.label).join(" / ")} — START`, 0);
+    startPicker({ ids: opts.map((o) => o.id), values: opts.map((o) => o.id), ms: 480, hi: "fast", loop: "chooseLoop",
+      onPick: (id) => run(async () => { riskRun = false; await afterCollect(M.riskPick(id)); }) });
+    refresh();
+  }
   function onTart(i) {
     if (busy) return;
     const ph = M.s.phase;
+    if (ph === "gamble" && M.riskOptions() && !riskRun) { startRisk(); return; }
     if (ph === "idle") { if (M.toggleHold(i)) refresh(); return; }
     if (ph === "nudge") selectNudgeReel(i);
     if (ph === "blackjack") run(bjStand);
@@ -2015,7 +2046,7 @@
     if (M.s.phase === "nudge") { stopPicker(); run(async () => { await nudgeResult(M.nudgeFinish()); }); return; }
     // TÉT doubles as ELVISZ: take the win from the multiplier menu, stop on the ladder
     if (M.s.phase === "multi") { stopPicker(); run(() => doMulti(null)); return; }
-    if (M.s.phase === "gamble") { run(doCollect); return; }
+    if (M.s.phase === "gamble" && !riskRun) { run(doCollect); return; }
     if (M.cycleStake()) { refresh(); save(); }
   }
   function onStart() {

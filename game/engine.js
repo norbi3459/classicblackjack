@@ -351,6 +351,24 @@
       return this.applyPrize(step);
     }
 
+    // the ladder fields you can risk a win for from the current level (e.g. at 20), or null
+    riskOptions() {
+      const g = this.s.gamble;
+      if (this.s.phase !== "gamble" || !g || g.level < 0) return null;
+      const ids = this.cfg.ladder[g.level].risk;
+      if (!ids) return null;
+      const all = this.cfg.ladder.flatMap((st) => (st.options ? st.options : [st]));
+      return ids.map((id) => all.find((o) => o.id === id)).filter(Boolean);
+    }
+    riskPick(id) {
+      const opts = this.riskOptions();
+      if (!opts) return { error: "Itt nem lehet kockáztatni." };
+      const opt = opts.find((o) => o.id === id);
+      if (!opt) return { error: "Ismeretlen mező." };
+      this.s.gamble = null;
+      return this.applyPrize(opt);
+    }
+
     choose(id) {
       if (this.s.phase !== "choose") return { error: "Nincs választás." };
       const opt = this.s.choice.options.find((o) => o.id === id);
