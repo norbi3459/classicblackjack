@@ -135,7 +135,11 @@ for (let i = 0; i < 200000; i++) {
       sim.choose(o[sim.randInt(o.length)].id);
     } else if (ph === "matchplay") {
       stats.mp++;
-      if (sim.matchCatch(sim.randInt(cfg.matchPlay.wheel.length)).jackpot) stats.jackpots++;
+      sim.matchCatch(sim.randInt(cfg.matchPlay.wheel.length));
+    } else if (ph === "mpdir") {
+      const r = sim.matchStep(sim.rng() < 0.5 ? "up" : "down");
+      stats.mp4 = (stats.mp4 || 0) + (r.count === 4);
+      if (r.jackpot) stats.jackpots++;
     } else if (ph === "plusstop") sim.plusStop(sim.rng() < 0.4);
     else if (ph === "blackjack") { stats.bj++; if (sim.s.bj.points < 17) sim.bjHit(); else sim.bjStand(); }
     else if (ph === "rowcatch") { stats.rows = (stats.rows || 0) + 1; if (sim.rng() < 0.3) sim.rowStop(); else sim.rowCatch(sim.rng() < 0.75); }

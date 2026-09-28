@@ -90,7 +90,6 @@
 
     matchPlay: {
       wheel: ["bar", "csengo", "bj", "szilva", "citrom", "dinnye", "narancs", "szolo"], // clockwise from top
-      fourChance: 0.35,
       jackpotMult: 200,
     },
 

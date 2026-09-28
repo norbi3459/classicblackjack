@@ -11,6 +11,8 @@ import { RoundedBoxGeometry } from "./vendor/three/addons/RoundedBoxGeometry.js"
 
 const $ = (id) => document.getElementById(id);
 const CBJ_layout = () => (window.CBJ && window.CBJ.layout) || {};
+const CBJ_cfg = () => (window.CBJ && window.CBJ.config) || {};
+const TRI_NAME = { dupla: ["DUPLA", "B. JACK"], extra: ["EXTRA", "LÉPÉS"], masik: ["MÁSIK", "KÁRTYA"], fizet: ["KIFIZETÉS"], joaz: ["JÓ AZ", "EGYENLŐ"] };
 
 // ---------------------------------------------------------------- dimensions, as in build_cabinet.py (m)
 // Blender is Z-up with the machine facing -Y; here Y is up and the machine faces +Z.
@@ -184,11 +186,31 @@ function build() {
     shape.lineTo(-bw / 2 + r * 0.6, r * 0.9); shape.quadraticCurveTo(-bw / 2, 0, -bw / 2 + r, 0);
     const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.006, bevelEnabled: true, bevelThickness: 0.002, bevelSize: 0.002, bevelSegments: 3, curveSegments: 6 });
     const mat = new THREE.MeshPhysicalMaterial({ color: TRI_COL[i], roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05,
-      transparent: true, opacity: 0.55, emissive: TRI_COL[i], emissiveIntensity: 0.1 });
+      transparent: true, opacity: 0.82, emissive: TRI_COL[i], emissiveIntensity: 0.1 });
     const m = new THREE.Mesh(geo, mat);
     m.position.set(-0.3 + (x + w / 2) * topPx, topTop - (y + h * 0.95) * topPx, 0.387 - YB + 0.002);
     m.castShadow = true; m.userData.tri = i;
     scene.add(m);
+    // its name printed on the button's own face, in the wide lower part of the triangle
+    const lines = TRI_NAME[(CBJ_cfg().triangles || [])[i]] || [];
+    const LW = 512, LH = Math.round(LW * bh / bw), lab = document.createElement("canvas"); lab.width = LW; lab.height = LH;
+    const q = lab.getContext("2d");
+    q.textAlign = "center"; q.textBaseline = "middle"; q.lineJoin = "round";
+    const rowsY = lines.length > 1 ? [0.6, 0.82] : [0.76];
+    lines.forEach((t, k) => {
+      const y = rowsY[k] * LH, room = LW * (y / LH) * 0.8, px = Math.round(LH * 0.2);
+      q.font = `900 ${px}px "Arial Black", "Segoe UI", Arial, sans-serif`;
+      const sx = Math.min(1, room / q.measureText(t).width);
+      q.save(); q.translate(LW / 2, y); q.scale(sx, 1);
+      q.lineWidth = px * 0.22; q.strokeStyle = "rgba(20,8,4,0.9)"; q.strokeText(t, 0, 0);
+      q.fillStyle = "#fff6dc"; q.fillText(t, 0, 0);
+      q.restore();
+    });
+    const lt = new THREE.CanvasTexture(lab); lt.colorSpace = THREE.SRGBColorSpace; lt.anisotropy = 8;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), new THREE.MeshBasicMaterial({ map: lt, transparent: true, depthWrite: false }));
+    face.position.set(0, bh / 2, 0.0082);
+    face.raycast = () => {};
+    m.add(face);
     return { mesh: m, mat, z: m.position.z, press: 0 };
   });
   const mid = [(REEL_A[0] + REEL_B[0]) / 2 - out[0] * 0.012, (REEL_A[1] + REEL_B[1]) / 2 - out[1] * 0.012];

@@ -1614,9 +1614,9 @@
     if (ph === "multi" || ph === "gamble") { tartCaps(""); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "VÁLASZT"; hot[5] = true; }
     if (ph === "gamble" && M.riskOptions() && !riskRun) tartCaps("KOCKÁZAT");
     if (riskRun) { tartCaps(""); caps[4] = ""; hot[4] = false; caps[5] = "ELKAP"; hot[5] = true; }
-    if (["joker", "choose", "matchplay", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : "VÁLASZT"; hot[5] = true; }
+    if (["joker", "choose", "matchplay", "mpdir", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : ph === "mpdir" ? "FEL / LE" : "VÁLASZT"; hot[5] = true; }
     if (ph === "nudge") { tartCaps("TÁRCSA"); caps[4] = "KÉSZ"; hot[4] = true; caps[5] = picker ? "FEL / LE" : ""; hot[5] = !!picker; }
-    if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[5] = ""; }
+    if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[4] = "MEGÁLL"; hot[4] = true; caps[5] = "LAP"; hot[5] = true; }
     caps.forEach((c, i) => {
       const el = $("cap" + i);
       const want = c + (hot[i] ? "|hot" : "");
@@ -1764,6 +1764,7 @@
     if (ph === "gamble") return enterGamble(trigger);
     if (ph === "plusstop") return startPlusStop();
     if (ph === "matchplay") return startMatchRunner();
+    if (ph === "mpdir") return startMpDir();
   }
 
   function startJokerPicker(trigger, res) {
@@ -1836,7 +1837,7 @@
     await spinCardWheel(r.pos);
     if (r.result === "win") {
       say(`${cardName(r.next)} — talált! ${M.ladderLabel(r.level)}`, 1600); if (!SFX.play("guessWin", {})) SFX.guessWin(r.level);
-      await sleep(1250);
+      await ladderChase(r.level, 1300);
       if (r.collect) { await afterCollect(r.collect); return; }
     } else if (r.result === "equal-saved") {
       say(`${cardName(r.next)} — egyenlő, JÓ AZ EGYENLŐ mentett meg!`, 1800);
@@ -1846,6 +1847,21 @@
       return;
     }
     startGuessPicker();
+  }
+  // running light: the ladder lights up from the bottom to the level just won, a few times, during the win tune
+  async function ladderChase(level, ms) {
+    const steps = [];
+    for (let l = 0; l <= level; l++) steps.push(levelIds(l));
+    const t0 = performance.now(), per = Math.max(45, Math.min(110, ms / 3 / Math.max(1, steps.length)));
+    let k = 0;
+    while (performance.now() - t0 < ms - per) {
+      const i = k % (steps.length + 2);
+      for (const id of Object.keys(L.ladder)) setLamp(id, "off");
+      steps.forEach((ids, j) => ids.forEach((id) => setLamp(id, j <= i ? "on" : "off")));
+      k++;
+      await sleep(per);
+    }
+    refresh();
   }
   async function doCollect() {
     const c = M.collect();
@@ -1857,7 +1873,7 @@
     if (c.error) { say(c.error); return; }
     if (c.choose) {
       say(`Válassz: ${c.options.map((o) => o.label).join(" / ")} — START`, 0);
-      startPicker({ ids: c.options.map((o) => o.id), values: c.options.map((o) => o.id), ms: 700, loop: "chooseLoop", onPick: (id) => run(() => afterCollect(M.choose(id))) });
+      startPicker({ ids: c.options.map((o) => o.id), values: c.options.map((o) => o.id), ms: 700, loop: "guessLoop", onPick: (id) => run(() => afterCollect(M.choose(id))) });
       refresh();
       return;
     }
@@ -1917,13 +1933,34 @@
   }
   async function mpCatch(idx) {
     const r = M.matchCatch(idx);
+    if (r.error) return;
     SFX.play("mpResult", {});
     say(`Elkapva: ${symName(r.sym)}`, 0);
-    shownCredit = M.s.credit - r.amount;
     refresh();
     await spinReels(r.stops, null);
+    await sleep(300);
+    startMpDir();
+  }
+  // the caught symbol sits on 2 reels: LÉPÉS FEL / LE flash in turn, START picks which way the others step
+  function startMpDir() {
+    say(`${symName(M.s.mp.caught.sym)} — FEL vagy LE? (START)`, 0);
+    startPicker({ ids: ["lepesFel", "lepesLe"], values: ["up", "down"], ms: 420, loop: "nudgePick", onPick: (dir) => run(() => mpStep(dir)) });
+    refresh();
+  }
+  async function mpStep(dir) {
+    const before = M.s.credit;
+    const r = M.matchStep(dir);
+    if (r.error) return;
+    shownCredit = before;
+    refresh();
+    setLamp(dir === "up" ? "lepesFel" : "lepesLe", "on");
+    for (const st of r.steps) {
+      SFX.play("nudgeStep", {});
+      await Promise.all(st.moved.map((i) => nudgeAnim(i, dir === "up" ? 1 : -1, st.stops[i])));
+    }
+    SFX.play("nudgeArrive", {});
     shownCredit = null;
-    winMark = { cells: [...Array(r.count).keys()], t0: performance.now() };
+    winMark = { cells: r.cells, t0: performance.now() };
     say(`${r.count} × ${symName(r.sym)} — ${r.amount - r.jackpot} Ft`, 2200);
     refresh();
     if (r.jackpot) { await sleep(1600); setLamp("wc", "fast"); say(`HA MINDEN VILÁGÍT — JACKPOT ${r.jackpot} Ft!`, 3000); SFX.jackpot(); await sleep(2600); }
@@ -2039,7 +2076,7 @@
     stopPicker();
     riskRun = true;
     say(`Kockázat: ${opts.map((o) => o.label).join(" / ")} — START`, 0);
-    startPicker({ ids: opts.map((o) => o.id), values: opts.map((o) => o.id), ms: 480, hi: "fast", loop: "chooseLoop",
+    startPicker({ ids: opts.map((o) => o.id), values: opts.map((o) => o.id), ms: 480, hi: "fast", loop: "guessLoop",
       onPick: (id) => run(async () => { riskRun = false; await afterCollect(M.riskPick(id)); }) });
     refresh();
   }
@@ -2066,6 +2103,7 @@
     // TÉT doubles as ELVISZ: take the win from the multiplier menu, stop on the ladder
     if (M.s.phase === "multi") { stopPicker(); run(() => doMulti(null)); return; }
     if (M.s.phase === "gamble" && !riskRun) { run(doCollect); return; }
+    if (M.s.phase === "blackjack") { run(bjStand); return; }
     if (M.cycleStake()) { refresh(); save(); }
   }
   function onStart() {
@@ -2073,6 +2111,7 @@
     if (picker) { takePick(); return; }
     const ph = M.s.phase;
     if (ph === "idle") run(doSpin);
+    else if (ph === "blackjack") run(async () => { await showDeal(M.bjHit()); });
     else if (ph === "nudge") say(`Előbb válassz tárcsát a TART-tal · még ${M.s.nudge.steps} lépés`, 0);
   }
   document.querySelectorAll(".mbtn").forEach((b) => b.addEventListener("pointerdown", () => {

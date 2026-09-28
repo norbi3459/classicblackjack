@@ -49,7 +49,7 @@
         holdOffer: true, // no hold twice in a row
         stops: this.strips.map(() => 0),
         cardPos: 0,
-        phase: "idle", // idle | joker | multi | gamble | choose | rowcatch | nudgepick | nudge | matchplay | plusstop | blackjack
+        phase: "idle", // idle | joker | multi | gamble | choose | rowcatch | nudgepick | nudge | matchplay | mpdir | plusstop | blackjack
         lastWin: 0,
         pending: 0,
         pendingTrigger: null,
@@ -486,20 +486,46 @@
       this.s.mp = { plus, rounds: 0 };
     }
 
+    // The caught symbol lands on 2 of the reels (the other reels show something else), then LÉPÉS FEL / LE picks
+    // the direction and the other reels step that way together; a reel that reaches the symbol stays put, the
+    // rest go on until the symbol makes a win. Symbols on the two edges -> both middle reels have to reach it
+    // -> 4 of a kind; in the middle -> the first edge reel to arrive already makes 3.
     matchCatch(idx) {
       if (this.s.phase !== "matchplay") return { error: "Nincs Match Play." };
-      const mp = this.s.mp;
-      const cfg = this.cfg.matchPlay;
-      const sym = cfg.wheel[idx];
-      const count = this.rng() < cfg.fourChance ? 4 : 3;
-      const mult = count === 4 ? this.cfg.pay4[sym] : this.cfg.pay3[sym];
-      let amount = (mult || 0) * this.stake;
-
+      const sym = this.cfg.matchPlay.wheel[idx];
+      const pairs = [[0, 3], [1, 2], [0, 1], [2, 3], [0, 2], [1, 3]];
+      const pair = pairs[this.randInt(pairs.length)];
       this.s.stops = this.strips.map((st, i) => {
-        const want = i < count ? (c) => c.s === sym : (c) => c.s !== sym;
+        const want = pair.includes(i) ? (c) => c.s === sym : (c) => c.s !== sym;
         const idxs = st.map((c, k) => (want(c) ? k : -1)).filter((k) => k >= 0);
         return idxs.length ? idxs[this.randInt(idxs.length)] : this.s.stops[i];
       });
+      this.s.mp.caught = { idx, sym, pair };
+      this.s.phase = "mpdir";
+      return { sym, pair, stops: this.s.stops.slice() };
+    }
+
+    matchStep(dir) {
+      if (this.s.phase !== "mpdir") return { error: "Nincs Match Play irányválasztás." };
+      const mp = this.s.mp, { idx, sym } = mp.caught, cfg = this.cfg.matchPlay;
+      const d = dir === "up" ? 1 : -1;
+      const on = (i) => this.strips[i][this.s.stops[i]].s === sym;
+      const won = () => [0, 1, 2].every(on) || [1, 2, 3].every(on);
+      const steps = [];
+      for (let guard = 0; !won() && guard < 200; guard++) {
+        const moved = [];
+        for (let i = 0; i < 4; i++) {
+          if (on(i)) continue;
+          const n = this.strips[i].length;
+          this.s.stops[i] = (((this.s.stops[i] + d) % n) + n) % n;
+          moved.push(i);
+        }
+        steps.push({ moved, stops: this.s.stops.slice() });
+      }
+      const count = [0, 1, 2, 3].every(on) ? 4 : 3;
+      const cells = count === 4 ? [0, 1, 2, 3] : [0, 1, 2].every(on) ? [0, 1, 2] : [1, 2, 3];
+      const mult = count === 4 ? this.cfg.pay4[sym] : this.cfg.pay3[sym];
+      let amount = (mult || 0) * this.stake;
 
       this.s.wheelLit[idx] = true;
       let jackpot = 0;
@@ -508,10 +534,12 @@
         amount += jackpot;
         this.s.wheelLit = this.s.wheelLit.map((_, k) => k === idx);
       }
+      mp.caught = null;
       mp.rounds++;
+      this.s.phase = "matchplay";
       if (!mp.plus) this.s.mp = null;
       this.offerWin(amount, mp.plus ? "plusstop" : null);
-      return { sym, count, amount, jackpot, stops: this.s.stops.slice(), plus: mp.plus };
+      return { sym, count, cells, dir, steps, amount, jackpot, stops: this.s.stops.slice(), plus: mp.plus };
     }
 
     plusStop(isPlus) {
