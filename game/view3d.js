@@ -10,6 +10,7 @@ import { RoomEnvironment } from "./vendor/three/addons/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "./vendor/three/addons/RoundedBoxGeometry.js";
 
 const $ = (id) => document.getElementById(id);
+const CBJ_layout = () => (window.CBJ && window.CBJ.layout) || {};
 
 // ---------------------------------------------------------------- dimensions, as in build_cabinet.py (m)
 // Blender is Z-up with the machine facing -Y; here Y is up and the machine faces +Z.
@@ -170,6 +171,26 @@ function build() {
   const topEl = $("topGlass"), reelEl = $("reelGlass");
   const topH = 0.6 * (topEl.offsetHeight / topEl.offsetWidth), reelH = 0.6 * (reelEl.offsetHeight / reelEl.offsetWidth);
   glass(topEl, 0.6, topH, new THREE.Vector3(0, 1.355 + topH / 2, 0.387 - YB), 0);
+
+  // ---- the 4 triangle buttons at the foot of the top glass, as real 3D push buttons over the printed ones
+  // (they press the game's own triangle lamps, so they do exactly what a click on the glass does)
+  const topPx = 0.6 / topEl.offsetWidth, topTop = 1.355 + topH;
+  const TRI_COL = [0x303848, 0xc01a1a, 0xff7a1a, 0xd01a22];
+  const triangles = (CBJ_layout().triangles || []).map(([x, y, w, h], i) => {
+    const bw = w * topPx * 0.92, bh = h * topPx * 0.9, r = bh * 0.12;
+    const shape = new THREE.Shape();
+    shape.moveTo(-bw / 2 + r, 0); shape.lineTo(bw / 2 - r, 0); shape.quadraticCurveTo(bw / 2, 0, bw / 2 - r * 0.6, r * 0.9);
+    shape.lineTo(r * 0.6, bh - r * 0.9); shape.quadraticCurveTo(0, bh, -r * 0.6, bh - r * 0.9);
+    shape.lineTo(-bw / 2 + r * 0.6, r * 0.9); shape.quadraticCurveTo(-bw / 2, 0, -bw / 2 + r, 0);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.006, bevelEnabled: true, bevelThickness: 0.002, bevelSize: 0.002, bevelSegments: 3, curveSegments: 6 });
+    const mat = new THREE.MeshPhysicalMaterial({ color: TRI_COL[i], roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05,
+      transparent: true, opacity: 0.55, emissive: TRI_COL[i], emissiveIntensity: 0.1 });
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(-0.3 + (x + w / 2) * topPx, topTop - (y + h * 0.95) * topPx, 0.387 - YB + 0.002);
+    m.castShadow = true; m.userData.tri = i;
+    scene.add(m);
+    return { mesh: m, mat, z: m.position.z, press: 0 };
+  });
   const mid = [(REEL_A[0] + REEL_B[0]) / 2 - out[0] * 0.012, (REEL_A[1] + REEL_B[1]) / 2 - out[1] * 0.012];
   glass(reelEl, 0.6, reelH, new THREE.Vector3(0, mid[1], mid[0] - YB), -Math.atan2(out[1], out[0]));
 
@@ -295,15 +316,27 @@ function build() {
     const r = css.domElement.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    const hit = ray.intersectObjects([...buttons.map((b) => b.cap), ...accHit])[0];
+    const hit = ray.intersectObjects([...buttons.map((b) => b.cap), ...accHit, ...triangles.map((t) => t.mesh)])[0];
     if (!hit) return null;
+    if (hit.object.userData.tri !== undefined) return "tri" + hit.object.userData.tri;
     return accHit.includes(hit.object) ? "acceptor" : hit.object.userData.button;
   };
+  // clickable things on the glasses themselves (lamps, triangles...): keep the orbit control from grabbing the
+  // pointer, otherwise their click never arrives
+  css.domElement.addEventListener("pointerdown", (e) => {
+    if (e.target !== css.domElement && e.target.closest && e.target.closest(".clickable, button")) e.stopPropagation();
+  }, true);
   css.domElement.addEventListener("pointerdown", (e) => {
     const i = pick(e);
     if (i === null) return;
     controls.enabled = false;
     if (i === "acceptor") { if (window.CBJ.money) window.CBJ.money.open(); return; }
+    if (typeof i === "string" && i.startsWith("tri")) {
+      const t = triangles[+i.slice(3)]; t.press = performance.now();
+      const lamp = document.querySelector(`[data-id="${i}"]`);
+      if (lamp) lamp.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      return;
+    }
     buttons[i].press = performance.now();
     const dom = document.querySelector(`.mbtn[data-b="${i}"]`);
     if (dom) dom.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
@@ -325,6 +358,13 @@ function build() {
     if (!state.active) return;
     controls.update();
     ledMat.emissiveIntensity = 0.55 + 0.45 * Math.sin(t / 220);
+    triangles.forEach((tr, i) => {
+      const lamp = document.querySelector(`[data-id="tri${i}"]`), usable = lamp && lamp.classList.contains("usable");
+      tr.mat.emissiveIntensity = usable ? 0.8 + 0.3 * Math.sin(t / 180) : 0.08;
+      tr.mat.opacity = usable ? 0.8 : 0.5;
+      const dt = (t - tr.press) / 1000;
+      tr.mesh.position.z = tr.z - (dt >= 0 && dt < 0.18 ? 0.004 * Math.sin((dt / 0.18) * Math.PI) : 0);
+    });
     buttons.forEach((b, i) => {
       paintButton(b, i);
       const dt = (t - b.press) / 1000;
