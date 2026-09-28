@@ -27,6 +27,10 @@ const REEL_A = [0.585, 1.03], REEL_B = [0.415, 1.335];
 const DECK_TOP_A = [0.585, 1.03], DECK_TOP_B = [0.715, 1.0];
 
 let state = null;
+// phones: the glasses are laid out at this fraction of their size while they are in 3D (CSS zoom), so the browser
+// keeps a quarter of the picture memory; and the WebGL side is drawn a little lighter
+const LITE = !!(window.CBJ && window.CBJ.LITE);
+const GLASS_ZOOM = LITE ? 0.45 : 1;
 
 function build() {
   // ---- renderers: the DOM glasses below, the WebGL cabinet on top (transparent where the glasses are)
@@ -37,7 +41,7 @@ function build() {
   css.domElement.className = "v3d-css";
   root.appendChild(css.domElement);
   const gl = new THREE.WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: true });
-  gl.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  gl.setPixelRatio(Math.min(LITE ? 1.5 : 2, window.devicePixelRatio || 1));
   gl.outputColorSpace = THREE.SRGBColorSpace;
   gl.toneMapping = THREE.ACESFilmicToneMapping;
   gl.toneMappingExposure = 1.0;
@@ -65,6 +69,8 @@ function build() {
   controls.minAzimuthAngle = -0.8;
   controls.maxAzimuthAngle = 0.8;
   controls.screenSpacePanning = true;
+  // an upright phone: start closer, on the glasses and the buttons (the whole machine would be tiny)
+  if (window.innerWidth < window.innerHeight) { controls.target.set(0, 1.32, 0.12); camera.position.set(0.32, 1.47, 1.95); }
 
   // ---- materials
   const std = (color, rough, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: rough, ...extra });
@@ -140,7 +146,7 @@ function build() {
   scene.add(new THREE.HemisphereLight(0xbfc8ff, 0x201a14, 0.35));
   const key = new THREE.DirectionalLight(0xffffff, 1.6);
   key.position.set(-2.2, 3.2, 2.4); key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0005;
+  key.shadow.mapSize.set(LITE ? 1024 : 2048, LITE ? 1024 : 2048); key.shadow.bias = -0.0005;
   Object.assign(key.shadow.camera, { left: -1.2, right: 1.2, top: 2.4, bottom: -0.2, near: 0.5, far: 8 });
   scene.add(key);
   const rim = new THREE.DirectionalLight(0x9fb4ff, 0.8);
@@ -164,19 +170,29 @@ function build() {
     const holeMesh = new THREE.Mesh(new THREE.PlaneGeometry(width * 0.997, height * 0.997), hole);
     holeMesh.position.copy(pos); holeMesh.rotation.x = tiltX;
     scene.add(holeMesh);
-    const obj = new CSS3DObject(el);
+    // on phones the panel goes into a smaller box and is zoomed down into it (see GLASS_ZOOM)
+    const [ew, eh] = el === topEl ? [topW0, topH0] : [reelW0, reelH0];
+    const node = GLASS_ZOOM < 1 ? document.createElement("div") : el;
+    if (node !== el) {
+      node.className = "v3d-wrap";
+      Object.assign(node.style, { width: ew * GLASS_ZOOM + "px", height: eh * GLASS_ZOOM + "px" });
+    }
+    const obj = new CSS3DObject(node);
     obj.position.copy(pos); obj.rotation.x = tiltX;
-    obj.scale.setScalar(width / el.offsetWidth);
+    obj.scale.setScalar(width / (ew * GLASS_ZOOM));
     cssScene.add(obj);
-    glasses.push({ el, obj, home: [el.parentNode, el.nextSibling] });
+    glasses.push({ el, node, obj, home: [el.parentNode, el.nextSibling] });
   }
   const topEl = $("topGlass"), reelEl = $("reelGlass");
-  const topH = 0.6 * (topEl.offsetHeight / topEl.offsetWidth), reelH = 0.6 * (reelEl.offsetHeight / reelEl.offsetWidth);
+  // their sizes come from the layout: a panel hidden by the 2D "Közeli" view measures 0
+  const LY = CBJ_layout(), size = (el, d) => [el.offsetWidth || d.w, el.offsetHeight || d.h];
+  const [topW0, topH0] = size(topEl, LY.top), [reelW0, reelH0] = size(reelEl, LY.reelGlass);
+  const topH = 0.6 * (topH0 / topW0), reelH = 0.6 * (reelH0 / reelW0);
   glass(topEl, 0.6, topH, new THREE.Vector3(0, 1.355 + topH / 2, 0.387 - YB), 0);
 
   // ---- the 4 triangle buttons at the foot of the top glass, as real 3D push buttons over the printed ones
   // (they press the game's own triangle lamps, so they do exactly what a click on the glass does)
-  const topPx = 0.6 / topEl.offsetWidth, topTop = 1.355 + topH;
+  const topPx = 0.6 / topW0, topTop = 1.355 + topH;
   const TRI_COL = [0x303848, 0xc01a1a, 0xff7a1a, 0xd01a22];
   const triangles = (CBJ_layout().triangles || []).map(([x, y, w, h], i) => {
     const bw = w * topPx * 0.92, bh = h * topPx * 0.9, r = bh * 0.12;
@@ -398,11 +414,34 @@ function build() {
   return { root, gl, css, scene, cssScene, camera, controls, glasses, buttons, insertNote, resize, loop, active: false };
 }
 
+// the panels stay in the 2D page until 3D is really entered (the menu may build the scene in advance)
+const unplug = (g) => {
+  const [parent, next] = g.home;
+  parent.insertBefore(g.el, next && next.parentNode === parent ? next : null);
+  Object.assign(g.el.style, { position: "", transform: "", pointerEvents: "", userSelect: "", display: "", zoom: "" });
+};
+function prepare() {
+  if (state) return state;
+  state = build();
+  (window.CBJ = window.CBJ || {}).view3d = state;
+  state.root.hidden = true;
+  state.glasses.forEach((g) => { state.cssScene.remove(g.obj); if (g.node === g.el) unplug(g); });
+  // compile the shaders and upload the textures now, while the menu is up, so entering is instant
+  state.resize();
+  state.gl.compile(state.scene, state.camera);
+  state.gl.render(state.scene, state.camera);
+  return state;
+}
+
 function enter() {
+  prepare();
   document.body.classList.add("view3d");
-  if (!state) { state = build(); (window.CBJ = window.CBJ || {}).view3d = state; }
   // (re)attach the panels: CSS3DRenderer takes the elements out of the page while they are in 3D
-  state.glasses.forEach((g) => { if (!g.obj.parent) state.cssScene.add(g.obj); });
+  state.glasses.forEach((g) => {
+    if (g.node !== g.el) { g.node.appendChild(g.el); g.el.style.zoom = GLASS_ZOOM; }
+    Object.assign(g.node.style, { position: "absolute", pointerEvents: "auto", userSelect: "none" });
+    if (!g.obj.parent) state.cssScene.add(g.obj);
+  });
   state.root.hidden = false;
   state.active = true;
   state.resize();
@@ -415,9 +454,8 @@ function leave() {
   state.active = false;
   state.glasses.forEach((g) => {
     state.cssScene.remove(g.obj);
-    const [parent, next] = g.home;
-    parent.insertBefore(g.el, next && next.parentNode === parent ? next : null);
-    Object.assign(g.el.style, { position: "", transform: "", pointerEvents: "", userSelect: "", display: "" });
+    if (g.node !== g.el) g.node.remove();
+    unplug(g);
   });
   state.root.hidden = true;
   document.body.classList.remove("view3d");
@@ -432,3 +470,4 @@ const set = (on) => {
   try { localStorage.setItem("cbj-3d", on ? "1" : "0"); } catch (e) { /* ignore */ }
 };
 (window.CBJ = window.CBJ || {}).set3d = set;
+window.CBJ.prep3d = prepare;

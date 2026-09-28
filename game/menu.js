@@ -14,13 +14,25 @@
 
   // ---- 3D, loaded on demand
   let v3d = null;
-  const load3d = () => v3d || (v3d = import("./view3d.js").then(() => CBJ.set3d));
+  const load3d = () => v3d || (v3d = import("./view3d.js").then(() => CBJ.set3d, (e) => { v3d = null; throw e; }));
+  // build the 3D scene while the menu is up (shaders, textures), so JÁTÉK goes straight in
+  let ready3d = null;
+  const prep3d = () => ready3d || (ready3d = load3d().then((set) => new Promise((ok, bad) => {
+    setTimeout(() => { try { CBJ.prep3d(); ok(set); } catch (e) { ready3d = null; bad(e); } }, 30);
+  })));
+  const note = (t) => { const n = $("mnNote"); n.textContent = t || ""; n.hidden = !t; };
   const is3d = () => document.body.classList.contains("view3d");
   $("btn3d").onclick = () => load3d().then((set) => set(!is3d()));
 
   // ---- choices
   let want3d = store.get("cbj-3d") === "1";
-  if (want3d) load3d(); // chosen last time: fetch it while the menu is up
+  // 3D was being started last time and the page never got past it (a phone that ran out of memory reloads the
+  // page): start in 2D and say so
+  if (store.get("cbj-3d-boot")) {
+    store.set("cbj-3d-boot", ""); store.set("cbj-3d", "0"); want3d = false;
+    setTimeout(() => note("A 3D nézet legutóbb nem indult el ezen a készüléken, ezért 2D-ben indul. Újra kipróbálhatod."), 0);
+  }
+  if (want3d) prep3d().catch(() => {});
   const paint = () => {
     document.querySelectorAll("#mnView button").forEach((b) => b.classList.toggle("on", (b.dataset.v === "3d") === want3d));
     $("mnLayout").hidden = want3d;
@@ -29,7 +41,7 @@
     $("mnFull").textContent = document.fullscreenElement ? "ABLAKBAN" : "TELJES KÉPERNYŐ";
   };
   const click = () => { try { SFX.button(); } catch (e) { /* no sound yet */ } };
-  document.querySelectorAll("#mnView button").forEach((b) => (b.onclick = () => { click(); want3d = b.dataset.v === "3d"; if (want3d) load3d(); paint(); }));
+  document.querySelectorAll("#mnView button").forEach((b) => (b.onclick = () => { click(); want3d = b.dataset.v === "3d"; note(""); if (want3d) prep3d().catch(() => {}); paint(); }));
   document.querySelectorAll("#mnLayout button").forEach((b) => (b.onclick = () => { click(); ui.setView(b.dataset.l); paint(); }));
   $("mnSound").onclick = () => { $("btnSound").click(); click(); paint(); };
   $("mnFull").onclick = () => { click(); $("btnFull").click(); };
@@ -55,7 +67,20 @@
     SFX.unlock();
     if (want3d !== is3d()) {
       if (want3d) { b.disabled = true; label.textContent = "3D BETÖLTÉSE…"; }
-      try { (await load3d())(want3d); } catch (e) { want3d = false; store.set("cbj-3d", "0"); }
+      try {
+        if (want3d) {
+          const set = await prep3d();
+          store.set("cbj-3d-boot", "1");
+          set(true);
+          // still alive a few seconds later: this device can do 3D
+          setTimeout(() => store.set("cbj-3d-boot", ""), 5000);
+        } else (await load3d())(false);
+      } catch (e) {
+        want3d = false; store.set("cbj-3d", "0"); store.set("cbj-3d-boot", "");
+        b.disabled = false; label.textContent = "JÁTÉK"; paint();
+        note("A 3D nézet nem indult el ezen a készüléken (" + (e && e.message ? e.message : e) + "). Játssz 2D-ben!");
+        return;
+      }
       b.disabled = false;
     }
     if (!SFX.play("gambleStart", {})) SFX.button();
@@ -120,7 +145,7 @@
     const SYMS = ["bj", "bar", "csengo", "szilva", "citrom", "dinnye", "narancs", "szolo", "cseresznye", "korte"];
     const strips = [...document.querySelectorAll(".mn-strip")].map((el, i) => {
       const order = SYMS.map((_, k) => SYMS[(k * (i + 3)) % SYMS.length]);
-      [...order, ...order].forEach((s) => { const im = document.createElement("img"); im.src = `assets/sprites/${s}.webp`; im.alt = ""; im.draggable = false; el.appendChild(im); });
+      [...order, ...order].forEach((s) => { const im = document.createElement("img"); im.src = CBJ.IMG(`assets/sprites/${s}.webp`); im.alt = ""; im.draggable = false; el.appendChild(im); });
       return { el, order, pos: i * 2.3, v: 0, target: null };
     });
     let raf = 0, timers = [], last = 0, round = 0;

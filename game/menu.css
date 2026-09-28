@@ -143,6 +143,8 @@
 .mn-load { width: min(100%, 340px); height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.12); overflow: hidden; transition: opacity 400ms; }
 .mn-load i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffb000, #ffe38a); transition: width 200ms; }
 .mn-load.done { opacity: 0; }
+.mn-note { max-width: 340px; text-align: center; font-size: 12px; line-height: 1.35; color: #ffd9a0; background: rgba(90, 20, 8, 0.55); border-radius: 10px; padding: 7px 10px; box-shadow: inset 0 0 0 1px rgba(255, 170, 80, 0.4); }
+.mn-note[hidden] { display: none; }
 
 /* DEMO VERZIÓ in the corner, small */
 #demoTag {
@@ -169,3 +171,6 @@
 @media (prefers-reduced-motion: reduce) {
   .mn-rings, .mn-swirl, .mn-logo, .mn-play, .mn-bulbs i { animation: none; }
 }
+/* phones: the blur behind the panel costs a lot on every frame of the rings' animation */
+.lite .mn-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(180deg, rgba(8, 18, 58, 0.9), rgba(5, 10, 34, 0.95)); }
+.lite .mn-rings { animation: none; }

@@ -552,9 +552,10 @@
     bjDeal() {
       const bj = this.s.bj;
       const card = this.turnCardWheel();
+      const prev = bj.points;
       bj.cards.push(card);
       bj.points = bjTotal(bj.cards.map((c) => c.r));
-      const out = { card, pos: this.s.cardPos, points: bj.points };
+      const out = { card, pos: this.s.cardPos, prev, points: bj.points };
       if (bj.points > 21) {
         out.bust = true;
         this.s.phase = "idle";

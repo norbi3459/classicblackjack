@@ -7,7 +7,7 @@
 
   const $ = (id) => document.getElementById(id);
   // the game loads the WebP copies of the PNG masters (tools/make_webp.py): about 15x less to download
-  const IMG = (p) => (p ? p.replace(/\.png$/i, ".webp") : p);
+  const IMG = CBJ.IMG; // (index.html: phones get the half-size set)
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const SUIT = { h: "♥", s: "♠", d: "♦", c: "♣" };
   const rankLabel = (r) => cfg.rankLabel[r] || r;
@@ -134,7 +134,7 @@
     };
     // ---- the machine's own sounds, cut from the owner's gameplay video (assets/sfx, see artwork/video/samples.txt)
     const SAMPLE_NAMES = ["spin", "hold", "nudgeStep", "nudgeArrive", "cardAdd", "gambleStart", "gambleIntro", "wheelSpin", "guessWin",
-      "trigger21", "winCount", "mpLoop", "mpResult", "multiLoop", "rowLoop", "nudgePick", "chooseLoop", "guessLoop", "joker", "billIn"];
+      "trigger21", "winCount", "mpLoop", "mpResult", "multiLoop", "rowLoop", "nudgePick", "guessLoop", "joker", "billIn"];
     const buffers = {};
     const channels = {};
     let loading = null;
@@ -165,8 +165,9 @@
         g.gain.setValueAtTime(vol, t + a - 0.015); g.gain.linearRampToValueAtTime(vol * 0.1, t + a);
         g.gain.setValueAtTime(vol * 0.1, t + b); g.gain.linearRampToValueAtTime(vol, t + b + 0.03);
       }
-      if (end) { g.gain.setValueAtTime(vol, t + end); g.gain.linearRampToValueAtTime(0, t + end + 0.08); src.stop(t + end + 0.1); }
       src.start();
+      // (stop may only be scheduled once the source has started: holding the 4th reel ends the spin sound early)
+      if (end) { g.gain.setValueAtTime(vol, t + end); g.gain.linearRampToValueAtTime(0, t + end + 0.08); src.stop(t + end + 0.1); }
       if (channel) channels[channel] = { src, g, name };
       return true;
     };
@@ -256,7 +257,7 @@
   function fit() {
     const b = document.body.classList, compact = b.contains("compact"), wide = b.contains("wide");
     // 3D view (view3d.js): the glasses are shown in 3D at roughly their own size
-    if (b.contains("view3d")) { setResolution(Math.min(1.6, window.devicePixelRatio || 1)); return; }
+    if (b.contains("view3d")) { setResolution(Math.min(1.6, window.devicePixelRatio || 1) * (CBJ.LITE ? 0.45 : 1)); return; }
     const lower = L.msgH + L.reelGlass.h + L.deckH;
     const h = compact ? lower : wide ? Math.max(L.top.h, lower) : L.top.h + lower;
     const W = wide ? 4096 + WIDE_GAP : 2048;
@@ -271,10 +272,15 @@
 
   // Canvases are drawn at the size they really appear on screen: a 3x canvas shrunk 10x by the browser
   // is both slow and pixelated. Static canvases keep their big original and get a high quality downscale.
-  let RES = 1, resReady = false;
+  let RES = 1, resReady = false, resDone = 0;
   function setResolution(px) {
-    RES = Math.min(3, Math.max(0.35, px * 1.1));
+    const want = Math.min(3, Math.max(0.35, px * 1.1));
+    // phones resize the page whenever the address bar slides in or out: redrawing everything for a few
+    // percent is a visible hitch, so only a real change (a new view, a turned phone) re-renders
+    if (resReady && resDone && Math.abs(want / resDone - 1) < 0.18) return;
+    RES = want;
     if (!resReady) return;
+    resDone = RES;
     for (const R of [...reels, cardWheel]) {
       R.k = RES; R.c.width = Math.round(R.W * RES); R.c.height = Math.round(R.H * RES); R.key = null;
     }
@@ -542,7 +548,7 @@
   const whenFontsReady = (fn) => (document.fonts && document.fonts.load ? Promise.all([document.fonts.load(`italic 700 60px ${LOGO_SCRIPT}`), document.fonts.load(`900 60px ${LOGO_SLAB}`)]).then(fn, fn) : fn());
   if (SCENE) {
     document.body.classList.add("scene");
-    $("topBase").src = "assets/top_bg.webp";
+    $("topBase").src = IMG("assets/top_bg.webp");
     for (const o of SCENE) {
       if (CODE_DRAWN[o.id]) continue;
       const im = document.createElement("img");
@@ -560,7 +566,7 @@
         whenFontsReady(() => { im.src = bjLogoCanvas(w * 3, h * 3, BJ_LOGOS[o.id]).toDataURL(); });
       }
       // the big top logo on a peach sticker plate (assets/sprites/bj.png, made with tools/add_rim.py)
-      if (USE_MAIN_LOGO[o.id]) im.src = "assets/sprites/bj.webp";
+      if (USE_MAIN_LOGO[o.id]) im.src = IMG("assets/sprites/bj.webp");
       if (WHEEL_ORDER.includes(o.id)) im.addEventListener("load", () => { placeOnWheel(im, o.id); delete im.dataset.tw; sharpenImages(); }, { once: true });
       if (MP_SIGNS[o.id]) {
         const c = document.createElement("canvas"); c.width = Math.round(o.rect[2] * 3); c.height = Math.round(o.rect[3] * 3);
@@ -821,7 +827,7 @@
     Object.assign(d.style, { left: rect[0] + "px", top: rect[1] + "px", width: rect[2] + "px", height: rect[3] + "px" });
     if (LR[panel][id]) {
       const im = document.createElement("img");
-      im.src = `assets/lamps/${id}.webp`;
+      im.src = IMG(`assets/lamps/${id}.webp`);
       im.alt = "";
       im.draggable = false;
       d.appendChild(im);
@@ -852,6 +858,17 @@
   makeLamp(topL, "lepesLe", L.lepesLe);
   for (const [k, r] of Object.entries(L.helps)) makeLamp(topL, "h_" + k, r);
   L.triangles.forEach((r, i) => makeLamp(topL, "tri" + i, r, { cls: "tri", onClick: () => onTriangle(i) }));
+  // their names printed on them (the leftmost one has no job yet, so no name)
+  const TRI_NAME = { extra: ["EXTRA", "LÉPÉS"], masik: ["MÁSIK", "KÁRTYA"], fizet: ["KIFIZETÉS"], joaz: ["JÓ AZ", "EGYENLŐ"] };
+  L.triangles.forEach(([x, y, w, h], i) => {
+    const lines = TRI_NAME[cfg.triangles[i]];
+    if (!lines) return;
+    const d = document.createElement("div");
+    d.className = "triLabel" + (lines.length === 1 ? " one" : "");
+    Object.assign(d.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
+    d.innerHTML = lines.map((t) => `<span>${t}</span>`).join("");
+    topL.appendChild(d);
+  });
   makeLamp(topL, "joker", L.joker, { round: true });
   L.bjTrack.forEach((r, i) => makeLamp(topL, "t_" + (i + 1), r, { round: true }));
   for (const [p, r] of Object.entries(L.bjCircle)) makeLamp(topL, "bc_" + p, r, { round: true });
@@ -878,7 +895,7 @@
     const im = new Image();
     im.onload = () => { const inf = (spriteInfo[n] = measureSprite(im)); sprites[n] = inf ? litSprite(im, inf) : im; res(); };
     im.onerror = () => res();
-    im.src = `assets/sprites/${n}.webp`;
+    im.src = IMG(`assets/sprites/${n}.webp`);
   })));
   // The fruit drawings differ in shape and in empty margin, so fitting each into the same box makes some look
   // much bigger than others. Instead every symbol is drawn so its visible (opaque) area is the same.
@@ -1073,7 +1090,22 @@
     return { c, g: c.getContext("2d"), W: w.w, H: w.h, k: 2, pos: M.s.cardPos, anim: null, speed: 0 };
   })();
   let winMark = null;
+  let bjRun = null; // Black Jack: the score the running light has reached while it climbs to the new one
+  // winning reels: a warm light behind the strip (CSS, pulses on the compositor), the winning cell outlined once
+  const reelGlows = reels.map((R) => {
+    const d = document.createElement("div");
+    d.className = "reelGlow";
+    for (const k of ["left", "top", "width", "height", "maskImage", "webkitMaskImage", "maskSize", "webkitMaskSize"]) d.style[k] = R.c.style[k];
+    R.c.after(d);
+    return d;
+  });
+  function markWin(cells) {
+    winMark = cells && cells.length ? { cells, t0: performance.now() } : null;
+    reelGlows.forEach((d, i) => d.classList.toggle("on", !!winMark && winMark.cells.includes(i)));
+    reels.forEach((R) => (R.key = null));
+  }
   let riskRun = false; // the "risk it at 20" run is on (Kisebb/Nagyobb)
+  let riskDeclinedAt = null; // ladder level where TART said "go on guessing" instead
   let nudgeSel = null; // reel chosen with TART during Super lépések
 
   function roundRect(g, x, y, w, h, r) {
@@ -1222,7 +1254,7 @@
   // ---- multiplier panel (see artwork/m_right.png): slanted glass card, silver rim, red label cushion, cards below
   function cardImage(rank) {
     const cache = (cardImage.cache = cardImage.cache || {});
-    if (!cache[rank]) { const im = new Image(); im.src = `assets/objects/r_${rank}.webp`; cache[rank] = im; }
+    if (!cache[rank]) { const im = new Image(); im.src = IMG(`assets/objects/r_${rank}.webp`); cache[rank] = im; }
     return cache[rank];
   }
   function imgReady(im) {
@@ -1320,7 +1352,7 @@
   }
 
   const jokerImg = new Image();
-  jokerImg.src = "assets/objects/joker.webp";
+  jokerImg.src = IMG("assets/objects/joker.webp");
   // the card on a symbol, as printed on the reel strips: an upright matte card, pale greyish pink, thin dark rim,
   // the rank in the top left corner and the suit below the middle; (x, y) is its top left corner
   function drawTag(g, cell, x, y, w, h) {
@@ -1444,10 +1476,10 @@
 
   function drawReel(i, t) {
     const R = reels[i], { g, hole } = R, W = hole.w, H = hole.h;
-    const hi = winMark && winMark.cells.includes(i);
-    const key = R.pos + "|" + R.vel + "|" + M.s.holds[i] + "|" + (nudgeSel === i) + "|" + M.strips[i].length;
-    if (!hi && key === R.key) return;
-    R.key = hi ? null : key;
+    const hi = !!winMark && winMark.cells.includes(i);
+    const key = R.pos + "|" + R.vel + "|" + M.s.holds[i] + "|" + (nudgeSel === i) + "|" + M.strips[i].length + "|" + hi;
+    if (key === R.key) return;
+    R.key = key;
     const strip = M.strips[i], n = strip.length, p = R.pos, cy = H / 2, pitch = H * (L.reelPitch / 348);
     drawDrum(R, W, H, pitch, (bg) => {
       const base = Math.floor(p);
@@ -1458,9 +1490,8 @@
       }
     });
     g.fillStyle = "rgba(40,30,20,0.55)"; g.fillRect(0, cy - 1, W, 2);
-    if (winMark && winMark.cells.includes(i)) {
-      const a = 0.55 + 0.45 * Math.sin((t - winMark.t0) / 110);
-      g.save(); g.shadowColor = "rgba(255,190,40,0.95)"; g.shadowBlur = 18; g.strokeStyle = `rgba(255,196,40,${a})`; g.lineWidth = 6;
+    if (hi) {
+      g.save(); g.shadowColor = "rgba(255,190,40,0.95)"; g.shadowBlur = 14; g.strokeStyle = "rgba(255,200,50,0.95)"; g.lineWidth = 6;
       roundRect(g, 8, cy - pitch / 2 + 4, W - 16, pitch - 8, 14); g.stroke(); g.restore();
     }
     if (M.s.holds[i] || nudgeSel === i) {
@@ -1616,7 +1647,7 @@
     const tartCaps = (label) => { for (let i = 0; i < 4; i++) { caps[i] = label; hot[i] = !!label; } };
     if (ph === "multi" || ph === "gamble") { tartCaps(""); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "VÁLASZT"; hot[5] = true; }
     if (ph === "gamble" && M.riskOptions() && !riskRun) tartCaps("KOCKÁZAT");
-    if (riskRun) { tartCaps(""); caps[4] = ""; hot[4] = false; caps[5] = "ELKAP"; hot[5] = true; }
+    if (riskRun) { tartCaps("TOVÁBB"); caps[4] = "ELVISZ"; hot[4] = true; caps[5] = "ELKAP"; hot[5] = true; }
     if (["joker", "choose", "matchplay", "mpdir", "plusstop", "rowcatch", "nudgepick"].includes(ph)) { tartCaps(ph === "rowcatch" ? "ELVISZ" : ""); caps[5] = ph === "rowcatch" ? "ELKAP" : ph === "mpdir" ? "FEL / LE" : ph === "matchplay" ? "START" : "VÁLASZT"; hot[5] = true; }
     if (ph === "nudge") { tartCaps("TÁRCSA"); caps[4] = "KÉSZ"; hot[4] = true; caps[5] = picker ? "FEL / LE" : ""; hot[5] = !!picker; }
     if (ph === "blackjack") { tartCaps("MEGÁLL"); caps[4] = "MEGÁLL"; hot[4] = true; caps[5] = "LAP"; hot[5] = true; }
@@ -1697,12 +1728,13 @@
     const showCard = ph === "gamble" || ph === "blackjack";
     cfg.ranks.forEach((r) => setLamp("r_" + r, showCard && M.card.r === r ? "on" : "off"));
     // black jack
-    const bj = s.bj;
-    for (let p = 1; p <= 16; p++) setLamp("t_" + p, (bj && bj.points >= p) || (ph === "nudge" && ng.steps >= p) ? "on" : "off");
+    // the score runs along the track (1-16) and on up the circles (17-21): all passed lamps stay lit
+    const bj = s.bj, pts = bjRun != null ? bjRun : bj ? bj.points : 0;
+    for (let p = 1; p <= 16; p++) setLamp("t_" + p, pts >= p || (ph === "nudge" && ng.steps >= p) ? "on" : "off");
     for (let p = 17; p <= 21; p++) {
-      setLamp("bc_" + p, bj && bj.points === p ? "blink" : "off");
-      setLamp("bps_" + p, bj && bj.kind === "superbj" && bj.points === p ? "blink" : "off");
-      setLamp("bpc_" + p, bj && bj.kind === "classicbj" && bj.points === p ? "blink" : "off");
+      setLamp("bc_" + p, pts > p ? "on" : pts === p ? (bjRun != null ? "on" : "blink") : "off");
+      setLamp("bps_" + p, bjRun == null && bj && bj.kind === "superbj" && pts === p ? "blink" : "off");
+      setLamp("bpc_" + p, bjRun == null && bj && bj.kind === "classicbj" && pts === p ? "blink" : "off");
     }
     setLamp("hdrSuper", bj && bj.kind === "superbj" ? "on" : "off");
     setLamp("hdrClassic", bj && bj.kind === "classicbj" ? "on" : "off");
@@ -1712,6 +1744,7 @@
   // the collected cards 2..9 as shown: the old row stays lit while the reels turn, and after a win until it is paid
   let shownCollect = null, clearCardsWhenPaid = false;
   function refresh() {
+    if (winMark && !busy && M.s.phase !== "multi") markWin(null);
     let cleared = [];
     if (clearCardsWhenPaid && !busy && M.s.phase === "idle") {
       clearCardsWhenPaid = false;
@@ -1728,7 +1761,7 @@
   const run = async (fn) => { if (busy) return; busy = true; try { await fn(); } finally { busy = false; refresh(); save(); } };
 
   async function doSpin() {
-    winMark = null;
+    markWin(null);
     const collectBefore = M.s.collectIdx;
     const res = M.spin();
     if (res.error) { say(res.error); return; }
@@ -1739,7 +1772,7 @@
     await spinReels(res.stops, res.held);
     M.s.lastWin = lastWin; shownCredit = null;
     if (res.win.amount) {
-      winMark = { cells: res.win.cells, t0: performance.now() }; if (!SFX.has("multiLoop")) SFX.win();
+      markWin(res.win.cells); if (!SFX.has("multiLoop")) SFX.win();
       say(`${res.win.desc} — ${res.win.amount} Ft`, 2200);
       refresh();
       await sleep(1200);
@@ -1822,14 +1855,18 @@
   async function enterGamble(trigger) {
     say(trigger === "21" ? "21! — KISEBB vagy NAGYOBB" : "2–9 ÖSSZEGYŰJTVE! — KISEBB / NAGYOBB", 0);
     refresh();
-    // the machine announces the bonus: its "21" tune, or the Kisebb/Nagyobb intro, then the start sound
-    if (SFX.play(trigger === "21" ? "trigger21" : "gambleIntro", { channel: "bg" })) await sleep(trigger === "21" ? 2400 : 1600);
+    // the machine announces the bonus: its "21" tune, or the Kisebb/Nagyobb intro, then the start sound;
+    // meanwhile rings of light run out from the middle of the machine over every lamp
+    const tuneMs = SFX.play(trigger === "21" ? "trigger21" : "gambleIntro", { channel: "bg" }) ? (trigger === "21" ? 2400 : 1600) : 1600;
+    await Promise.all([sleep(tuneMs), burstChase(tuneMs)]);
     SFX.play("gambleStart", {});
     await spinCardWheel(M.s.cardPos);
     startGuessPicker();
   }
   function startGuessPicker() {
     if (M.s.phase !== "gamble") return;
+    // at 20 the machine offers the risk by itself: Classic / Super Black Jack flash in turn (TART = go on guessing)
+    if (M.riskOptions() && riskDeclinedAt !== M.s.gamble.level) { startRisk(); return; }
     say(`${cardName(M.card)} — KISEBB vagy NAGYOBB? (START)`, 0);
     startPicker({ ids: ["kisebb", "nagyobb"], values: ["lower", "higher"], ms: 700, loop: "guessLoop", onPick: (dir) => run(() => doGuess(dir)) });
     refresh();
@@ -1850,6 +1887,31 @@
       return;
     }
     startGuessPicker();
+  }
+  // bonus! rings of light run out from the wheel's middle over all the lamps of both glasses
+  async function burstChase(ms) {
+    const c0 = lamps.wc && lamps.wc.getBoundingClientRect();
+    if (!c0) return;
+    const ox = c0.left + c0.width / 2, oy = c0.top + c0.height / 2;
+    const items = Object.entries(lamps).map(([id, el]) => {
+      const r = el.getBoundingClientRect();
+      return { id, d: Math.hypot(r.left + r.width / 2 - ox, r.top + r.height / 2 - oy), lit: null };
+    }).filter((o) => o.id !== "wc");
+    const far = Math.max(...items.map((o) => o.d)) || 1;
+    items.forEach((o) => (o.d /= far));
+    const WAVE = 650, GAP = 380, BAND = 0.16, t0 = performance.now();
+    setLamp("wc", "fast");
+    while (performance.now() - t0 < ms) {
+      const t = performance.now() - t0;
+      const rings = [];
+      for (let w = 0; w * GAP < t; w++) rings.push(((t - w * GAP) / WAVE) * (1 + BAND));
+      for (const o of items) {
+        const on = rings.some((r) => Math.abs(o.d - r) < BAND);
+        if (on !== o.lit) { setLamp(o.id, on ? "on" : "off"); o.lit = on; }
+      }
+      await sleep(50);
+    }
+    refreshLamps();
   }
   // running light: the ladder lights up from the bottom to the level just won, a few times, during the win tune
   async function ladderChase(level, ms) {
@@ -1980,7 +2042,7 @@
       await Promise.all(st.moved.map((i) => nudgeAnim(i, dir === "up" ? 1 : -1, st.stops[i])));
     }
     shownCredit = null;
-    winMark = { cells: r.cells, t0: performance.now() };
+    markWin(r.cells);
     say(`${r.count} × ${symName(r.sym)} — ${r.amount - r.jackpot} Ft`, 2200);
     refresh();
     // the machine's Match Play win tune, heard to its end before the multiplier menu comes up
@@ -2064,7 +2126,7 @@
   async function nudgeResult(f) {
     nudgeSel = null;
     if (f.win.amount) {
-      winMark = { cells: f.win.cells, t0: performance.now() };
+      markWin(f.win.cells);
       say(`${f.win.desc} — ${f.win.amount} Ft`, 2200);
       refresh();
       await sleep(1400);
@@ -2077,11 +2139,16 @@
   // -- Black Jack: triangle "Másik kártya" = new card, TART = stand
   async function showDeal(d) {
     if (d.error) { say(d.error); return; }
+    bjRun = d.prev || 0;
     await spinCardWheel(d.pos);
+    // the light runs from the old score to the new one, lamp by lamp
+    for (let p = (d.prev || 0) + 1; p <= Math.min(d.points, 21); p++) { bjRun = p; refreshLamps(); await sleep(p <= 16 ? 45 : 120); }
+    if (d.bust) for (let k = 0; k < 3; k++) { bjRun = 0; refreshLamps(); await sleep(110); bjRun = 21; refreshLamps(); await sleep(110); }
+    bjRun = null;
     refresh();
     if (d.bust) { say(`${cardName(d.card)} — ${d.points} pont, BESOKALLT`, 2400); SFX.lose(); return; }
     if (d.stand) { say(`${cardName(d.card)} — 21! Nyeremény: ${d.stand.amount} Ft`, 2000); await sleep(1400); await next(); return; }
-    say(`${cardName(d.card)} — ${d.points} pont. Lap: Másik kártya háromszög · Megáll: TART`, 0);
+    say(`${cardName(d.card)} — ${d.points} pont. Lap: START · Megáll: TÉT`, 0);
   }
   async function bjStand() {
     const r = M.bjStand();
@@ -2104,7 +2171,8 @@
   function onTart(i) {
     if (busy) return;
     const ph = M.s.phase;
-    if (ph === "gamble" && M.riskOptions() && !riskRun) { startRisk(); return; }
+    if (ph === "gamble" && riskRun) { stopPicker(); riskRun = false; riskDeclinedAt = M.s.gamble.level; startGuessPicker(); return; }
+    if (ph === "gamble" && M.riskOptions()) { riskDeclinedAt = null; startRisk(); return; }
     if (ph === "idle") { if (M.toggleHold(i)) refresh(); return; }
     if (ph === "nudge") selectNudgeReel(i);
     if (ph === "blackjack") run(bjStand);
@@ -2123,7 +2191,7 @@
     if (M.s.phase === "nudge") { stopPicker(); run(async () => { await nudgeResult(M.nudgeFinish()); }); return; }
     // TÉT doubles as ELVISZ: take the win from the multiplier menu, stop on the ladder
     if (M.s.phase === "multi") { stopPicker(); run(() => doMulti(null)); return; }
-    if (M.s.phase === "gamble" && !riskRun) { run(doCollect); return; }
+    if (M.s.phase === "gamble") { if (riskRun) { stopPicker(); riskRun = false; } run(doCollect); return; }
     if (M.s.phase === "blackjack") { run(bjStand); return; }
     if (M.cycleStake()) { refresh(); save(); }
   }
@@ -2240,5 +2308,5 @@
     const step = (dl) => { while (i < cells.length && (!dl || dl.timeRemaining() > 2)) symbolSprite(cells[i++]); if (i < cells.length) (window.requestIdleCallback || setTimeout)(step); };
     (window.requestIdleCallback || setTimeout)(step);
   }
-  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view };
+  CBJ.ui = { M, refresh, say, save, SFX, setView, view: () => view, debug: () => ({ busy, picker: !!picker, riskRun }) };
 })();

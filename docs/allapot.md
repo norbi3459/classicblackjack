@@ -32,6 +32,11 @@
 - A kinézet a gépé: a felső üveg kék gyűrűi, a kék inda-gyűrű (`assets/menu_swirl.webp`, a háttérképből kivágva),
   az eredeti logó, tűzszínű betűk (Titan One, OFL), arany keret futófény-izzókkal, 4 magától pörgő mini tárcsa.
 - **Képek WebP-ben**: a játék a PNG-k WebP másolatait tölti (`python tools/make_webp.py`, PNG módosítás után futtatni).
+  Telefonon a fél méretű készlet töltődik (`assets/m/...`, ugyanez az eszköz készíti): kevesebb memória, nem tűnnek el
+  képek. A két nagy háttérkép mindenhol a fél méretűből jön (az is pont az üveg mérete). `?hq` = teljes készlet, `?lite` = telefonos.
+- **3D telefonon**: az üvegek kisebb felbontással (zoom 0,45) kerülnek a 3D-be, a WebGL könnyebb (pixelarány 1,5, kisebb árnyék).
+  A menü már a menü alatt felépíti a 3D jelenetet. Ha a 3D indítása közben összeomlik az oldal, a következő
+  indításkor 2D-ben indul, és kiírja, miért.
   Induláskor ~61 MB helyett ~5 MB. A PNG-k mesterpéldányok maradnak, a Cloudflare-re nem mennek fel (`game/.assetsignore`).
 - A 3D (three.js) csak akkor töltődik le, ha a 3D-t választod.
 - Telefonra: `viewport-fit=cover`, biztonsági margók, fekvő nézetben kétoszlopos menü, „Kezdőképernyőhöz adás”

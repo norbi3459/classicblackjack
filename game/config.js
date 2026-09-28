@@ -58,8 +58,9 @@
         { id: "lClassic", label: "Classic Black Jack", prize: { feature: "classicbj" } },
         { id: "lSuperLep", label: "Super lépések", prize: { feature: "superlepesek" } },
       ] },
-      // at 20 you may risk it for a field next to it: they flash in turn, START catches one (owner, 2026-09-28)
-      { id: "l20", label: "20", prize: { credit: 20 }, risk: ["lClassic", "lSuperLep", "lSuperBJ", "lMP"] },
+      // at 20 the machine offers a risk by itself: Classic Black Jack and Super Classic Black Jack flash in turn,
+      // START catches one, TÉT takes the 20, TART goes on guessing (owner, 2026-09-28)
+      { id: "l20", label: "20", prize: { credit: 20 }, risk: ["lClassic", "lSuperBJ"] },
       { options: [
         { id: "lSuperBJ", label: "Super Classic Black Jack", prize: { feature: "superbj" } },
         { id: "lMP", label: "Match Play", prize: { feature: "matchplay" } },

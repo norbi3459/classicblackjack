@@ -110,7 +110,8 @@ A játék a **0. szintről** indul: már az 1. szintre (4) is tippelni kell.
 
 ## Black Jack (jobb oldal)
 - Nincs osztó, **csak a saját pontod számít**.
-- Valódi blackjack-szerű: **START** (vagy a Másik kártya háromszög) = lap, **TÉT** vagy **TART** = megállás; a pontszám a pályán halad (1–16),
+- Valódi blackjack-szerű: **START** (vagy a Másik kártya háromszög) = lap, **TÉT** vagy **TART** = megállás.
+  Új lapnál a pontszám futófényként halad a pályán (1–16), majd tovább a 17–21-es körökön (a már elhagyottak égve maradnak); a pontszám a pályán halad (1–16),
   17–21 között fizet a rács szerint (bal oszlop: Super, jobb oszlop: Classic), 21 fölött bukás.
 
 ## Nyitott kérdések
@@ -124,12 +125,16 @@ A játék a **0. szintről** indul: már az 1. szintre (4) is tippelni kell.
 - Az üzenetsáv (a két üveg között) üres, mint az eredeti gépen.
 
 ## Kockázat a 20-asnál (felhasználó, 2026-09-28)
-- A Kisebb/Nagyobb létrán a **20**-as szinten a nyeremény kockáztatható: a mellette lévő mezők
-  (lent: Classic Black Jack / Super lépések, fent: Super Classic Black Jack / Match Play) felváltva villognak,
-  és a **START** azt adja, amelyik épp ég. Indítás: bármelyik **TART** gomb („KOCKÁZAT”).
-  Hogy pontosan mely mezők vesznek részt, a `config.js` `ladder` 20-as lépcsőjének `risk` listája dönti el
-  (a felhasználó „Match Play +”-t is említett — megerősítendő).
+- Ha a Kisebb/Nagyobb létrán eléred a **20**-at, a gép **magától** felajánlja a kockázatot: a **Classic Black Jack**
+  és a **Super Classic Black Jack** mező felváltva villog, a **START** azt adja, amelyik épp ég.
+- **TÉT (ELVISZ)** = elviszed a 20-at; **TART (TOVÁBB)** = tovább tippelsz a Kisebb/Nagyobb-ban.
+- A mezők listája: `config.js`, a létra 20-as lépcsőjének `risk` listája.
 
 ## A 4 háromszög gomb (felhasználó, 2026-09-28)
 - Balról jobbra: **?** (egyelőre Dupla Black Jack) · **Extra lépés** · **Másik kártya** · **Kifizetés**.
 - Ha épp nem használható, rövid „nem” hangjelzést ad. Billentyűk: Q W E R.
+
+## Fények (felhasználó, 2026-09-28)
+- **Nyereménynél** a nyerő tárcsák hátulról kivilágosodnak (pulzáló háttérvilágítás), amíg a nyereményt el nem viszed / tovább nem kockáztatod.
+- **Bónusz** (21 a sorban vagy 2–9 összegyűjtve): a kerék közepéből kifelé haladó fénygyűrűk futnak végig a gép összes lámpáján.
+- **Kisebb/Nagyobb találat**: a létra futófénnyel felfut az elért szintig.
