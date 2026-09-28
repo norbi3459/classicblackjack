@@ -149,14 +149,22 @@
       try { v.g.gain.setTargetAtTime(0, ctx.currentTime, 0.02); v.src.stop(ctx.currentTime + 0.1); } catch (e) { /* already stopped */ }
     };
     // play a sample; a channel holds one sound at a time (a new one cuts the old one)
-    const play = (name, { loop = false, channel = null, vol = 1 } = {}) => {
+    // duck: [[from, to], ...] seconds into the sound that are turned (almost) silent; end: stop (with a fade) here
+    const play = (name, { loop = false, channel = null, vol = 1, duck = null, end = null } = {}) => {
       const c = ensure(); if (!c || !buffers[name]) return false;
       // a running tune that is already playing keeps playing (no restart on every lamp change)
       if (channel && loop && channels[channel] && channels[channel].name === name) return true;
       if (channel) stopChannel(channel);
       const src = c.createBufferSource(), g = c.createGain();
       src.buffer = buffers[name]; src.loop = loop; g.gain.value = vol;
-      src.connect(g); g.connect(bus); src.start();
+      src.connect(g); g.connect(bus);
+      const t = c.currentTime;
+      for (const [a, b] of duck || []) {
+        g.gain.setValueAtTime(vol, t + a - 0.015); g.gain.linearRampToValueAtTime(vol * 0.1, t + a);
+        g.gain.setValueAtTime(vol * 0.1, t + b); g.gain.linearRampToValueAtTime(vol, t + b + 0.03);
+      }
+      if (end) { g.gain.setValueAtTime(vol, t + end); g.gain.linearRampToValueAtTime(0, t + end + 0.08); src.stop(t + end + 0.1); }
+      src.start();
       if (channel) channels[channel] = { src, g, name };
       return true;
     };
@@ -189,7 +197,6 @@
       // the reel is caught by its latch: sharp click, a thud, a short metallic ring
       stop(i) {
         if (buffers.spin && i < 4) return; // the spin sample already has the machine's own reel stops
-        if (buffers.wheelSpin && i === 4) return; // and the card wheel sample ends with its own clack
         const k = 1 + ((i * 37) % 7) * 0.02;
         noise(0.014, 0.55, 3000 * k, 0, 0.9, "highpass");
         tone(120 * k, 0.07, "sine", 0.45, 0, 0.5);
@@ -1542,14 +1549,24 @@
   }
   const REEL_SPEED = 46; // symbols per second at full speed
   // timing as in the owner's video: first reel stops 0.84 s after START, the others every 0.225 s (matches the spin sample)
-  const spinReels = (stops, held) => (SFX.stopChannel("bg"), SFX.stopChannel("count"), SFX.play("spin", { channel: "reels" }), SFX.motorOn(), Promise.all(reels.map((R, i) =>
-    held && held[i] ? Promise.resolve() : animateTo(R, M.strips[i].length, stops[i], 0.84 + i * 0.225, REEL_SPEED).then(() => SFX.stop(i)))).then(() => SFX.motorOff()));
+  // The spin sample holds all four reel stops (0.88, 1.11, 1.34, 1.52 s): the stops of held reels are ducked
+  // out, and the sound ends shortly after the last reel that really spins has stopped.
+  const SPIN_STOPS = [0.88, 1.11, 1.34, 1.52];
+  const spinReels = (stops, held) => {
+    const spinning = reels.map((_, i) => !(held && held[i]));
+    const last = Math.max(...SPIN_STOPS.filter((_, i) => spinning[i]));
+    SFX.stopChannel("bg"); SFX.stopChannel("count");
+    SFX.play("spin", { channel: "reels", duck: SPIN_STOPS.filter((_, i) => !spinning[i]).map((t) => [t - 0.02, t + 0.2]), end: last < 1.5 ? last + 0.25 : null });
+    SFX.motorOn();
+    return Promise.all(reels.map((R, i) =>
+      spinning[i] ? animateTo(R, M.strips[i].length, stops[i], 0.84 + i * 0.225, REEL_SPEED).then(() => SFX.stop(i)) : Promise.resolve())).then(() => SFX.motorOff());
+  };
   // the card wheel turns quickly, like in the video (~0.5 s)
-  // the wheelSpin sample ends with the wheel's clack (0.30 s in): start it so that clack lands when the wheel stops
-  // at 0.55 s, otherwise the sound ends early, then a second, synthetic click follows (it sounded choppy)
-  const WHEEL_T = 0.55, WHEEL_CLACK = 0.3;
+  // (the wheelSpin sample is only the wheel's whirr: it used to run into the start of the win tune, which then
+  // sounded cut off after every turn, win or not)
+  const WHEEL_T = 0.55;
   const spinCardWheel = (pos) => {
-    setTimeout(() => SFX.play("wheelSpin", { channel: "wheel" }), (WHEEL_T - WHEEL_CLACK) * 1000);
+    SFX.play("wheelSpin", { channel: "wheel" });
     return animateTo(cardWheel, M.cards.length, pos, WHEEL_T, 30).then(() => SFX.stop(4));
   };
 
@@ -1785,8 +1802,10 @@
     if (r.card) {
       say(`${r.opt.label} — pörög a kártyakerék…`, 0);
       await spinCardWheel(r.pos);
-      say(r.hit ? `${cardName(r.card)} — NYERT! ${r.amount} Ft` : `${cardName(r.card)} — nem jött be, elbukva`, 2400); if (!SFX.has("multiLoop")) r.hit ? SFX.win(4) : SFX.lose();
-      await sleep(1600);
+      say(r.hit ? `${cardName(r.card)} — NYERT! ${r.amount} Ft` : `${cardName(r.card)} — nem jött be, elbukva`, 2400);
+      // a hit plays the machine's win trill and the menu comes back; a miss ends it at once, you can spin again
+      if (r.hit) { if (!SFX.play("guessWin", {})) SFX.win(4); await sleep(1150); }
+      else await sleep(250);
     } else {
       say(`Elvitted: ${r.amount} Ft`, 1600);
       if (r.amount) SFX.play("winCount", { channel: "count" });

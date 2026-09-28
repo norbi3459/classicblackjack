@@ -4,7 +4,7 @@ nudgeStep 22.50 0.30
 nudgeArrive 22.97 0.32
 cardAdd 100.40 1.10
 gambleStart 170.30 0.60
-wheelSpin 173.50 0.45
+wheelSpin 173.50 0.29
 guessWin 173.85 1.15
 trigger21 215.05 4.95
 winCount 416.95 1.65
